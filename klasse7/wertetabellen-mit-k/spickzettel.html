@@ -1,0 +1,36 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Spickzettel Wertetabellen mit k</title><style>
+:root{--rot:#B3261E;--rot-hell:#FBE3E1;--grau:#F2F2F2;--leise:#6F6F6F;--prop:#1565C0;--anti:#C2410C}
+body{margin:0;background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;font-size:17px;line-height:1.35;padding:18px}
+.blatt{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.titel{background:var(--rot);color:#fff;font-weight:700;text-align:center;font-size:1.5em;padding:.4em .5em;margin:0}
+.titel small{display:block;font-size:.55em;font-weight:400;letter-spacing:.12em;text-transform:uppercase;opacity:.9}
+.kasten{border:2px solid var(--rot)}.kasten>h2{margin:0;font-size:1em;background:var(--rot-hell);border-bottom:2px solid var(--rot);padding:.35em .7em}
+.innen{padding:.5em .9em .7em}.zwei{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.regel{font-weight:700;font-size:1.08em;margin:.2em 0 .4em}.regel.p{color:var(--prop)}.regel.a{color:var(--anti)}
+.merk{display:inline-block;border:2px solid currentColor;padding:.15em .5em;margin:.1em 0 .5em}
+.bsp{margin:.2em 0 .4em;font-style:italic}
+.tsvg{width:100%;height:auto;display:block}.tt{font:21px Arial;text-anchor:middle}.th{font:bold 15px Arial;text-anchor:middle}.lab{font:bold 19px Arial}
+ol{margin:.2em 0;padding-left:1.4em}li{margin:.2em 0}
+.achtung{border:2px dashed var(--rot);padding:.5em .9em;background:#fff8f7}.achtung b{color:var(--rot)}
+.fuss{text-align:right;font-style:italic;color:var(--leise);font-size:.75em;margin:0}
+.gl{display:flex;align-items:center;justify-content:center;gap:16px;font-size:24px;margin:.6em 0}
+.fr{display:inline-flex;flex-direction:column;align-items:center;min-width:60px}
+.fr>span{padding:0 10px}.fr>span:first-child{border-bottom:3px solid #000}
+.fr i{font-style:normal;font-size:12px;color:var(--leise);margin-top:4px;white-space:nowrap}
+.xv{font-weight:700;color:var(--rot)}
+.rech{font-size:19px;text-align:center;line-height:1.5;margin:.3em 0 .5em}.rech small{display:block;font-size:13px;color:var(--leise);margin-bottom:.35em}.rech .tr{display:inline-block;font-size:22px;border:2px solid #000;padding:.15em .6em;background:#fafafa}
+.flip{display:inline-block;font-size:13px;font-weight:700;border:1.5px solid var(--anti);color:var(--anti);border-radius:99px;padding:1px 9px}
+@media (max-width:700px){.zwei{grid-template-columns:1fr}body{padding:12px}}
+@media print{body{padding:0}}.ktab{border-collapse:collapse;margin:.4em auto .5em;font-size:20px}
+.ktab th,.ktab td{border:1.5px solid #000;width:58px;height:40px;text-align:center}
+.ktab th{background:#F2F2F2}.ktab td.g{font-weight:700}
+.ktab tr.k td{border:0;height:26px;font-size:14px;font-weight:700}
+.fbox{display:block;text-align:center;font-size:22px;font-weight:700;border:2px solid currentColor;padding:.2em .6em;margin:.3em auto .5em;width:max-content}
+.gr{text-align:center;font-size:13px;color:#2E7D32;font-weight:700;margin:0 0 .3em}.fbox{line-height:1.35}.lead{text-align:center;margin:.2em 0}</style></head><body><main class="blatt">
+<h1 class="titel"><small>Spickzettel · Zuordnungen</small>Wertetabellen ergänzen mit Hilfe von k</h1>
+<div class="zwei"><section class="kasten"><h2>Proportionale Zuordnung</h2><div class="innen"><p class="regel p">Je mehr, desto mehr.</p><div class="merk" style="color:var(--prop)"><b>Alle Quotienten y : x sind gleich.<br>Das ist k.</b></div><p class="bsp">Für x = 2 ist y = 6. Ergänze die Tabelle.</p><p class="lead"><b>1. k berechnen:</b> k = 6 : 2 = 3</p><p class="lead"><b>2. Formeln:</b></p><span class="fbox" style="color:var(--prop)">x = y : 3<br>y = 3 · x</span><p class="lead"><b>3. Einsetzen:</b></p><table class="ktab"><tr><th>x</th><td>1</td><td class=g>2</td><td style=color:#2E7D32;font-weight:700>4</td><td>5</td></tr><tr><th>y</th><td style=color:#2E7D32;font-weight:700>3</td><td class=g>6</td><td>12</td><td style=color:#2E7D32;font-weight:700>15</td></tr><tr class="k"><td></td><td style="color:#2E7D32">3 · 1</td><td style="color:#2E7D32"></td><td style="color:#2E7D32">12 : 3</td><td style="color:#2E7D32">3 · 5</td></tr></table><p class="gr">grün = ausgerechnet</p></div></section>
+<section class="kasten"><h2>Antiproportionale Zuordnung</h2><div class="innen"><p class="regel a">Je mehr, desto weniger.</p><div class="merk" style="color:var(--anti)"><b>Alle Produkte x · y sind gleich.<br>Das ist k.</b></div><p class="bsp">Für x = 2 ist y = 12. Ergänze die Tabelle.</p><p class="lead"><b>1. k berechnen:</b> k = 2 · 12 = 24</p><p class="lead"><b>2. Formel:</b></p><span class="fbox" style="color:var(--anti)">y = 24 : x</span><p class="lead"><b>3. Einsetzen:</b></p><table class="ktab"><tr><th>x</th><td>1</td><td class=g>2</td><td style=color:#2E7D32;font-weight:700>3</td><td>4</td></tr><tr><th>y</th><td style=color:#2E7D32;font-weight:700>24</td><td class=g>12</td><td>8</td><td style=color:#2E7D32;font-weight:700>6</td></tr><tr class="k"><td></td><td style="color:#2E7D32">24 : 1</td><td style="color:#2E7D32"></td><td style="color:#2E7D32">24 : 8</td><td style="color:#2E7D32">24 : 4</td></tr></table><p class="gr">grün = ausgerechnet</p></div></section></div>
+<section class="kasten"><h2>So gehst du vor</h2><div class="innen"><ol><li>Prüfe zuerst: <b>proportional</b> oder <b>antiproportional</b>?</li><li>Suche eine Spalte, in der <b>x und y</b> schon stehen.</li><li><b>k berechnen:</b> proportional <b>y : x</b>, antiproportional <b>x · y</b>.</li><li><b>Formel aufschreiben:</b> Setze dein k in die Formel ein.</li><li>Jede Lücke ausrechnen: Fehlt <b>y</b>, setze x ein. Fehlt <b>x</b>, rechne es aus dem y aus.</li></ol></div></section>
+<div class="achtung"><b>Achtung, typischer Fehler:</b> Bei antiproportional k nicht mit y : x berechnen! Bei 2 und 12 ist k = 2 · 12 = 24 – nicht 12 : 2 = 6.</div>
+<p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p>
+</main></body></html>

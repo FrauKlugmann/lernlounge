@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tafelbild Wertetabellen ergänzen</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+</style>
+<style>
+/* Layout: ein weißes Arbeitsblatt in Beamergröße, genau wie die Papiervorlage; bewusst nur ein (heller) Look */
+:root{
+  --papier:#ffffff; --tinte:#000000; --grau:#F2F2F2; --linie:#000000;
+  --smaragd:#00805F; --smaragd-hell:#D3F2E5;
+  --rot:#CC0000; --blau:#1565C0; --gruen:#008C6A;
+  --leise:#7F7F7F; --fokus:#FFF3B0;
+  --schrift:Arial,Helvetica,"Liberation Sans",sans-serif;
+  color-scheme:light;
+}
+html{background:var(--papier)}
+body{background:var(--papier);color:var(--tinte);font-family:var(--schrift);font-size:clamp(16px,1.6vw,24px);line-height:1.3;
+  padding-block:24px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.blatt{max-width:1150px;margin:0 auto;display:flex;flex-direction:column;gap:1.4em}
+
+.titel{background:var(--smaragd);color:#fff;font-weight:700;text-align:center;font-size:1.5em;padding:.45em .5em;text-wrap:balance;margin:0}
+
+.kasten{border:2px solid var(--smaragd)}
+.kasten h2{margin:0;font-size:1em;background:var(--smaragd-hell);border-bottom:2px solid var(--smaragd);padding:.35em .7em;font-weight:700;color:var(--tinte)}
+.innen{padding:1em .8em 1.1em;display:flex;flex-direction:column;gap:1.2em}
+
+.scroll{overflow-x:auto;min-width:0}
+
+/* Wertetabelle + k-Feld */
+.wt-zeile{display:flex;align-items:center;gap:1.6em;width:max-content}
+table.wt{border-collapse:collapse;font-variant-numeric:tabular-nums}
+.wt th,.wt td{border:1.5px solid var(--linie);width:4.6em;height:2.9em;text-align:center;vertical-align:middle;font-size:1.15em;padding:0}
+.wt th{background:var(--grau);width:3.4em}
+.k{display:flex;align-items:center;gap:.6em;font-weight:700;font-size:1.15em}
+.k-feld{width:4.6em;height:2.9em;border:1.5px solid var(--linie);box-sizing:border-box}
+
+/* Eingabefelder */
+input{font:inherit;color:var(--tinte);text-align:center;background:transparent;border:0;padding:0;margin:0;border-radius:0}
+input:focus{outline:none;background:var(--fokus)}
+input.kreis{width:2.3em;height:2.3em;border-radius:50%;border:3px solid currentColor;box-sizing:border-box;font-size:1em;font-weight:700;color:var(--tinte)}
+input.kreis.rot{border-color:var(--rot)} input.kreis.blau{border-color:var(--blau)} input.kreis.gruen{border-color:var(--gruen)}
+input.kreis:focus{box-shadow:0 0 0 4px var(--fokus)}
+.k-feld input{width:100%;height:100%;font-weight:700}
+.wt td input.kreis{display:block;margin:auto}
+input.luecke,input.strich{border-bottom:1.5px solid var(--linie);height:1.6em}
+input.luecke{width:3.2em}
+input.strich{width:12em;text-align:left;padding-left:.3em}
+
+/* Rechenzeilen: 2 cm eingerückt, alles senkrecht mittig */
+.rechnen{display:grid;grid-template-columns:2.2em 3em 1.2em 3em 1.2em auto 2.2em auto;align-items:center;row-gap:.45em;column-gap:.25em;width:max-content;font-size:1.15em;font-variant-numeric:tabular-nums}
+.rechnen>span{text-align:center}
+.rechnen .r{text-align:right} .rechnen .l{text-align:left}
+.rechnen .r input.kreis{margin-left:auto;display:block}
+.rechnen .l input.kreis{display:block}
+.rechnen input.kreis{font-size:.87em}
+
+.leiste{display:flex;justify-content:flex-end}
+button{font:inherit;font-size:.8em;background:var(--papier);color:var(--tinte);border:1.5px solid var(--smaragd);padding:.35em .9em;cursor:pointer}
+button:hover{background:var(--smaragd-hell)}
+button:focus-visible{outline:3px solid var(--smaragd);outline-offset:2px}
+button.warnung{background:var(--smaragd);color:#fff}
+
+.fuss{text-align:right;font-style:italic;color:var(--leise);font-size:.65em;margin:0}
+
+/* Steuerung des Erklärfilms */
+.erklaersteuerung{border:2px solid var(--smaragd);padding:.7em;display:flex;flex-wrap:wrap;gap:.7em;align-items:center;background:#F3FAF7}
+.erklaersteuerung button{font-size:.9em;font-weight:700}
+.erklaersteuerung button.start{background:var(--smaragd);color:white}
+.erklaersteuerung label{font-size:.8em;display:flex;align-items:center;gap:.5em}
+.erklaersteuerung select{font:inherit;padding:.2em;background:white}
+.erklaersteuerung .status{font-size:.75em;color:#455A52;flex-basis:100%}
+input.erklaerfokus{background:#FFF3B0!important;box-shadow:0 0 0 4px #FFD54F}
+.kasten.erklaerabschnitt{box-shadow:0 0 0 4px #83CDB6}
+@media(max-width:650px){.erklaersteuerung{align-items:stretch;flex-direction:column}}
+</style>
+
+<main class="blatt">
+<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a></div>
+  <h1 class="titel">Wertetabellen ergänzen</h1>
+
+  <div class="erklaersteuerung" aria-label="Erklärfilm">
+    <button class="start" type="button" id="erklaer-start">▶ Erklärung starten</button>
+    <button type="button" id="erklaer-stop" disabled>■ Beenden</button>
+    <label>Sprechtempo <select id="erklaer-tempo"><option value="0.8">Langsam</option><option value="0.9" selected>Normal</option><option value="1">Etwas schneller</option><option value="1.12">Schnell</option></select></label>
+    <span class="status" id="erklaer-status" aria-live="polite">Die Erklärung führt beide Tabellen Schritt für Schritt vor. Danach kannst du selbst üben.</span>
+  </div>
+  <section class="kasten" aria-labelledby="h-anti">
+    <h2 id="h-anti">Antiproportionale Zuordnung</h2>
+    <div class="innen">
+      <div class="scroll">
+        <div class="wt-zeile">
+          <table class="wt">
+            <tr><th>x</th><td>2</td><td>3</td><td><input class="kreis blau" id="a-blau" inputmode="decimal" aria-label="blauer Kreis"></td><td>8</td></tr>
+            <tr><th>y</th><td>12</td><td><input class="kreis rot" id="a-rot" inputmode="decimal" aria-label="roter Kreis"></td><td>6</td><td><input class="kreis gruen" id="a-gruen" inputmode="decimal" aria-label="grüner Kreis"></td></tr>
+          </table>
+          <div class="k">k =<div class="k-feld"><input id="a-k" inputmode="decimal" aria-label="k"></div></div>
+        </div>
+      </div>
+      <div class="scroll">
+        <div class="rechnen">
+          <span></span><span class="r">2</span><span>·</span><span class="l">12</span><span>=</span><input class="luecke" id="a-l1"><span>→</span><input class="strich" id="a-s1">
+          <span></span><span class="r">3</span><span>·</span><span class="l"><input class="kreis rot" id="a-rot2" aria-label="roter Kreis"></span><span>=</span><input class="luecke" id="a-l2"><span>→</span><input class="strich" id="a-s2">
+          <span></span><span class="r"><input class="kreis blau" id="a-blau2" aria-label="blauer Kreis"></span><span>·</span><span class="l">6</span><span>=</span><input class="luecke" id="a-l3"><span>→</span><input class="strich" id="a-s3">
+          <span></span><span class="r">8</span><span>·</span><span class="l"><input class="kreis gruen" id="a-gruen2" aria-label="grüner Kreis"></span><span>=</span><input class="luecke" id="a-l4"><span>→</span><input class="strich" id="a-s4">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="kasten" aria-labelledby="h-prop">
+    <h2 id="h-prop">Proportionale Zuordnung</h2>
+    <div class="innen">
+      <div class="scroll">
+        <div class="wt-zeile">
+          <table class="wt">
+            <tr><th>x</th><td>1</td><td>2</td><td><input class="kreis blau" id="p-blau" inputmode="decimal" aria-label="blauer Kreis"></td><td>4</td></tr>
+            <tr><th>y</th><td>5</td><td><input class="kreis rot" id="p-rot" inputmode="decimal" aria-label="roter Kreis"></td><td>15</td><td><input class="kreis gruen" id="p-gruen" inputmode="decimal" aria-label="grüner Kreis"></td></tr>
+          </table>
+          <div class="k">k =<div class="k-feld"><input id="p-k" inputmode="decimal" aria-label="k"></div></div>
+        </div>
+      </div>
+      <div class="scroll">
+        <div class="rechnen">
+          <span></span><span class="r">5</span><span>:</span><span class="l">1</span><span>=</span><input class="luecke" id="p-l1"><span>→</span><input class="strich" id="p-s1">
+          <span></span><span class="r"><input class="kreis rot" id="p-rot2" aria-label="roter Kreis"></span><span>:</span><span class="l">2</span><span>=</span><input class="luecke" id="p-l2"><span>→</span><input class="strich" id="p-s2">
+          <span></span><span class="r">15</span><span>:</span><span class="l"><input class="kreis blau" id="p-blau2" aria-label="blauer Kreis"></span><span>=</span><input class="luecke" id="p-l3"><span>→</span><input class="strich" id="p-s3">
+          <span></span><span class="r"><input class="kreis gruen" id="p-gruen2" aria-label="grüner Kreis"></span><span>:</span><span class="l">4</span><span>=</span><input class="luecke" id="p-l4"><span>→</span><input class="strich" id="p-s4">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="leiste"><button type="button" id="leeren">Alles löschen</button></div>
+
+  <p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude und ChatGPT.</p>
+</main>
+
+<script>
+(function(){
+  const felder=[...document.querySelectorAll('main input')];
+  felder.forEach(f=>{f.autocomplete='off';f.spellcheck=false;
+    f.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const i=felder.indexOf(f);(felder[i+1]||felder[0]).focus();}});});
+  const btn=document.getElementById('leeren');let t=null;
+  btn.addEventListener('click',()=>{
+    if(!btn.classList.contains('warnung')){btn.classList.add('warnung');btn.textContent='Wirklich alles löschen?';
+      t=setTimeout(()=>{btn.classList.remove('warnung');btn.textContent='Alles löschen';},3000);return;}
+    clearTimeout(t);felder.forEach(f=>f.value='');btn.classList.remove('warnung');btn.textContent='Alles löschen';felder[0].focus();
+  });
+})();
+</script>
+
+<script>
+(function(){
+  'use strict';
+  const start=document.getElementById('erklaer-start'), stop=document.getElementById('erklaer-stop');
+  const status=document.getElementById('erklaer-status'), tempo=document.getElementById('erklaer-tempo');
+  const synth=window.speechSynthesis;
+  let running=false, runId=0, activeTimer=null, activeSpeech=null;
+  const el=id=>document.getElementById(id);
+  const set=(id,value)=>{const e=el(id);if(e)e.value=String(value)};
+  const clearFocus=()=>document.querySelectorAll('.erklaerfokus,.erklaerabschnitt').forEach(e=>e.classList.remove('erklaerfokus','erklaerabschnitt'));
+  const focus=(ids,section)=>{clearFocus();ids.forEach(id=>el(id)?.classList.add('erklaerfokus'));if(section)el(section)?.classList.add('erklaerabschnitt');};
+  function voice(){
+    const voices=synth?.getVoices()||[];
+    return voices.find(v=>/google deutsch/i.test(v.name)) || voices.find(v=>/google.*deutsch|google.*german/i.test(v.name)) || voices.find(v=>/^de(-|_)/i.test(v.lang)) || null;
+  }
+  function delay(ms,id){return new Promise(resolve=>{activeTimer=setTimeout(()=>{activeTimer=null;resolve()},ms);});}
+  function speak(text,id){return new Promise(resolve=>{
+    if(!running||id!==runId){resolve();return;}
+    if(!synth){status.textContent='Keine Browser-Sprachausgabe verfügbar.';resolve();return;}
+    const u=new SpeechSynthesisUtterance(text);activeSpeech=u;u.lang='de-DE';u.rate=Number(tempo.value);
+    const v=voice();if(v)u.voice=v;
+    let done=false;const finish=()=>{if(done)return;done=true;activeSpeech=null;resolve();};
+    u.onend=finish;u.onerror=finish;
+    try{synth.speak(u);}catch(e){finish();}
+  });}
+  function finish(){running=false;start.disabled=false;stop.disabled=true;clearFocus();status.textContent='Erklärung beendet. Du kannst die Tabellen jetzt selbst bearbeiten oder die Erklärung erneut starten.';}
+  function abort(){runId++;running=false;if(activeTimer){clearTimeout(activeTimer);activeTimer=null;}if(synth)synth.cancel();activeSpeech=null;finish();}
+  const steps=[
+    {section:'h-anti',ids:[],say:'Wir beginnen mit der antiproportionalen Zuordnung. Hier bleibt das Produkt aus x und y immer gleich. Wir nennen es k.'},
+    {section:'h-anti',ids:['a-l1','a-k'],values:{'a-l1':24,'a-k':24},say:'Wir rechnen zwei mal zwölf. Das ergibt vierundzwanzig. Also ist k gleich vierundzwanzig.'},
+    {section:'h-anti',ids:['a-s1'],values:{'a-s1':'k = 24'},say:'Diese Zahl ist unsere Konstante. Mit ihr berechnen wir alle fehlenden Werte.'},
+    {section:'h-anti',ids:['a-rot','a-rot2','a-l2','a-s2'],values:{'a-rot':8,'a-rot2':8,'a-l2':24,'a-s2':'24 : 3 = 8'},say:'Beim roten Kreis steht oben die drei. Drei mal welche Zahl ergibt vierundzwanzig? Wir rechnen vierundzwanzig geteilt durch drei. Das ergibt acht.'},
+    {section:'h-anti',ids:['a-blau','a-blau2','a-l3','a-s3'],values:{'a-blau':4,'a-blau2':4,'a-l3':24,'a-s3':'24 : 6 = 4'},say:'Beim blauen Kreis kennen wir die sechs. Vierundzwanzig geteilt durch sechs ergibt vier. Deshalb tragen wir vier ein.'},
+    {section:'h-anti',ids:['a-gruen','a-gruen2','a-l4','a-s4'],values:{'a-gruen':3,'a-gruen2':3,'a-l4':24,'a-s4':'24 : 8 = 3'},say:'Beim grünen Kreis steht oben die acht. Vierundzwanzig geteilt durch acht ergibt drei.'},
+    {section:'h-anti',ids:[],say:'Kontrolle: In jeder Spalte ergibt x mal y genau vierundzwanzig. Mehr von der einen Größe bedeutet hier weniger von der anderen.'},
+    {section:'h-prop',ids:[],say:'Jetzt betrachten wir die proportionale Zuordnung. Hier bleibt nicht das Produkt gleich, sondern der Quotient y geteilt durch x.'},
+    {section:'h-prop',ids:['p-l1','p-k','p-s1'],values:{'p-l1':5,'p-k':5,'p-s1':'k = 5'},say:'Wir rechnen fünf geteilt durch eins. Das ergibt fünf. Unsere Proportionalitätskonstante k ist also fünf.'},
+    {section:'h-prop',ids:['p-rot','p-rot2','p-l2','p-s2'],values:{'p-rot':10,'p-rot2':10,'p-l2':5,'p-s2':'2 · 5 = 10'},say:'Beim roten Kreis ist x gleich zwei. Damit y geteilt durch zwei gleich fünf ist, muss y gleich zehn sein. Zwei mal fünf ergibt zehn.'},
+    {section:'h-prop',ids:['p-blau','p-blau2','p-l3','p-s3'],values:{'p-blau':3,'p-blau2':3,'p-l3':5,'p-s3':'15 : 5 = 3'},say:'Beim blauen Kreis ist y gleich fünfzehn. Fünfzehn geteilt durch welche Zahl ergibt fünf? Fünfzehn geteilt durch fünf ist drei.'},
+    {section:'h-prop',ids:['p-gruen','p-gruen2','p-l4','p-s4'],values:{'p-gruen':20,'p-gruen2':20,'p-l4':5,'p-s4':'4 · 5 = 20'},say:'Beim grünen Kreis ist x gleich vier. Vier mal fünf ergibt zwanzig. Also tragen wir zwanzig ein.'},
+    {section:'h-prop',ids:[],say:'Kontrolle: In jeder Spalte ist y geteilt durch x gleich fünf. Bei proportionalen Zuordnungen verändern sich beide Größen im gleichen Verhältnis.'},
+    {section:null,ids:[],say:'Merke dir: Antiproportional bedeutet, das Produkt ist konstant. Proportional bedeutet, der Quotient ist konstant. Jetzt kannst du selbst Wertetabellen ergänzen.'}
+  ];
+  async function play(){
+    if(running)return;
+    if(!('speechSynthesis' in window)){status.textContent='Dieser Browser unterstützt keine automatische Sprachausgabe.';return;}
+    abort();running=true;const id=++runId;start.disabled=true;stop.disabled=false;
+    document.querySelectorAll('main input').forEach(e=>e.value='');
+    for(let i=0;i<steps.length;i++){
+      if(!running||id!==runId)return;
+      const s=steps[i];focus(s.ids,s.section);
+      if(s.section)el(s.section)?.scrollIntoView({behavior:'smooth',block:'center'});
+      status.textContent='Erklärung läuft · Schritt '+(i+1)+' von '+steps.length;
+      await speak(s.say,id);
+      if(!running||id!==runId)return;
+      if(s.values)Object.entries(s.values).forEach(([k,v])=>set(k,v));
+      await delay(650,id);
+    }
+    if(id===runId)finish();
+  }
+  start.addEventListener('click',play);
+  stop.addEventListener('click',abort);
+  window.addEventListener('pagehide',()=>{if(running)abort()});
+})();
+</script>
+
+<script>
+(function(){
+  function still(){try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}}
+  document.getElementById('ll-zurueck').addEventListener('click',still);
+  window.addEventListener('pagehide',still);
+})();
+</script>

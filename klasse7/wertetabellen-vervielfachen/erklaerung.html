@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tafelbild Vervielfachen</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+</style>
+<style>
+/* Layout: weißes Blatt wie die Arbeitsblattvorlage; je Tabelle eine Bogenzone darüber und darunter; bewusst nur heller Look */
+:root{
+  --papier:#ffffff; --tinte:#000000; --grau:#F2F2F2; --leise:#6F6F6F;
+  --smaragd:#00805F; --smaragd-hell:#D3F2E5;
+  --prop:#1565C0; --anti:#C2410C; --wahl:#FFE873; --fokus:#FFF3B0;
+  --schrift:Arial,Helvetica,"Liberation Sans",sans-serif;
+  color-scheme:light;
+}
+html{background:var(--papier)}
+body{background:var(--papier);color:var(--tinte);font-family:var(--schrift);font-size:clamp(14px,1.45vw,22px);line-height:1.3;
+  padding-block:18px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.blatt{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:1.1em}
+.titel{background:var(--smaragd);color:#fff;font-weight:700;text-align:center;font-size:1.5em;padding:.4em .5em;margin:0;text-wrap:balance}
+.auftrag{margin:0;font-size:.95em}
+
+.kasten{border:2px solid var(--smaragd)}
+.kasten>h2{margin:0;font-size:1em;background:var(--smaragd-hell);border-bottom:2px solid var(--smaragd);padding:.35em .7em}
+.innen{padding:.3em .8em .6em;display:flex;flex-direction:column;gap:.2em}
+.scroll{overflow-x:auto;min-width:0}
+
+.tw{position:relative;width:100%;min-width:34em}
+.bogen{position:relative;height:5.6em}
+.bogen svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.bogen path{fill:none;stroke-width:2.6;stroke-linecap:round}
+.p .bogen path{stroke:var(--prop)} .p .bogen polygon{fill:var(--prop)}
+.a .bogen path{stroke:var(--anti)} .a .bogen polygon{fill:var(--anti)}
+
+.etikett{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:.15em;z-index:2}
+.etikett input{font:inherit;font-weight:700;width:3.4em;height:1.55em;text-align:center;border:2px solid;background:var(--papier);color:var(--tinte);padding:0;border-radius:0}
+.p .etikett input{border-color:var(--prop)} .a .etikett input{border-color:var(--anti)}
+.etikett input:focus{outline:none;background:var(--fokus)}
+.etikett .weg{font:inherit;font-size:.7em;width:1.6em;height:1.6em;border:1.5px solid var(--leise);background:var(--papier);color:var(--leise);cursor:pointer;padding:0;line-height:1}
+.etikett .weg:hover{color:var(--tinte);border-color:var(--tinte)}
+
+table.wt{border-collapse:collapse;width:100%;table-layout:fixed;font-variant-numeric:tabular-nums}
+.wt th,.wt td{border:1.5px solid var(--tinte);height:2.4em;text-align:center;font-size:1.15em;padding:0}
+.wt th{background:var(--grau);width:3em}
+.wt td{cursor:pointer;user-select:none;-webkit-user-select:none}
+.wt td.gewaehlt{background:var(--wahl)}
+.wt td input{font:inherit;width:100%;height:2.4em;border:0;text-align:center;background:transparent;color:var(--tinte);padding:0}
+.wt td input:focus{outline:none;background:var(--fokus)}
+.wt td.gewaehlt input{background:transparent}
+
+.leiste{display:flex;flex-wrap:wrap;gap:.6em;justify-content:flex-end;align-items:center}
+.hinweis{margin:0 auto 0 0;color:var(--leise);font-size:.85em}
+button.knopf{font:inherit;font-size:.85em;background:var(--papier);color:var(--tinte);border:1.5px solid var(--smaragd);padding:.35em .9em;cursor:pointer}
+button.knopf:hover{background:var(--smaragd-hell)}
+button.knopf.warnung{background:var(--smaragd);color:#fff}
+button:focus-visible{outline:3px solid var(--smaragd);outline-offset:2px}
+.fuss{text-align:right;font-style:italic;color:var(--leise);font-size:.65em;margin:0}
+</style>
+
+<main class="blatt">
+<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a></div>
+  <h1 class="titel">Wertetabellen ergänzen durch Vervielfachen</h1>
+  <p class="auftrag">Ergänze die Tabellen ohne k. Zeichne Pfeilbögen und schreibe daran, womit du multiplizierst oder dividierst (z. B. · 2 oder : 3).</p>
+
+  <section class="kasten p" aria-labelledby="h-p"><h2 id="h-p">Proportionale Zuordnung</h2><div class="innen" id="box-p"></div></section>
+  <section class="kasten a" aria-labelledby="h-a"><h2 id="h-a">Antiproportionale Zuordnung</h2><div class="innen" id="box-a"></div></section>
+
+  <div class="leiste">
+    <p class="hinweis">Bogen zeichnen: erst eine Spalte antippen, dann die Zielspalte.</p>
+    <button type="button" class="knopf" id="boegen-weg">Alle Bögen löschen</button>
+    <button type="button" class="knopf" id="alles-weg">Alles löschen</button>
+  </div>
+
+  <p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude und ChatGPT.</p>
+</main>
+
+<script>
+(function(){
+  const DATEN=[
+    {typ:'p',x:[1,2,4,6,10,20],y:[null,14,null,null,null,null]},
+    {typ:'p',x:[1,2,4,8,12,40],y:[null,null,10,null,null,null]},
+    {typ:'a',x:[1,2,4,6,8,20],y:[null,24,null,null,null,null]},
+    {typ:'a',x:[1,2,3,6,12,30],y:[null,null,null,10,null,null]},
+  ];
+  const NS='http://www.w3.org/2000/svg';
+  const FARBEN=['#1565C0','#C2410C','#2E7D32','#8E24AA','#00838F','#AD1457','#6D4C41','#E65100'];
+  const tabellen=[];
+
+  DATEN.forEach((d,ti)=>{
+    const box=document.getElementById('box-'+d.typ);
+    const sc=document.createElement('div');sc.className='scroll';
+    const tw=document.createElement('div');tw.className='tw';
+    const oben=document.createElement('div');oben.className='bogen oben';
+    const unten=document.createElement('div');unten.className='bogen unten';
+    const tab=document.createElement('table');tab.className='wt';
+    const zelle=(v,col,zeile)=>{
+      if(v!=null)return `<td data-col="${col}">${String(v).replace('.',',')}</td>`;
+      return `<td data-col="${col}"><input id="t${ti}-${zeile}${col}" inputmode="decimal" autocomplete="off" aria-label="${zeile}-Wert Spalte ${col+1}"></td>`;
+    };
+    tab.innerHTML=`<tr><th>x</th>${d.x.map((v,c)=>zelle(v,c,'x')).join('')}</tr><tr><th>y</th>${d.y.map((v,c)=>zelle(v,c,'y')).join('')}</tr>`;
+    tw.append(oben,tab,unten);sc.appendChild(tw);box.appendChild(sc);
+    const T={tw,oben,unten,tab,boegen:[],wahl:null,n:d.x.length,ti,zaehler:0};
+    tabellen.push(T);
+
+    tab.addEventListener('click',e=>{
+      const td=e.target.closest('td');if(!td)return;
+      if(e.target.tagName==='INPUT')return;     // ins Feld schreiben, nicht wählen
+      klick(T,+td.dataset.col);
+    });
+  });
+
+  function markiere(T){
+    T.tab.querySelectorAll('td').forEach(td=>td.classList.toggle('gewaehlt',T.wahl!==null&&+td.dataset.col===T.wahl));
+  }
+  function klick(T,col){
+    // Auswahl in anderen Tabellen aufheben
+    tabellen.forEach(o=>{if(o!==T&&o.wahl!==null){o.wahl=null;markiere(o);}});
+    if(T.wahl===null){T.wahl=col;markiere(T);return;}
+    if(T.wahl===col){T.wahl=null;markiere(T);return;}
+    const von=T.wahl,nach=col;T.wahl=null;markiere(T);
+    if(T.boegen.some(b=>(b.von===von&&b.nach===nach)||(b.von===nach&&b.nach===von)))return;
+    const b={von,nach,id:T.ti+'-'+T.zaehler,farbe:FARBEN[T.zaehler%FARBEN.length],oben:'',unten:''};T.zaehler++;
+    T.boegen.push(b);zeichne(T);
+    const f=T.oben.querySelector(`[data-id="${b.id}"] input`);if(f)f.focus();
+  }
+
+  // Ebenen: kurze Bögen innen, längere darüber, damit sich nichts überdeckt
+  function ebenen(boegen){
+    const sortiert=[...boegen].sort((p,q)=>Math.abs(p.von-p.nach)-Math.abs(q.von-q.nach));
+    const fertig=[];
+    sortiert.forEach(b=>{
+      const a1=Math.min(b.von,b.nach),b1=Math.max(b.von,b.nach);
+      let l=0;
+      fertig.forEach(f=>{const a2=Math.min(f.von,f.nach),b2=Math.max(f.von,f.nach);
+        if(a1<b2&&a2<b1)l=Math.max(l,f.ebene+1);});
+      b.ebene=l;fertig.push(b);
+    });
+  }
+
+  function zeichne(T){
+    ebenen(T.boegen);
+    const em=parseFloat(getComputedStyle(T.tw).fontSize);
+    const twR=T.tw.getBoundingClientRect();
+    const mitte=[...T.tab.rows[0].cells].slice(1).map(c=>{const r=c.getBoundingClientRect();return r.left-twR.left+r.width/2;});
+    const hoehe=l=>em*(1.5+1.9*l);
+    const maxL=T.boegen.reduce((m,b)=>Math.max(m,b.ebene),-1);
+    const H=Math.max(em*5.6,(maxL>=0?hoehe(maxL):0)+em*1.3);
+    [['oben',T.oben],['unten',T.unten]].forEach(([seite,zone])=>{
+      zone.style.height=H+'px';
+      // gemerkte Eingaben retten
+      zone.querySelectorAll('.etikett').forEach(et=>{const b=T.boegen.find(x=>x.id===et.dataset.id);if(b)b[seite]=et.querySelector('input').value;});
+      zone.innerHTML='';
+      const svg=document.createElementNS(NS,'svg');zone.appendChild(svg);
+      const off=em*.45,pfeil=em*.42;
+      T.boegen.forEach(b=>{
+        const dir=Math.sign(b.nach-b.von);
+        const spreiz=off+em*.3*b.ebene;
+        const x1=mitte[b.von]+spreiz*dir,x2=mitte[b.nach]-spreiz*dir,h=hoehe(b.ebene);
+        const y0=seite==='oben'?H:0,s=seite==='oben'?-1:1;
+        const k=h*4/3;
+        const p=document.createElementNS(NS,'path');
+        p.setAttribute('d',`M${x1},${y0} C${x1},${y0+s*k} ${x2},${y0+s*k} ${x2},${y0+s*pfeil*.6}`);
+        p.style.stroke=b.farbe;svg.appendChild(p);
+        const g=document.createElementNS(NS,'polygon');g.style.fill=b.farbe;
+        g.setAttribute('points',`${x2-pfeil*.6},${y0+s*pfeil*1.1} ${x2+pfeil*.6},${y0+s*pfeil*1.1} ${x2},${y0}`);
+        svg.appendChild(g);
+        const et=document.createElement('div');et.className='etikett';et.dataset.id=b.id;
+        et.style.left=((x1+x2)/2)+'px';et.style.top=(y0+s*h)+'px';
+        const inp=document.createElement('input');inp.id=`bogen-${b.id}-${seite}`;inp.autocomplete='off';inp.value=b[seite];inp.style.borderColor=b.farbe;inp.style.color=b.farbe;
+        inp.setAttribute('aria-label',`Bogen ${seite}: Rechenzeichen`);
+        inp.addEventListener('input',()=>{b[seite]=inp.value;});
+        et.appendChild(inp);
+        if(seite==='oben'){
+          const x=document.createElement('button');x.type='button';x.className='weg';x.textContent='✕';x.title='Bogen löschen';
+          x.setAttribute('aria-label','Bogen löschen');
+          x.addEventListener('click',()=>{T.boegen=T.boegen.filter(q=>q!==b);zeichne(T);});
+          et.appendChild(x);
+        }
+        zone.appendChild(et);
+      });
+    });
+  }
+
+  // * wird automatisch zum Malpunkt
+  document.addEventListener('input',e=>{const f=e.target;if(f.tagName!=='INPUT'||!f.value.includes('*'))return;
+    const pos=f.selectionStart;f.value=f.value.replace(/\*/g,'·');try{f.setSelectionRange(pos,pos);}catch(_){}
+    f.dispatchEvent(new Event('input'));});
+
+  function allesZeichnen(){tabellen.forEach(zeichne);}
+  window.addEventListener('resize',allesZeichnen);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(allesZeichnen);
+  allesZeichnen();
+
+  // Löschen mit Sicherheitsklick
+  function sicher(btn,text,fn){
+    let t=null;
+    btn.addEventListener('click',()=>{
+      if(!btn.classList.contains('warnung')){btn.classList.add('warnung');btn.textContent='Wirklich?';
+        t=setTimeout(()=>{btn.classList.remove('warnung');btn.textContent=text;},3000);return;}
+      clearTimeout(t);btn.classList.remove('warnung');btn.textContent=text;fn();
+    });
+  }
+  sicher(document.getElementById('boegen-weg'),'Alle Bögen löschen',()=>{tabellen.forEach(T=>{T.boegen=[];T.wahl=null;markiere(T);zeichne(T);});});
+  sicher(document.getElementById('alles-weg'),'Alles löschen',()=>{
+    tabellen.forEach(T=>{T.boegen=[];T.wahl=null;markiere(T);T.tab.querySelectorAll('input').forEach(i=>i.value='');zeichne(T);});
+  });
+})();
+</script>
+
+
+<style>
+.erkl-bar{border:2px solid #00805F;background:#eefaf5;padding:.7em .9em;display:flex;align-items:center;gap:.7em;flex-wrap:wrap}
+.erkl-bar button{font:inherit;font-weight:700;border:1.5px solid #00805F;background:#fff;padding:.4em .75em;cursor:pointer}
+.erkl-bar button.primary{background:#00805F;color:white}
+.erkl-bar button:disabled{opacity:.45;cursor:default}
+.erkl-bar label{font-size:.86em;margin-left:auto;display:flex;align-items:center;gap:.35em}
+.erkl-bar select{font:inherit;background:#fff;border:1px solid #00805F;padding:.2em}
+.erkl-status{font-size:.83em;color:#245d4c;flex-basis:100%;min-height:1.2em}
+.erkl-fokus{outline:4px solid #f0c735;outline-offset:3px;transition:outline .2s}
+.erkl-zelle{background:#fff3b0!important;box-shadow:inset 0 0 0 3px #d9a600}
+@media(max-width:700px){.erkl-bar label{margin-left:0}}
+</style>
+<script>
+(function(){
+const main=document.querySelector('main.blatt');
+const bar=document.createElement('div');bar.className='erkl-bar';
+bar.innerHTML='<button type="button" class="primary" id="erk-start">▶ Erklärung starten</button><button type="button" id="erk-pause" disabled>⏸ Pause</button><button type="button" id="erk-stop" disabled>■ Beenden</button><label for="erk-tempo">Sprechtempo <select id="erk-tempo"><option value="0.8">Langsam</option><option value="0.9">Etwas langsamer</option><option value="1" selected>Normal</option><option value="1.1">Etwas schneller</option><option value="1.2">Schnell</option></select></label><div class="erkl-status" id="erk-status" role="status">Die Erklärung füllt die Tabellen aus und zeichnet die Rechenpfeile automatisch.</div>';
+main.insertBefore(bar,document.querySelector('.auftrag'));
+const $=id=>document.getElementById(id), status=$('erk-status');
+const start=$('erk-start'),pause=$('erk-pause'),stop=$('erk-stop');
+const sections=[...document.querySelectorAll('.kasten')];
+const tables=()=>[...document.querySelectorAll('table.wt')];
+let run=0,playing=false,paused=false,activeFocus=null,voices=[];
+function voicesRead(){voices=speechSynthesis.getVoices().filter(v=>v.lang.toLowerCase().startsWith('de'));}
+if('speechSynthesis' in window){voicesRead();speechSynthesis.addEventListener('voiceschanged',voicesRead)}
+function chooseVoice(){voicesRead();return voices.find(v=>/google deutsch/i.test(v.name))||voices.find(v=>/google.*deutsch|google.*german/i.test(v.name))||voices.find(v=>/google/i.test(v.name))||voices.find(v=>/natural|neural/i.test(v.name))||voices[0]||null;}
+function focus(el){if(activeFocus){activeFocus.classList.remove('erkl-fokus','erkl-zelle');activeFocus=null;}if(el){activeFocus=el;el.classList.add(el.tagName==='TD'?'erkl-zelle':'erkl-fokus');el.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});}}
+function wait(ms,token){return new Promise(resolve=>{const t=Date.now();function tick(){if(token!==run){resolve();return;}if(paused){setTimeout(tick,100);return;}if(Date.now()-t>=ms){resolve();return;}setTimeout(tick,70);}tick();});}
+function speak(txt,token){return new Promise(resolve=>{if(token!==run){resolve();return;}if(!('speechSynthesis' in window)){status.textContent='Keine Sprachausgabe verfügbar. '+txt;setTimeout(resolve,1500);return;}
+ const u=new SpeechSynthesisUtterance(txt);u.lang='de-DE';u.rate=Number($('erk-tempo').value);u.pitch=1;const v=chooseVoice();if(v)u.voice=v;
+ let done=false;function finish(){if(!done){done=true;resolve();}}u.onend=finish;u.onerror=finish;
+ speechSynthesis.speak(u);
+ // Some browsers may fail to fire onend on canceled speech; token-driven recovery.
+ const check=setInterval(()=>{if(done||token!==run){clearInterval(check);finish();}},120);
+ });}
+function cell(t,c,row){return tables()[t].rows[row].cells[c+1]}
+function write(t,c,value){const td=cell(t,c,1);const inp=td.querySelector('input');if(inp){inp.value=String(value).replace('.',',');inp.dispatchEvent(new Event('input',{bubbles:true}));}focus(td);}
+function arc(t,from,to,top,bottom){const table=tables()[t];const a=table.rows[0].cells[from+1],b=table.rows[0].cells[to+1];a.click();b.click();const sect=table.closest('.kasten');const zones=sect.querySelectorAll('.bogen');const upper=zones[0].querySelectorAll('.etikett input');const lower=zones[1].querySelectorAll('.etikett input');if(upper.length){upper[upper.length-1].value=top;upper[upper.length-1].dispatchEvent(new Event('input',{bubbles:true}));}if(lower.length){lower[lower.length-1].value=bottom;lower[lower.length-1].dispatchEvent(new Event('input',{bubbles:true}));}focus(table);}
+function reset(){for(const b of [$('boegen-weg'),$('alles-weg')]){b.classList.remove('warnung');}document.querySelectorAll('.bogen .weg').forEach(x=>x.click());tables().forEach(t=>t.querySelectorAll('input').forEach(i=>i.value=''));}
+const steps=[];
+function add(t,txt,fn){steps.push({t,txt,fn});}
+add(0,'Wir ergänzen Wertetabellen durch Vervielfachen. Dafür brauchen wir die Konstante k nicht. Wir vergleichen die Zahlen in der oberen Zeile und übertragen die Rechenoperation auf die untere Zeile.',()=>focus(sections[0]));
+add(0,'Zuerst die proportionale Zuordnung. In der ersten Tabelle gehören zur Zahl zwei die vierzehn. Wir gehen von zwei zu eins. Dafür teilen wir durch zwei.',()=>arc(0,1,0,': 2',': 2'));
+add(0,'Bei einer proportionalen Zuordnung rechnen wir unten genauso. Vierzehn geteilt durch zwei ist sieben.',()=>write(0,0,7));
+add(0,'Von zwei zu vier multiplizieren wir mit zwei. Also müssen wir auch vierzehn mit zwei multiplizieren.',()=>arc(0,1,2,'· 2','· 2'));
+add(0,'Vierzehn mal zwei ist achtundzwanzig.',()=>write(0,2,28));
+add(0,'Von zwei zu sechs multiplizieren wir mit drei. Unten rechnen wir ebenfalls mal drei.',()=>arc(0,1,3,'· 3','· 3'));
+add(0,'Vierzehn mal drei ist zweiundvierzig.',()=>write(0,3,42));
+add(0,'Von zwei zu zehn multiplizieren wir mit fünf. Vierzehn mal fünf ergibt siebzig.',()=>{arc(0,1,4,'· 5','· 5');write(0,4,70)});
+add(0,'Von zwei zu zwanzig multiplizieren wir mit zehn. Vierzehn mal zehn ist einhundertvierzig.',()=>{arc(0,1,5,'· 10','· 10');write(0,5,140)});
+add(1,'Jetzt die zweite proportionale Wertetabelle. Zur Zahl vier gehört die zehn. Um von vier auf eins zu kommen, teilen wir durch vier. Deshalb teilen wir auch zehn durch vier.',()=>arc(1,2,0,': 4',': 4'));
+add(1,'Zehn geteilt durch vier ist zwei Komma fünf.',()=>write(1,0,2.5));
+add(1,'Von vier zu zwei teilen wir durch zwei. Unten ergibt zehn geteilt durch zwei gleich fünf.',()=>{arc(1,2,1,': 2',': 2');write(1,1,5)});
+add(1,'Von vier zu acht verdoppeln wir. Zehn mal zwei ist zwanzig.',()=>{arc(1,2,3,'· 2','· 2');write(1,3,20)});
+add(1,'Von vier zu zwölf rechnen wir mal drei. Zehn mal drei ist dreißig.',()=>{arc(1,2,4,'· 3','· 3');write(1,4,30)});
+add(1,'Von vier zu vierzig rechnen wir mal zehn. Zehn mal zehn ist einhundert.',()=>{arc(1,2,5,'· 10','· 10');write(1,5,100)});
+add(2,'Jetzt kommt der entscheidende Unterschied: die antiproportionale Zuordnung. Wenn die obere Zahl größer wird, wird die untere Zahl im gleichen Verhältnis kleiner. Wir rechnen unten also mit der umgekehrten Operation.',()=>focus(sections[1]));
+add(2,'In der ersten antiproportionalen Tabelle gehören zur zwei die vierundzwanzig. Von zwei zu eins teilen wir durch zwei. Unten müssen wir deshalb mit zwei multiplizieren.',()=>arc(2,1,0,': 2','· 2'));
+add(2,'Vierundzwanzig mal zwei ist achtundvierzig.',()=>write(2,0,48));
+add(2,'Von zwei zu vier rechnen wir oben mal zwei. Unten rechnen wir umgekehrt: vierundzwanzig geteilt durch zwei ist zwölf.',()=>{arc(2,1,2,'· 2',': 2');write(2,2,12)});
+add(2,'Von zwei zu sechs rechnen wir oben mal drei. Unten vierundzwanzig geteilt durch drei. Das ergibt acht.',()=>{arc(2,1,3,'· 3',': 3');write(2,3,8)});
+add(2,'Von zwei zu acht rechnen wir oben mal vier und unten geteilt durch vier. Das ergibt sechs.',()=>{arc(2,1,4,'· 4',': 4');write(2,4,6)});
+add(2,'Von zwei zu zwanzig rechnen wir oben mal zehn und unten geteilt durch zehn. Das ergibt zwei Komma vier.',()=>{arc(2,1,5,'· 10',': 10');write(2,5,2.4)});
+add(3,'In der letzten Tabelle gehören zur sechs die zehn. Von sechs zu eins teilen wir oben durch sechs. Unten multiplizieren wir mit sechs. Zehn mal sechs ist sechzig.',()=>{arc(3,3,0,': 6','· 6');write(3,0,60)});
+add(3,'Von sechs zu zwei teilen wir oben durch drei. Unten rechnen wir zehn mal drei, also dreißig.',()=>{arc(3,3,1,': 3','· 3');write(3,1,30)});
+add(3,'Von sechs zu drei teilen wir oben durch zwei. Unten zehn mal zwei, also zwanzig.',()=>{arc(3,3,2,': 2','· 2');write(3,2,20)});
+add(3,'Von sechs zu zwölf verdoppeln wir oben. Unten halbieren wir zehn. Das ergibt fünf.',()=>{arc(3,3,4,'· 2',': 2');write(3,4,5)});
+add(3,'Von sechs zu dreißig rechnen wir oben mal fünf. Unten teilen wir zehn durch fünf. Das ergibt zwei.',()=>{arc(3,3,5,'· 5',': 5');write(3,5,2)});
+add(3,'Merke dir: Bei proportionalen Zuordnungen rechnen wir in beiden Zeilen gleich. Bei antiproportionalen Zuordnungen rechnen wir unten umgekehrt. Jetzt kannst du die Tabellen selbst üben.',()=>focus(sections[1]));
+async function play(){const token=++run;playing=true;paused=false;start.disabled=true;pause.disabled=false;stop.disabled=false;pause.textContent='⏸ Pause';reset();
+for(let i=0;i<steps.length;i++){if(token!==run)break;const s=steps[i];status.textContent=`Schritt ${i+1} von ${steps.length} · ${s.t<2?'Proportionale':'Antiproportionale'} Zuordnung`;try{s.fn()}catch(e){console.error('Erklärschritt',i,e)}await wait(350,token);if(token!==run)break;await speak(s.txt,token);await wait(280,token)}
+if(token===run){playing=false;start.disabled=false;pause.disabled=true;stop.disabled=true;focus(null);status.textContent='Erklärung abgeschlossen. Du kannst die Tabellen jetzt selbst bearbeiten.';}}
+start.addEventListener('click',()=>{if(!('speechSynthesis' in window)){status.textContent='Dieser Browser unterstützt keine automatische Sprachausgabe.';return;}speechSynthesis.cancel();play()});
+pause.addEventListener('click',()=>{if(!playing)return;if(!paused){paused=true;speechSynthesis.pause();pause.textContent='▶ Weiter';status.textContent='Erklärung pausiert.';}else{paused=false;speechSynthesis.resume();pause.textContent='⏸ Pause';status.textContent='Erklärung läuft.';}});
+stop.addEventListener('click',()=>{run++;playing=false;paused=false;speechSynthesis.cancel();start.disabled=false;pause.disabled=true;stop.disabled=true;focus(null);status.textContent='Erklärung beendet. Du kannst die Tabellen selbst bearbeiten.';});
+window.addEventListener('pagehide',()=>{run++;if('speechSynthesis' in window)speechSynthesis.cancel()});
+})();
+</script>
+
+<script>
+(function(){
+  function still(){try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}}
+  document.getElementById('ll-zurueck').addEventListener('click',still);
+  window.addEventListener('pagehide',still);
+})();
+</script>

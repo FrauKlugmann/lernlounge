@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arbeitsblatt Verhältnisgleichung</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: helles Arbeitsblatt wie Papier, eine Spalte, Aufgabenkarten untereinander, Petrol als Bedienfarbe wie im Zuordnungstrainer */
+:root{
+  --paper:#ffffff; --ink:#1b1f20; --muted:#56646a; --line:#c6d2d4; --soft:#f4f8f8;
+  --petrol:#167c80; --petrol-dark:#0f5f62; --petrol-soft:#e4f1f1;
+  --ok:#2f8b4b; --ok-soft:#edf8f0; --bad:#b83232; --bad-soft:#fff0f0;
+  --f:"Atkinson Hyperlegible", Arial, Helvetica, sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f);font-size:17px;line-height:1.45}
+.wrap{max-width:920px;margin:0 auto;padding-block:22px 30px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font-size:30px;line-height:1.15}
+h2{font-size:22px}
+h3{font-size:18px}
+p{margin:0}
+.school{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.sub{color:var(--muted)}
+header.top{display:flex;flex-direction:column;gap:10px;border-bottom:3px solid var(--ink);padding-bottom:14px}
+.fields{display:flex;gap:14px;flex-wrap:wrap}
+.fields label{display:flex;gap:8px;align-items:center;font-weight:700}
+.fields input{font:inherit;padding:7px 10px;border:2px solid var(--line);border-radius:8px;width:140px;max-width:100%}
+.progress{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar{flex:1 1 200px;height:12px;background:var(--soft);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.bar>div{height:100%;width:0;background:var(--petrol);transition:width .3s}
+.progress strong{font-variant-numeric:tabular-nums}
+
+section.part{display:flex;flex-direction:column;gap:14px}
+.parthead{display:flex;flex-direction:column;gap:4px;border-left:5px solid var(--petrol);padding-left:12px}
+.task{border:2px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.task.done{border-color:var(--ok)}
+.taskhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{font-size:13px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.chip.ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.story{font-size:19px;background:var(--petrol-soft);border-radius:8px;padding:10px 14px}
+
+button{font:inherit;cursor:pointer;border-radius:9px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--petrol);outline-offset:2px}
+.primary{background:var(--petrol);color:#fff;border:2px solid var(--petrol);padding:8px 16px;font-weight:700}
+.primary:hover{background:var(--petrol-dark);border-color:var(--petrol-dark)}
+.flip{background:#fff;border:2px solid var(--petrol);color:var(--petrol);padding:8px 13px;font-weight:700}
+.flip.done{background:var(--petrol);color:#fff}
+.comma{background:#fff;color:var(--petrol);border:2px solid var(--petrol);width:42px;height:40px;font-size:22px;font-weight:700;padding:0}
+.choice{background:#fff;color:var(--ink);border:2px solid var(--line);padding:7px 12px}
+.choice.sel{background:var(--petrol);border-color:var(--petrol);color:#fff}
+.choice.right{background:var(--ok-soft);border-color:var(--ok)}
+.choice.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.choice.sel.right{background:var(--ok);color:#fff}
+.choice.sel.wrong{background:var(--bad);color:#fff}
+
+/* Aufgabe 1: Gleichungen zur Auswahl */
+.pick{display:flex;flex-direction:column;gap:0}
+.pick .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.pick .row:last-child{border-bottom:0}
+.pick .opts{display:flex;gap:8px;flex-wrap:wrap}
+.pick .choice{padding:7px 12px}
+@media(max-width:700px){.pick .row{grid-template-columns:1fr}}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.15;font-variant-numeric:tabular-nums}
+.fr>span:first-child{border-bottom:2px solid currentColor;padding:0 4px 2px}
+.fr>span:last-child{padding:2px 4px 0}
+.eqs{display:inline-flex;align-items:center;gap:8px}
+
+/* Verhältnisgleichung */
+.typeRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.scroll{overflow-x:auto;padding:4px 0}
+.equation{display:flex;align-items:center;gap:20px;width:max-content;margin:0 auto;font-size:26px}
+.fracbox{display:flex;flex-direction:column;align-items:center;gap:6px}
+.fracbox .bar2{width:100%;height:3px;background:var(--ink);border-radius:2px}
+.fracbox .lbl{font-size:14px;color:var(--muted);font-weight:700;text-align:center;max-width:160px;line-height:1.2;margin-top:4px}
+.eqin{font:inherit;font-size:22px;width:120px;text-align:center;border:2px solid #8a9597;border-radius:8px;padding:6px;background:#fff;color:var(--ink)}
+.eqin::placeholder{font-size:14px;color:#8a9597}
+.resultRow,.answer{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.resultRow label,.answer label{font-weight:700}
+.resin{font:inherit;font-size:20px;width:140px;text-align:center;border:2px solid #8a9597;border-radius:8px;padding:6px}
+.answer input{font:inherit;flex:1 1 280px;min-width:0;padding:8px 10px;border:2px solid #8a9597;border-radius:8px}
+.is-ok{border-color:var(--ok)!important;background:var(--ok-soft)!important}
+.is-bad{border-color:var(--bad)!important;background:var(--bad-soft)!important}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fb{font-weight:700;padding:7px 11px;border-radius:8px}
+.fb:empty{display:none}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+
+.export{border:2px dashed var(--petrol);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.export img{border:1px solid var(--line);border-radius:6px;max-width:100%;display:block}
+.hint{color:var(--muted);font-size:15px}
+footer{text-align:right;font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+@media(prefers-reduced-motion:reduce){.bar>div{transition:none}}
+</style>
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a><button type="button" class="ll-spick" id="ll-spick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3 h9 l4 4 v14 h-13z M14 3 v5 h5 M9 12 h7 M9 16 h5"/></svg>Spickzettel</button></div>
+  <header class="top">
+    <span class="school">Emil-Petri-Schule Arnstadt · Mathematik</span>
+    <h1>Arbeitsblatt: Verhältnisgleichung</h1>
+    <p class="sub">Proportionale und antiproportionale Zuordnungen – passend zu Modul 4 im Trainer Zuordnungen</p>
+    <div class="fields"><label for="date">Datum: <input id="date" autocomplete="off"></label></div>
+    <div class="progress"><div class="bar"><div id="barFill"></div></div><strong id="progText">0 von 5 Aufgaben gelöst</strong></div>
+  </header>
+
+  <section class="part" id="part1">
+    <div class="parthead"><h2>Aufgabe 1 · Zuordnungsart erkennen</h2><p class="sub">Entscheide für jede Situation: proportional, antiproportional oder weder noch.</p></div>
+    <article class="task" id="task-1">
+      <div class="taskhead"><h3>Aufgabe 1</h3><span class="chip" id="chip-1">offen</span></div>
+      <div class="pick" id="pick"></div>
+      <div class="actions"><button class="primary" id="check-1" type="button">Prüfen</button><span class="fb" id="fb-1"></span></div>
+    </article>
+  </section>
+
+  <section class="part" id="part2">
+    <div class="parthead"><h2>Aufgabe 2 · Verhältnisgleichung bei proportionalen Zuordnungen</h2><p class="sub">Trage die drei bekannten Werte ein und setze <strong>x</strong> an die gesuchte Stelle. Löse dann nach x auf und schreibe einen Antwortsatz.</p></div>
+  </section>
+  <section class="part" id="part3">
+    <div class="parthead"><h2>Aufgabe 3 · Verhältnisgleichung bei antiproportionalen Zuordnungen</h2><p class="sub">Denk daran: Bei antiproportionalen Zuordnungen bildest du den Kehrwert des rechten Bruches.</p></div>
+  </section>
+  <section class="part" id="part4">
+    <div class="parthead"><h2>Zusatzaufgabe · Gemischte Aufgaben</h2><p class="sub">Für alle, die mit Aufgabe 1 bis 3 fertig sind. Entscheide zuerst selbst, welche Zuordnung vorliegt.</p></div>
+  </section>
+
+  <section class="export">
+    <h2>Ergebnis für OneNote</h2>
+    <p>Das Bild füllt sich automatisch mit deinen Eingaben. Wenn du fertig bist, kopiere es und füge es in OneNote ein.</p>
+    <div class="actions"><button class="primary" id="copyImg" type="button">Bild für OneNote kopieren</button><span class="fb" id="fbImg"></span></div>
+    <img id="outImg" alt="Ergebnisbild des Arbeitsblatts mit deinen Eingaben">
+    <p class="hint">Falls das Kopieren nicht klappt: Auf dem iPad das Bild lange antippen → „Kopieren“. Am Computer: Rechtsklick auf das Bild → „Bild kopieren“.</p>
+  </section>
+
+  <footer>Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const num=s=>{const t=String(s).trim().replace(/\s/g,'').replace(',','.');return t===''?NaN:Number(t)};
+const near=(a,b)=>Number.isFinite(a)&&Math.abs(a-b)<0.001;
+const fmt=n=>String(Math.round(n*1000)/1000).replace('.',',');
+const isX=s=>String(s).trim().toLowerCase()==='x';
+(function(){$('date').value=new Date().toLocaleDateString('de-DE')})();
+
+const solved={};
+const MAIN_IDS=['1','2a','2b','3a','3b'];
+const mainSolved=()=>MAIN_IDS.filter(k=>solved[k]).length;
+const extraSolved=()=>['4a','4b'].filter(k=>solved[k]).length;
+function setFb(id,cls,txt){const el=$(id);el.className='fb '+cls;el.textContent=txt}
+function markSolved(id,ok){
+  solved[id]=ok;
+  $('chip-'+id).textContent=ok?'gelöst':'offen';$('chip-'+id).classList.toggle('ok',ok);
+  $('task-'+id).classList.toggle('done',ok);
+  const n=mainSolved(),z=extraSolved();
+  $('barFill').style.width=(n/5*100)+'%';
+  $('progText').textContent=`${n} von 5 Aufgaben gelöst`+(z?` · Zusatz: ${z} von 2`:'');
+  scheduleImg();
+}
+
+/* ---------- Aufgabe 1: Zuordnungsart erkennen ---------- */
+const pickItems=[
+  {s:'Anzahl gleicher Kinokarten → Gesamtpreis',t:'prop'},
+  {s:'Anzahl gleich starker Pumpen → Zeit, bis ein Becken leer ist',t:'anti'},
+  {s:'Schuhgröße eines Menschen → seine Körpergröße',t:'neither'},
+  {s:'Arbeitszeit in Stunden → Lohn (bei gleichem Stundenlohn)',t:'prop'},
+  {s:'Anzahl der Gewinner → Gewinn pro Person (gleicher Gesamtgewinn, gerecht geteilt)',t:'anti'},
+  {s:'Anzahl der Kühe → Anzahl der Tage, die ein Futtervorrat reicht',t:'anti'},
+  {s:'Monat im Jahr → Regenmenge in diesem Monat',t:'neither'},
+  {s:'Anzahl der Seiten eines Ausdrucks → Druckkosten (gleicher Preis pro Seite)',t:'prop'}
+];
+const typeName={prop:'proportional',anti:'antiproportional',neither:'weder noch'};
+const pickSel=new Array(pickItems.length).fill(null);
+pickItems.forEach((it,k)=>{
+  const row=document.createElement('div');row.className='row';
+  row.innerHTML=`<span>${String.fromCharCode(97+k)}) ${it.s}</span><div class="opts">${['prop','anti','neither'].map(v=>`<button type="button" class="choice" data-k="${k}" data-v="${v}">${typeName[v]}</button>`).join('')}</div>`;
+  $('pick').appendChild(row);
+});
+$('pick').addEventListener('click',e=>{
+  const b=e.target.closest('.choice');if(!b)return;
+  pickSel[+b.dataset.k]=b.dataset.v;
+  b.parentElement.querySelectorAll('.choice').forEach(x=>{x.classList.toggle('sel',x===b);x.classList.remove('right','wrong')});
+  scheduleImg();
+});
+$('check-1').onclick=()=>{
+  if(pickSel.some(v=>v===null)){setFb('fb-1','bad','Entscheide dich zuerst bei jeder Situation.');return}
+  let right=0;
+  $('pick').querySelectorAll('.row').forEach((row,k)=>{
+    const ok=pickSel[k]===pickItems[k].t;if(ok)right++;
+    row.querySelectorAll('.choice').forEach(x=>x.classList.remove('right','wrong'));
+    row.querySelector(`.choice[data-v="${pickSel[k]}"]`).classList.add(ok?'right':'wrong');
+  });
+  if(right===pickItems.length){setFb('fb-1','ok','Richtig – alle Zuordnungen stimmen.');markSolved('1',true)}
+  else{setFb('fb-1','bad',`${right} von ${pickItems.length} richtig. Überlege bei den roten noch einmal: je mehr … desto mehr oder desto weniger?`);markSolved('1',false)}
+};
+
+/* ---------- Aufgaben mit Verhältnisgleichung ---------- */
+// v = [x1, y1, x2, y2]; seek: 'x' → x2 gesucht, 'y' → y2 gesucht
+const tasks=[
+ {id:'2a',part:'part2',story:'5 Brötchen kosten 2,25 €. Wie viel kosten 8 Brötchen?',x:'Anzahl Brötchen',y:'Preis in €',t:'prop',v:[5,2.25,8,3.6],seek:'y'},
+ {id:'2b',part:'part2',story:'Ein Radfahrer fährt in 3 Stunden 54 km. Wie lange braucht er bei gleichem Tempo für 90 km?',x:'Zeit in h',y:'Strecke in km',t:'prop',v:[3,54,5,90],seek:'x'},
+ {id:'3a',part:'part3',story:'6 Arbeiter pflastern einen Hof in 8 Stunden. Wie lange brauchen 4 gleich schnelle Arbeiter?',x:'Anzahl Arbeiter',y:'Zeit in h',t:'anti',v:[6,8,4,12],seek:'y'},
+ {id:'3b',part:'part3',story:'Eine Tüte Bonbons wird gerecht verteilt. Bei 12 Kindern bekommt jedes 15 Bonbons. Wie viele Kinder sind es, wenn jedes 20 Bonbons bekommt?',x:'Anzahl Kinder',y:'Bonbons je Kind',t:'anti',v:[12,15,9,20],seek:'x'},
+ {id:'4a',part:'part4',story:'2,5 kg Kartoffeln kosten 3,75 €. Wie viel kosten 4 kg Kartoffeln?',x:'Masse in kg',y:'Preis in €',t:'prop',v:[2.5,3.75,4,6],seek:'y',chooseType:true,extra:true},
+ {id:'4b',part:'part4',story:'Mit 30 km/h braucht ein Bus für eine Strecke 40 Minuten. Wie lange braucht er für dieselbe Strecke mit 48 km/h?',x:'Geschwindigkeit in km/h',y:'Zeit in min',t:'anti',v:[30,40,48,25],seek:'y',chooseType:true,extra:true}
+];
+const state={};   // je Aufgabe: flipped, type
+const lastField={};
+const POS=['a','b','c','d'];
+function expected(t,flipped){
+  const [x1,y1,x2,y2]=t.v;
+  const X2=t.seek==='x'?'x':x2, Y2=t.seek==='y'?'x':y2;
+  return flipped?[x1,X2,Y2,y1]:[x1,X2,y1,Y2];
+}
+tasks.forEach(t=>{
+  state[t.id]={flipped:false,type:null};
+  const art=document.createElement('article');art.className='task';art.id='task-'+t.id;
+  const inp=p=>`<input class="eqin" id="${t.id}-${p}" inputmode="decimal" autocomplete="off" placeholder="Zahl oder x" aria-label="Feld der Verhältnisgleichung">`;
+  art.innerHTML=`<div class="taskhead"><h3>${t.extra?'Zusatzaufgabe':'Aufgabe'} ${t.id}</h3><span class="chip" id="chip-${t.id}">offen</span></div>
+    <p class="story">${t.story}</p>
+    ${t.chooseType?`<div class="typeRow" id="${t.id}-type"><strong>Zuordnung:</strong><button type="button" class="choice" data-v="prop">proportional</button><button type="button" class="choice" data-v="anti">antiproportional</button></div>`:''}
+    <div class="scroll"><div class="equation">
+      <div class="fracbox">${inp('a')}<div class="bar2"></div>${inp('b')}<span class="lbl">${t.x}</span></div>
+      <span>=</span>
+      <div class="fracbox">${inp('c')}<div class="bar2"></div>${inp('d')}<span class="lbl">${t.y}</span></div>
+    </div></div>
+    <div class="actions"><button type="button" class="flip" id="${t.id}-flip">Kehrwert des rechten Bruches bilden</button></div>
+    <div class="resultRow"><label for="${t.id}-res">x =</label><input class="resin" id="${t.id}-res" inputmode="decimal" autocomplete="off"><button class="comma" type="button" id="${t.id}-comma" title="Komma in das zuletzt gewählte Zahlenfeld einfügen">,</button></div>
+    <div class="answer"><label for="${t.id}-ans">Antwortsatz:</label><input id="${t.id}-ans" autocomplete="off" placeholder="Schreibe einen ganzen Satz."></div>
+    <div class="actions"><button class="primary" type="button" id="${t.id}-check">Prüfen</button><span class="fb" id="fb-${t.id}"></span></div>`;
+  $(t.part).appendChild(art);
+  const eqInputs=POS.map(p=>$(t.id+'-'+p));
+  eqInputs.forEach(el=>el.addEventListener('input',()=>{
+    if(isX(el.value))eqInputs.forEach(o=>{if(o!==el&&isX(o.value))o.value=''});
+  }));
+  [...eqInputs,$(t.id+'-res')].forEach(el=>el.addEventListener('focus',()=>lastField[t.id]=el));
+  $(t.id+'-flip').onclick=()=>{
+    const c=$(t.id+'-c'),d=$(t.id+'-d');[c.value,d.value]=[d.value,c.value];
+    const st=state[t.id];st.flipped=!st.flipped;
+    const b=$(t.id+'-flip');b.classList.toggle('done',st.flipped);
+    b.textContent=st.flipped?'Kehrwert gebildet (nochmal tippen = zurück)':'Kehrwert des rechten Bruches bilden';
+    scheduleImg();
+  };
+  $(t.id+'-comma').onclick=()=>{
+    const el=lastField[t.id]||$(t.id+'-res');
+    if(el.value.includes(',')||el.value.includes('.')){el.focus();return}
+    const a=el.selectionStart??el.value.length,z=el.selectionEnd??a;
+    el.value=el.value.slice(0,a)+','+el.value.slice(z);el.focus();
+    try{el.setSelectionRange(a+1,a+1)}catch(_){}
+    scheduleImg();
+  };
+  if(t.chooseType){
+    $(t.id+'-type').addEventListener('click',e=>{
+      const b=e.target.closest('.choice');if(!b)return;state[t.id].type=b.dataset.v;
+      $(t.id+'-type').querySelectorAll('.choice').forEach(x=>{x.classList.toggle('sel',x===b);x.classList.remove('right','wrong')});
+    });
+  }
+  $(t.id+'-check').onclick=()=>checkTask(t);
+});
+
+function mark(el,ok){el.classList.toggle('is-ok',ok);el.classList.toggle('is-bad',!ok)}
+function numbersIn(text){return (String(text).match(/\d+(?:[.,]\d+)?/g)||[]).map(s=>Number(s.replace(',','.')))}
+function checkTask(t){
+  const id=t.id,st=state[id],probs=[];
+  if(t.chooseType){
+    const box=$(id+'-type');box.querySelectorAll('.choice').forEach(x=>x.classList.remove('right','wrong'));
+    if(!st.type)probs.push('Entscheide zuerst, welche Zuordnung vorliegt.');
+    else{const ok=st.type===t.t;box.querySelector(`.choice[data-v="${st.type}"]`).classList.add(ok?'right':'wrong');if(!ok)probs.push('Prüfe die Zuordnungsart: je mehr … desto mehr oder desto weniger?')}
+  }
+  const exp=expected(t,st.flipped),fields=POS.map(p=>$(id+'-'+p));
+  const xCount=fields.filter(f=>isX(f.value)).length;
+  let eqOK=true;
+  fields.forEach((f,i)=>{const ok=exp[i]==='x'?isX(f.value):near(num(f.value),exp[i]);mark(f,ok);if(!ok)eqOK=false});
+  const flipOK=st.flipped===(t.t==='anti');
+  if(!flipOK){
+    probs.push(t.t==='anti'?'Bei einer antiproportionalen Zuordnung musst du den Kehrwert des rechten Bruches bilden.':'Bei einer proportionalen Zuordnung wird der rechte Bruch nicht umgekehrt.');
+    fields.slice(2).forEach(f=>mark(f,false));
+  }else if(xCount!==1)probs.push('Setze genau einmal x an die gesuchte Stelle.');
+  else if(!eqOK)probs.push('Prüfe die rot markierten Felder der Verhältnisgleichung. Oben steht jeweils das gegebene Wertepaar.');
+  const target=t.v[t.seek==='x'?2:3];
+  const resEl=$(id+'-res'),resOK=near(num(resEl.value),target);mark(resEl,resOK);
+  if(!resOK)probs.push(resEl.value.trim()===''?'Löse die Gleichung nach x auf und trage das Ergebnis ein.':'Prüfe dein Ergebnis für x noch einmal.');
+  const ansEl=$(id+'-ans'),txt=ansEl.value.trim();
+  const ansOK=txt.split(/\s+/).length>=3&&numbersIn(txt).some(n=>near(n,target));mark(ansEl,ansOK);
+  if(!ansOK)probs.push(txt===''?'Schreibe noch einen Antwortsatz.':'Dein Antwortsatz braucht das richtige Ergebnis und muss ein ganzer Satz sein.');
+  if(!probs.length){setFb('fb-'+id,'ok','Richtig – Verhältnisgleichung vollständig gelöst.');markSolved(id,true)}
+  else{setFb('fb-'+id,'bad',probs[0]);markSolved(id,false)}
+}
+
+/* ---------- Bild für OneNote (füllt sich live) ---------- */
+const IMG_FONT='"Atkinson Hyperlegible", Arial, sans-serif';
+let imgTimer=null;
+function wrapText(ctx,text,x,y,maxW,lh){
+  const words=String(text).split(' ');let line='';
+  for(const w of words){const test=line?line+' '+w:w;if(ctx.measureText(test).width>maxW&&line){ctx.fillText(line,x,y);y+=lh;line=w}else line=test}
+  if(line){ctx.fillText(line,x,y);y+=lh}
+  return y;
+}
+function drawFrac(g,cx,midY,top,bottom,size,minW){
+  g.font=`${size}px ${IMG_FONT}`;g.textAlign='center';
+  const w=Math.max(minW,g.measureText(top).width,g.measureText(bottom).width)+16;
+  g.fillRect(cx-w/2,midY-1.5,w,3);
+  g.fillText(top,cx,midY-10);g.fillText(bottom,cx,midY+size+4);
+  return w;
+}
+function okMark(g,x,y){g.font=`bold 19px ${IMG_FONT}`;g.fillStyle='#2f8b4b';g.textAlign='right';g.fillText('✓ gelöst',x,y);g.textAlign='left'}
+function renderImage(){
+  const W=1100,P=50,F=IMG_FONT;
+  const c=document.createElement('canvas');c.width=W;c.height=5000;
+  const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,c.height);g.textBaseline='alphabetic';
+  const n=mainSolved(),z=extraSolved();
+  g.fillStyle='#56646a';g.font=`bold 16px ${F}`;
+  let y=P+10;g.fillText('EMIL-PETRI-SCHULE ARNSTADT · MATHEMATIK',P,y);
+  y+=42;g.fillStyle='#1b1f20';g.font=`bold 34px ${F}`;g.fillText('Arbeitsblatt: Verhältnisgleichung',P,y);
+  y+=34;g.font=`20px ${F}`;g.fillText(`Datum: ${$('date').value}     Gelöst: ${n} von 5`+(z?`     Zusatz: ${z} von 2`:''),P,y);
+  y+=18;g.fillRect(P,y,W-2*P,3);y+=40;
+
+  // Aufgabe 1
+  g.font=`bold 24px ${F}`;g.fillStyle='#167c80';g.textAlign='left';g.fillText('Aufgabe 1 · Zuordnungsart erkennen',P,y);
+  if(solved['1'])okMark(g,W-P,y);
+  y+=34;
+  pickItems.forEach((it,k)=>{
+    g.font=`19px ${F}`;g.fillStyle='#1b1f20';g.textAlign='left';
+    g.fillText(`${String.fromCharCode(97+k)}) ${it.s}`,P,y);
+    g.font=`bold 19px ${F}`;g.fillStyle=pickSel[k]?'#1b1f20':'#9aa5a7';
+    g.fillText(pickSel[k]?typeName[pickSel[k]]:'…',W-P-190,y);
+    y+=28;
+  });
+  y+=12;g.fillStyle='#c6d2d4';g.fillRect(P,y,W-2*P,1);y+=40;
+
+  tasks.filter(t=>!t.extra||solved[t.id]).forEach(t=>{
+    g.font=`bold 24px ${F}`;g.fillStyle='#167c80';g.textAlign='left';
+    g.fillText(`${t.extra?'Zusatzaufgabe':'Aufgabe'} ${t.id} · ${t.t==='prop'?'proportionale':'antiproportionale'} Zuordnung`,P,y);
+    if(solved[t.id])okMark(g,W-P,y);
+    y+=32;
+    g.font=`20px ${F}`;g.fillStyle='#1b1f20';y=wrapText(g,t.story,P,y,W-2*P,28)+40;
+    const vals=POS.map(p=>$(t.id+'-'+p).value.trim()||' ');
+    g.fillStyle='#1b1f20';
+    const cx=W/2,mid=y+8;
+    const wl=drawFrac(g,cx-110,mid,vals[0],vals[1],26,90);
+    g.font=`26px ${F}`;g.textAlign='center';g.fillText('=',cx,mid+9);
+    drawFrac(g,cx+110,mid,vals[2],vals[3],26,90);
+    g.font=`bold 14px ${F}`;g.fillStyle='#56646a';
+    g.fillText(t.x,cx-110,mid+62);g.fillText(t.y,cx+110,mid+62);
+    if(state[t.id].flipped){g.font=`15px ${F}`;g.textAlign='left';g.fillText('(Kehrwert gebildet)',cx+190,mid+8)}
+    y=mid+100;g.textAlign='left';g.fillStyle='#1b1f20';
+    g.font=`bold 20px ${F}`;g.fillText('x =',P,y);g.font=`20px ${F}`;g.fillText($(t.id+'-res').value.trim(),P+45,y);
+    y+=32;g.font=`bold 20px ${F}`;g.fillText('Antwort:',P,y);g.font=`20px ${F}`;
+    y=wrapText(g,$(t.id+'-ans').value.trim()||' ',P+95,y,W-2*P-95,28)+14;
+    g.fillStyle='#c6d2d4';g.fillRect(P,y,W-2*P,1);g.fillStyle='#1b1f20';y+=40;
+  });
+  g.font=`16px ${F}`;g.fillStyle='#56646a';g.textAlign='right';
+  g.fillText('Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.',W-P,y);
+  y+=P;
+  const out=document.createElement('canvas');out.width=W;out.height=y;
+  out.getContext('2d').drawImage(c,0,0);
+  $('outImg').src=out.toDataURL('image/png');
+}
+function scheduleImg(){clearTimeout(imgTimer);imgTimer=setTimeout(renderImage,250)}
+document.querySelector('.wrap').addEventListener('input',scheduleImg);
+(document.fonts?document.fonts.ready:Promise.resolve()).then(renderImage);
+
+function dataUrlToBlob(u){const b=atob(u.split(',')[1]),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return new Blob([a],{type:'image/png'})}
+function copyViaSelection(){
+  try{const r=document.createRange();r.selectNode($('outImg'));const s=getSelection();s.removeAllRanges();s.addRange(r);const ok=document.execCommand('copy');s.removeAllRanges();return ok}catch(_){return false}
+}
+$('copyImg').onclick=()=>{
+  clearTimeout(imgTimer);renderImage();
+  const blob=dataUrlToBlob($('outImg').src),viaSel=copyViaSelection();
+  const done=()=>setFb('fbImg','ok','Bild kopiert – jetzt in OneNote einfügen.');
+  const fail=()=>viaSel?done():setFb('fbImg','bad','Kopieren ging hier nicht. Tippe das Bild unten lange an und wähle „Kopieren“.');
+  try{if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write)navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).then(done).catch(fail);else fail()}catch(_){fail()}
+};
+</script>
+
+<div class="ll-fenster" id="ll-fenster" hidden><div class="ll-box" role="dialog" aria-modal="true" aria-label="Spickzettel"><button type="button" class="ll-zu" id="ll-zu" aria-label="Spickzettel schließen">✕ Schließen</button><iframe id="ll-frame" title="Spickzettel"></iframe></div></div><script>
+(function(){
+  var o=document.getElementById('ll-fenster'),f=document.getElementById('ll-frame'),b=document.getElementById('ll-spick');
+  function zu(){o.hidden=true;document.body.style.overflow='';b.focus();}
+  b.addEventListener('click',function(){if(!f.getAttribute('src'))f.src='spickzettel.html';o.hidden=false;document.body.style.overflow='hidden';document.getElementById('ll-zu').focus();});
+  document.getElementById('ll-zu').addEventListener('click',zu);
+  o.addEventListener('click',function(e){if(e.target===o)zu();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!o.hidden)zu();});
+  var z=document.getElementById('ll-zurueck'),t=null;
+  function eingetragen(){return Array.prototype.some.call(document.querySelectorAll('input,textarea'),function(i){return i.id!=='date'&&i.type!=='hidden'&&i.value.trim()!=='';});}
+  z.addEventListener('click',function(e){
+    if(z.classList.contains('ll-warn')||!eingetragen())return;
+    e.preventDefault();z.classList.add('ll-warn');z.textContent='Wirklich? Deine Eingaben gehen verloren.';
+    clearTimeout(t);t=setTimeout(function(){z.classList.remove('ll-warn');z.textContent='← Lern-Lounge';},4000);
+  });
+})();
+</script>
+</body>
+</html>

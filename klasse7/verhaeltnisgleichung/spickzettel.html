@@ -1,0 +1,31 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Spickzettel Verhältnisgleichung</title><style>
+:root{--rot:#B3261E;--rot-hell:#FBE3E1;--grau:#F2F2F2;--leise:#6F6F6F;--prop:#1565C0;--anti:#C2410C}
+body{margin:0;background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;font-size:17px;line-height:1.35;padding:18px}
+.blatt{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.titel{background:var(--rot);color:#fff;font-weight:700;text-align:center;font-size:1.5em;padding:.4em .5em;margin:0}
+.titel small{display:block;font-size:.55em;font-weight:400;letter-spacing:.12em;text-transform:uppercase;opacity:.9}
+.kasten{border:2px solid var(--rot)}.kasten>h2{margin:0;font-size:1em;background:var(--rot-hell);border-bottom:2px solid var(--rot);padding:.35em .7em}
+.innen{padding:.5em .9em .7em}.zwei{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.regel{font-weight:700;font-size:1.08em;margin:.2em 0 .4em}.regel.p{color:var(--prop)}.regel.a{color:var(--anti)}
+.merk{display:inline-block;border:2px solid currentColor;padding:.15em .5em;margin:.1em 0 .5em}
+.bsp{margin:.2em 0 .4em;font-style:italic}
+.tsvg{width:100%;height:auto;display:block}.tt{font:21px Arial;text-anchor:middle}.th{font:bold 15px Arial;text-anchor:middle}.lab{font:bold 19px Arial}
+ol{margin:.2em 0;padding-left:1.4em}li{margin:.2em 0}
+.achtung{border:2px dashed var(--rot);padding:.5em .9em;background:#fff8f7}.achtung b{color:var(--rot)}
+.fuss{text-align:right;font-style:italic;color:var(--leise);font-size:.75em;margin:0}
+.gl{display:flex;align-items:center;justify-content:center;gap:16px;font-size:24px;margin:.6em 0}
+.fr{display:inline-flex;flex-direction:column;align-items:center;min-width:60px}
+.fr>span{padding:0 10px}.fr>span:first-child{border-bottom:3px solid #000}
+.fr i{font-style:normal;font-size:12px;color:var(--leise);margin-top:4px;white-space:nowrap}
+.xv{font-weight:700;color:var(--rot)}
+.rech{font-size:19px;text-align:center;line-height:1.5;margin:.3em 0 .5em}.rech small{display:block;font-size:13px;color:var(--leise);margin-bottom:.35em}.rech .tr{display:inline-block;font-size:22px;border:2px solid #000;padding:.15em .6em;background:#fafafa}
+.flip{display:inline-block;font-size:13px;font-weight:700;border:1.5px solid var(--anti);color:var(--anti);border-radius:99px;padding:1px 9px}
+@media (max-width:700px){.zwei{grid-template-columns:1fr}body{padding:12px}}
+@media print{body{padding:0}}</style></head><body><main class="blatt">
+<h1 class="titel"><small>Spickzettel · Zuordnungen</small>Verhältnisgleichung</h1>
+<div class="zwei"><section class="kasten"><h2>Proportionale Zuordnung</h2><div class="innen"><p class="regel p">Je mehr, desto mehr.</p><div class="merk" style="color:var(--prop)"><b>Beide Brüche in derselben Reihenfolge.</b></div><p class="bsp">4 Hefte kosten 6 €. Wie viel kosten 7 Hefte?</p><div class="gl"><span class="fr"><span>4</span><span>7</span><i>Anzahl Hefte</i></span><span>=</span><span class="fr"><span>6</span><span><span class="xv">x</span></span><i>Preis in €</i></span></div><div class="rech"><b>Über Kreuz multiplizieren:</b><small>So kannst du es gleich in den Taschenrechner eintippen.</small><span class="tr"><span class="xv">x</span> = 7 · 6 : 4 = <b>10,5</b></span></div><p class="bsp" style="font-style:normal">Antwort: 7 Hefte kosten 10,50 €.</p></div></section>
+<section class="kasten"><h2>Antiproportionale Zuordnung</h2><div class="innen"><p class="regel a">Je mehr, desto weniger.</p><div class="merk" style="color:var(--anti)"><b>Den rechten Bruch umdrehen (Kehrwert).</b></div><p class="bsp">3 Bagger brauchen 12 Tage. Wie lange brauchen 4 Bagger?</p><div class="gl"><span class="fr"><span>3</span><span>4</span><i>Anzahl Bagger</i></span><span>=</span><span class="fr"><span><span class="xv">x</span></span><span>12</span><i>Zeit in Tagen</i></span></div><div style="text-align:center"><span class="flip">⇅ rechts umgedreht: erst x, dann 12</span></div><div class="rech"><b>Über Kreuz multiplizieren:</b><small>So kannst du es gleich in den Taschenrechner eintippen.</small><span class="tr"><span class="xv">x</span> = 3 · 12 : 4 = <b>9</b></span></div><p class="bsp" style="font-style:normal">Antwort: 4 Bagger brauchen 9 Tage.</p></div></section></div>
+<section class="kasten"><h2>So gehst du vor</h2><div class="innen"><ol><li>Prüfe zuerst: <b>proportional</b> oder <b>antiproportional</b>?</li><li><b>Linker Bruch:</b> die erste Größe – oben der gegebene Wert, unten der zweite Wert.</li><li><b>Rechter Bruch:</b> die zweite Größe – oben der gegebene Wert, unten <b>x</b> für das Gesuchte.</li><li>Nur bei <b>antiproportional</b>: den rechten Bruch umdrehen (Kehrwert bilden).</li><li><b>Über Kreuz multiplizieren:</b> die beiden Zahlen, die schräg zueinander stehen, malnehmen und durch die Zahl teilen, die schräg zum x steht. Dann einen <b>Antwortsatz</b> schreiben.</li></ol></div></section>
+<div class="achtung"><b>Achtung, typischer Fehler:</b> Den Kehrwert bei antiproportional vergessen! Ohne Umdrehen kommt bei den Baggern 16 Tage heraus – aber 4 Bagger sind doch schneller als 3.</div>
+<p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p>
+</main></body></html>

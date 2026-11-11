@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arbeitsblatt Wertetabellen mit k</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: helles Arbeitsblatt wie Papier, eine Spalte, Aufgabenkarten untereinander, Petrol als Bedienfarbe wie im Zuordnungstrainer */
+:root{
+  --paper:#ffffff; --ink:#1b1f20; --muted:#56646a; --line:#c6d2d4; --soft:#f4f8f8;
+  --petrol:#167c80; --petrol-dark:#0f5f62; --petrol-soft:#e4f1f1;
+  --ok:#2f8b4b; --ok-soft:#edf8f0; --bad:#b83232; --bad-soft:#fff0f0;
+  --f:"Atkinson Hyperlegible", Arial, Helvetica, sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f);font-size:17px;line-height:1.45}
+.wrap{max-width:920px;margin:0 auto;padding-block:22px 30px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font-size:30px;line-height:1.15}
+h2{font-size:22px}
+h3{font-size:18px}
+p{margin:0}
+.school{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.sub{color:var(--muted)}
+header.top{display:flex;flex-direction:column;gap:10px;border-bottom:3px solid var(--ink);padding-bottom:14px}
+.fields{display:flex;gap:14px;flex-wrap:wrap}
+.fields label{display:flex;gap:8px;align-items:center;font-weight:700}
+.fields input{font:inherit;padding:7px 10px;border:2px solid var(--line);border-radius:8px;width:140px;max-width:100%}
+.progress{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar{flex:1 1 200px;height:12px;background:var(--soft);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.bar>div{height:100%;width:0;background:var(--petrol);transition:width .3s}
+.progress strong{font-variant-numeric:tabular-nums}
+
+section.part{display:flex;flex-direction:column;gap:14px}
+.parthead{display:flex;flex-direction:column;gap:4px;border-left:5px solid var(--petrol);padding-left:12px}
+.task{border:2px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.task.done{border-color:var(--ok)}
+.taskhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{font-size:13px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.chip.ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.story{font-size:19px;background:var(--petrol-soft);border-radius:8px;padding:10px 14px}
+
+button{font:inherit;cursor:pointer;border-radius:9px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--petrol);outline-offset:2px}
+.primary{background:var(--petrol);color:#fff;border:2px solid var(--petrol);padding:8px 16px;font-weight:700}
+.primary:hover{background:var(--petrol-dark);border-color:var(--petrol-dark)}
+.comma{background:#fff;color:var(--petrol);border:2px solid var(--petrol);width:42px;height:40px;font-size:22px;font-weight:700;padding:0}
+.choice{background:#fff;color:var(--ink);border:2px solid var(--line);padding:7px 12px}
+.choice.sel{background:var(--petrol);border-color:var(--petrol);color:#fff}
+.choice.right{background:var(--ok-soft);border-color:var(--ok)}
+.choice.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.choice.sel.right{background:var(--ok);color:#fff}
+.choice.sel.wrong{background:var(--bad);color:#fff}
+
+/* Schritte in Aufgabe 1 */
+.step{display:flex;flex-direction:column;gap:7px}
+.step>strong{font-size:16px}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.scroll{overflow-x:auto;padding:2px 0}
+table.wt{border-collapse:collapse;margin:0 auto;font-variant-numeric:tabular-nums}
+.wt th,.wt td{border:2px solid var(--ink);text-align:center;height:46px;min-width:76px;font-size:20px;padding:0 6px}
+.wt th{background:var(--petrol-soft);min-width:56px}
+.wt tr.krow th{background:#fff8e3}
+.kin{font:inherit;font-size:19px;width:72px;text-align:center;border:2px solid #8a9597;border-radius:7px;padding:4px;background:#fff;color:var(--ink)}
+.is-ok{border-color:var(--ok)!important;background:var(--ok-soft)!important}
+.is-bad{border-color:var(--bad)!important;background:var(--bad-soft)!important}
+.hintline{font-size:14px;color:var(--muted)}
+
+/* Aufgabe 2: Graphen */
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:14px}
+.gcard{border:2px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:9px}
+.gcard.okc{border-color:var(--ok)}
+.gcard.badc{border-color:var(--bad)}
+.gcard h3{font-size:17px}
+.gcard svg{width:100%;max-width:240px;height:auto;align-self:center;background:#fff}
+.gcard .lab{font-size:14px;font-weight:700;color:var(--muted)}
+.gcard .choice{padding:6px 10px;font-size:15px}
+
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fb{font-weight:700;padding:7px 11px;border-radius:8px}
+.fb:empty{display:none}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+
+.export{border:2px dashed var(--petrol);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.export img{border:1px solid var(--line);border-radius:6px;max-width:100%;display:block}
+.hint{color:var(--muted);font-size:15px}
+footer{text-align:right;font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+@media(prefers-reduced-motion:reduce){.bar>div{transition:none}}
+.krow2{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:20px;font-weight:700}
+.krow2 .kin{width:96px}
+.rule{font-size:15px;color:var(--muted)}
+.wt td.given{font-weight:700;background:#fff8e3}
+.wt .cin{font:inherit;font-size:19px;width:76px;text-align:center;border:2px solid #8a9597;border-radius:7px;padding:4px;background:#fff;color:var(--ink)}
+.tag{display:inline-block;font-size:13px;font-weight:700;padding:2px 10px;border-radius:99px;border:2px solid}
+.tag.prop{color:#1565C0;border-color:#1565C0}.tag.anti{color:#C2410C;border-color:#C2410C}
+</style>
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a><button type="button" class="ll-spick" id="ll-spick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3 h9 l4 4 v14 h-13z M14 3 v5 h5 M9 12 h7 M9 16 h5"/></svg>Spickzettel</button></div>
+  <header class="top">
+    <span class="school">Emil-Petri-Schule Arnstadt · Mathematik Klasse 7</span>
+    <h1>Arbeitsblatt: Wertetabellen ergänzen mit Hilfe von k</h1>
+    <p class="sub">Proportionale und antiproportionale Zuordnungen – passend zu Level 2 im Trainer Zuordnungen</p>
+    <div class="fields"><label for="date">Datum: <input id="date" autocomplete="off"></label></div>
+    <div class="progress"><div class="bar"><div id="barFill"></div></div><strong id="progText">0 von 4 Aufgaben gelöst</strong></div>
+  </header>
+
+  <section class="part" id="part1">
+    <div class="parthead"><h2>Aufgabe 1 · Proportionale Zuordnungen</h2><p class="sub">Berechne k mit dem gelb markierten Wertepaar: <strong>k = y : x</strong>. Ergänze dann die Lücken. Fehlt y, rechnest du <strong>k · x</strong>. Fehlt x, rechnest du <strong>y : k</strong>.</p></div>
+  </section>
+  <section class="part" id="part2">
+    <div class="parthead"><h2>Aufgabe 2 · Antiproportionale Zuordnungen</h2><p class="sub">Berechne k mit dem gelb markierten Wertepaar: <strong>k = x · y</strong>. Ergänze dann die Lücken. Fehlt y, rechnest du <strong>k : x</strong>. Fehlt x, rechnest du <strong>k : y</strong>.</p></div>
+  </section>
+  <section class="part" id="part3">
+    <div class="parthead"><h2>Zusatzaufgabe · Mit Kommazahlen</h2><p class="sub">Für alle, die mit Aufgabe 1 und 2 fertig sind. Nutze den Komma-Knopf oder die Punkt-Taste.</p></div>
+  </section>
+
+  <section class="export">
+    <h2>Ergebnis für OneNote</h2>
+    <p>Das Bild füllt sich automatisch mit deinen Eingaben. Wenn du fertig bist, kopiere es und füge es in OneNote ein.</p>
+    <div class="actions"><button class="primary" id="copyImg" type="button">Bild für OneNote kopieren</button><span class="fb" id="fbImg"></span></div>
+    <img id="outImg" alt="Ergebnisbild des Arbeitsblatts mit deinen Eingaben">
+    <p class="hint">Falls das Kopieren nicht klappt: Auf dem iPad das Bild lange antippen → „Kopieren“. Am Computer: Rechtsklick auf das Bild → „Bild kopieren“.</p>
+  </section>
+
+  <footer>Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const num=s=>{const t=String(s).trim().replace(/\s/g,'').replace(',','.');return t===''?NaN:Number(t)};
+const near=(a,b)=>Number.isFinite(a)&&Math.abs(a-b)<0.006;
+const fmt=n=>String(Math.round(n*1000)/1000).replace('.',',');
+(function(){$('date').value=new Date().toLocaleDateString('de-DE')})();
+
+/* x, y: vollständige Werte; g: Index des gegebenen Wertepaars; gap: je Spalte 'x', 'y' oder null */
+const tasks=[
+ {id:'1a',part:'part1',t:'prop',k:4,x:[1,3,5,7,10],y:[4,12,20,28,40],g:1,gap:['y',null,'x','y','x']},
+ {id:'1b',part:'part1',t:'prop',k:6,x:[2,4,6,9,12],y:[12,24,36,54,72],g:1,gap:['y',null,'x','y','x']},
+ {id:'2a',part:'part2',t:'anti',k:36,x:[1,2,3,6,9],y:[36,18,12,6,4],g:2,gap:['y','x',null,'y','x']},
+ {id:'2b',part:'part2',t:'anti',k:60,x:[2,3,5,6,10],y:[30,20,12,10,6],g:2,gap:['x','y',null,'x','y']},
+ {id:'Z1',part:'part3',t:'prop',k:2.5,x:[1.2,2,3.6,5,8],y:[3,5,9,12.5,20],g:1,gap:['y',null,'x','y','x'],extra:true},
+ {id:'Z2',part:'part3',t:'anti',k:18,x:[1.5,2,4,4.5,7.5],y:[12,9,4.5,4,2.4],g:1,gap:['x',null,'y','x','y'],extra:true}
+];
+const MAIN=['1a','1b','2a','2b'],EXTRA=['Z1','Z2'];
+const solved={},lastField={};
+function setFb(id,cls,txt){const el=$(id);el.className='fb '+cls;el.textContent=txt}
+function mark(el,ok){el.classList.toggle('is-ok',ok);el.classList.toggle('is-bad',!ok)}
+function markSolved(id,ok){
+  solved[id]=ok;
+  $('chip-'+id).textContent=ok?'gelöst':'offen';$('chip-'+id).classList.toggle('ok',ok);
+  $('task-'+id).classList.toggle('done',ok);
+  const n=MAIN.filter(k=>solved[k]).length,z=EXTRA.filter(k=>solved[k]).length;
+  $('barFill').style.width=(n/MAIN.length*100)+'%';
+  $('progText').textContent=`${n} von ${MAIN.length} Aufgaben gelöst`+(z?` · Zusatz: ${z} von 2`:'');
+  scheduleImg();
+}
+const cellHtml=(t,row,c)=>{
+  const v=row==='x'?t.x[c]:t.y[c];
+  if(t.gap[c]===row)return `<td><input class="cin" id="${t.id}-${row}${c}" inputmode="decimal" autocomplete="off" aria-label="fehlender ${row}-Wert"></td>`;
+  return `<td class="${c===t.g?'given':''}">${fmt(v)}</td>`;
+};
+tasks.forEach(t=>{
+  const art=document.createElement('article');art.className='task';art.id='task-'+t.id;
+  art.innerHTML=`<div class="taskhead"><h3>${t.extra?'Zusatzaufgabe':'Aufgabe'} ${t.id} <span class="tag ${t.t}">${t.t==='prop'?'proportional':'antiproportional'}</span></h3><span class="chip" id="chip-${t.id}">offen</span></div>
+  <div class="krow2"><label for="${t.id}-k">k =</label><input class="kin" id="${t.id}-k" inputmode="decimal" autocomplete="off"><span class="rule">(${t.t==='prop'?'k = y : x':'k = x · y'})</span></div>
+  <div class="scroll"><table class="wt" aria-label="Wertetabelle">
+    <tr><th>x</th>${t.x.map((_,c)=>cellHtml(t,'x',c)).join('')}</tr>
+    <tr><th>y</th>${t.y.map((_,c)=>cellHtml(t,'y',c)).join('')}</tr>
+  </table></div>
+  <div class="actions"><button class="primary" type="button" id="${t.id}-check">Prüfen</button><button class="comma" type="button" id="${t.id}-comma" title="Komma in das zuletzt gewählte Feld einfügen">,</button><span class="fb" id="fb-${t.id}"></span></div>`;
+  $(t.part).appendChild(art);
+  art.querySelectorAll('input').forEach(el=>el.addEventListener('focus',()=>lastField[t.id]=el));
+  $(t.id+'-comma').onclick=()=>{
+    const el=lastField[t.id];if(!el)return;
+    if(el.value.includes(',')||el.value.includes('.')){el.focus();return}
+    const a=el.selectionStart??el.value.length,z=el.selectionEnd??a;
+    el.value=el.value.slice(0,a)+','+el.value.slice(z);el.focus();
+    try{el.setSelectionRange(a+1,a+1)}catch(_){}
+    scheduleImg();
+  };
+  $(t.id+'-check').onclick=()=>checkTask(t);
+});
+function checkTask(t){
+  const probs=[],kEl=$(t.id+'-k'),kOK=near(num(kEl.value),t.k);mark(kEl,kOK);
+  if(!kOK)probs.push(kEl.value.trim()===''?'Berechne zuerst k.':(t.t==='prop'?'Prüfe k: Rechne y : x mit dem gelb markierten Wertepaar.':'Prüfe k: Rechne x · y mit dem gelb markierten Wertepaar.'));
+  let yBad=false,xBad=false,empty=true;
+  t.gap.forEach((row,c)=>{if(!row)return;const el=$(t.id+'-'+row+c);if(el.value.trim()!=='')empty=false;
+    const ok=near(num(el.value),row==='x'?t.x[c]:t.y[c]);mark(el,ok);if(!ok){if(row==='y')yBad=true;else xBad=true}});
+  if(empty)probs.push('Ergänze noch die Lücken in der Tabelle.');
+  else if(yBad)probs.push(t.t==='prop'?'Prüfe die rot markierten y-Werte: y = k · x.':'Prüfe die rot markierten y-Werte: y = k : x.');
+  else if(xBad)probs.push(t.t==='prop'?'Prüfe die rot markierten x-Werte: x = y : k.':'Prüfe die rot markierten x-Werte: x = k : y.');
+  if(!probs.length){setFb('fb-'+t.id,'ok','Richtig – Tabelle vollständig ergänzt.');markSolved(t.id,true)}
+  else{setFb('fb-'+t.id,'bad',probs[0]);markSolved(t.id,false)}
+}
+
+/* ---------- Bild für OneNote (füllt sich live) ---------- */
+const IMG_FONT='"Atkinson Hyperlegible", Arial, sans-serif';
+let imgTimer=null;
+function okMark(g,x,y){g.font=`bold 19px ${IMG_FONT}`;g.fillStyle='#2f8b4b';g.textAlign='right';g.fillText('✓ gelöst',x,y);g.textAlign='left'}
+function renderImage(){
+  const W=1100,P=50,F=IMG_FONT;
+  const c=document.createElement('canvas');c.width=W;c.height=4000;
+  const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,c.height);
+  const n=MAIN.filter(k=>solved[k]).length,z=EXTRA.filter(k=>solved[k]).length;
+  g.fillStyle='#56646a';g.font=`bold 16px ${F}`;
+  let y=P+10;g.fillText('EMIL-PETRI-SCHULE ARNSTADT · MATHEMATIK KLASSE 7',P,y);
+  y+=42;g.fillStyle='#1b1f20';g.font=`bold 32px ${F}`;g.fillText('Arbeitsblatt: Wertetabellen ergänzen mit Hilfe von k',P,y);
+  y+=34;g.font=`20px ${F}`;g.fillText(`Datum: ${$('date').value}     Gelöst: ${n} von 4`+(z?`     Zusatz: ${z} von 2`:''),P,y);
+  y+=18;g.fillRect(P,y,W-2*P,3);y+=30;
+  const cw=120,ch=46;
+  tasks.filter(t=>!t.extra||solved[t.id]).forEach(t=>{
+    y+=30;g.font=`bold 22px ${F}`;g.fillStyle=t.t==='prop'?'#1565C0':'#C2410C';g.textAlign='left';
+    g.fillText(`${t.extra?'Zusatzaufgabe':'Aufgabe'} ${t.id} · ${t.t==='prop'?'proportional':'antiproportional'}`,P,y);
+    if(solved[t.id])okMark(g,W-P,y);
+    y+=34;g.fillStyle='#1b1f20';g.font=`bold 20px ${F}`;g.fillText('k = '+($(t.id+'-k').value.trim()||'…'),P,y);
+    const ty=y+16;
+    ['x','y'].forEach((row,r)=>{
+      g.fillStyle='#e4f1f1';g.fillRect(P,ty+r*ch,70,ch);g.strokeStyle='#1b1f20';g.lineWidth=2;g.strokeRect(P,ty+r*ch,70,ch);
+      g.fillStyle='#1b1f20';g.font=`bold 20px ${F}`;g.textAlign='center';g.fillText(row,P+35,ty+r*ch+30);
+      for(let i=0;i<5;i++){
+        const xx=P+70+i*cw,isGap=t.gap[i]===row;
+        if(i===t.g){g.fillStyle='#fff8e3';g.fillRect(xx,ty+r*ch,cw,ch)}
+        g.strokeStyle='#1b1f20';g.strokeRect(xx,ty+r*ch,cw,ch);g.fillStyle='#1b1f20';
+        const v=isGap?$(t.id+'-'+row+i).value.trim():fmt(row==='x'?t.x[i]:t.y[i]);
+        g.font=(isGap?'':'bold ')+`20px ${F}`;g.fillText(v,xx+cw/2,ty+r*ch+30);
+      }
+    });
+    g.textAlign='left';y=ty+2*ch+16;g.fillStyle='#c6d2d4';g.fillRect(P,y,W-2*P,1);
+  });
+  y+=40;g.font=`16px ${F}`;g.fillStyle='#56646a';g.textAlign='right';
+  g.fillText('Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.',W-P,y);
+  y+=P;
+  const out=document.createElement('canvas');out.width=W;out.height=y;
+  out.getContext('2d').drawImage(c,0,0);
+  $('outImg').src=out.toDataURL('image/png');
+}
+function scheduleImg(){clearTimeout(imgTimer);imgTimer=setTimeout(renderImage,250)}
+document.querySelector('.wrap').addEventListener('input',scheduleImg);
+(document.fonts?document.fonts.ready:Promise.resolve()).then(renderImage);
+
+function dataUrlToBlob(u){const b=atob(u.split(',')[1]),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return new Blob([a],{type:'image/png'})}
+function copyViaSelection(){
+  try{const r=document.createRange();r.selectNode($('outImg'));const s=getSelection();s.removeAllRanges();s.addRange(r);const ok=document.execCommand('copy');s.removeAllRanges();return ok}catch(_){return false}
+}
+$('copyImg').onclick=()=>{
+  clearTimeout(imgTimer);renderImage();
+  const blob=dataUrlToBlob($('outImg').src),viaSel=copyViaSelection();
+  const done=()=>setFb('fbImg','ok','Bild kopiert – jetzt in OneNote einfügen.');
+  const fail=()=>viaSel?done():setFb('fbImg','bad','Kopieren ging hier nicht. Tippe das Bild unten lange an und wähle „Kopieren“.');
+  try{if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write)navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).then(done).catch(fail);else fail()}catch(_){fail()}
+};
+</script>
+
+<div class="ll-fenster" id="ll-fenster" hidden><div class="ll-box" role="dialog" aria-modal="true" aria-label="Spickzettel"><button type="button" class="ll-zu" id="ll-zu" aria-label="Spickzettel schließen">✕ Schließen</button><iframe id="ll-frame" title="Spickzettel"></iframe></div></div><script>
+(function(){
+  var o=document.getElementById('ll-fenster'),f=document.getElementById('ll-frame'),b=document.getElementById('ll-spick');
+  function zu(){o.hidden=true;document.body.style.overflow='';b.focus();}
+  b.addEventListener('click',function(){if(!f.getAttribute('src'))f.src='spickzettel.html';o.hidden=false;document.body.style.overflow='hidden';document.getElementById('ll-zu').focus();});
+  document.getElementById('ll-zu').addEventListener('click',zu);
+  o.addEventListener('click',function(e){if(e.target===o)zu();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!o.hidden)zu();});
+  var z=document.getElementById('ll-zurueck'),t=null;
+  function eingetragen(){return Array.prototype.some.call(document.querySelectorAll('input,textarea'),function(i){return i.id!=='date'&&i.type!=='hidden'&&i.value.trim()!=='';});}
+  z.addEventListener('click',function(e){
+    if(z.classList.contains('ll-warn')||!eingetragen())return;
+    e.preventDefault();z.classList.add('ll-warn');z.textContent='Wirklich? Deine Eingaben gehen verloren.';
+    clearTimeout(t);t=setTimeout(function(){z.classList.remove('ll-warn');z.textContent='← Lern-Lounge';},4000);
+  });
+})();
+</script>
+</body>
+</html>

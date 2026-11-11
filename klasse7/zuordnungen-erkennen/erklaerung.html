@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Einkaufen und Tüte teilen</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+</style>
+<style>
+/* Layout: zwei Szenen zum Umschalten (Bäckertresen / Gummibärchen-Tüte), darunter Satz, Pfeile und wachsende Wertetabelle; weißes Blatt, bewusst nur heller Look */
+:root{
+  --papier:#ffffff; --tinte:#000000; --grau:#F2F2F2; --leise:#6F6F6F; --rand:#C9D2CE;
+  --smaragd:#00805F; --smaragd-hell:#D3F2E5;
+  --prop:#1565C0; --prop-hell:#E3EEFB;
+  --anti:#C2410C; --anti-hell:#FCEDE4;
+  --semmel:#D9A35B; --semmel-dunkel:#9C6420; --haut:#F2C9A0;
+  --schrift:Arial,Helvetica,"Liberation Sans",sans-serif;
+  color-scheme:light;
+}
+html{background:var(--papier)}
+body{background:var(--papier);color:var(--tinte);font-family:var(--schrift);font-size:clamp(14px,1.2vw,21px);line-height:1.3;
+  padding-block:16px 24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.blatt{max-width:1400px;margin:0 auto;display:flex;flex-direction:column;gap:.9em}
+.titel{background:var(--smaragd);color:#fff;font-weight:700;text-align:center;font-size:1.6em;padding:.4em .5em;margin:0;text-wrap:balance}
+
+.reiter{display:flex;gap:.6em;flex-wrap:wrap;justify-content:center}
+.reiter button{font:inherit;font-size:1.15em;font-weight:700;padding:.45em 1.2em;background:var(--papier);color:var(--tinte);border:2.5px solid var(--rand);cursor:pointer;display:flex;align-items:center;gap:.5em}
+.reiter button[aria-selected="true"].p{border-color:var(--prop);background:var(--prop-hell)}
+.reiter button[aria-selected="true"].a{border-color:var(--anti);background:var(--anti-hell)}
+.reiter svg{width:1.5em;height:1.5em}
+
+.szene{border:2px solid var(--smaragd);display:flex;flex-direction:column}
+.szene.p{border-color:var(--prop)} .szene.a{border-color:var(--anti)}
+.szene>h2{margin:0;font-size:1.05em;padding:.4em .7em;border-bottom:2px solid}
+.szene.p>h2{background:var(--prop-hell);border-color:var(--prop)}
+.szene.a>h2{background:var(--anti-hell);border-color:var(--anti)}
+.innen{padding:.9em;display:flex;flex-direction:column;gap:.9em}
+
+.wahl{display:flex;flex-wrap:wrap;align-items:center;gap:.5em;font-size:1.1em;font-weight:700}
+.wahl .zahlen{display:flex;flex-wrap:wrap;gap:.4em}
+.wahl button{font:inherit;width:2.6em;height:2.6em;border:2.5px solid var(--rand);background:var(--papier);color:var(--tinte);cursor:pointer;font-size:1em}
+.wahl button:hover{background:var(--grau)}
+.p .wahl button[aria-pressed="true"]{background:var(--prop);border-color:var(--prop);color:#fff}
+.a .wahl button[aria-pressed="true"]{background:var(--anti);border-color:var(--anti);color:#fff}
+button:focus-visible{outline:3px solid var(--smaragd);outline-offset:2px}
+
+/* Bäcker */
+.tresen{min-height:9.5em;border-bottom:8px solid var(--semmel-dunkel);display:flex;flex-wrap:wrap;align-items:flex-end;gap:.6em;padding:.4em .4em .6em}
+.broetchen{display:flex;flex-direction:column;align-items:center;gap:.2em;animation:rein .35s ease-out both}
+.broetchen svg{width:5.2em;height:3.6em}
+.schild{border:1.5px solid var(--tinte);background:var(--papier);padding:.05em .4em;font-size:.85em;font-weight:700}
+.balken-zeile{display:flex;align-items:center;gap:.8em}
+.balken-zeile span{font-weight:700;white-space:nowrap}
+.balken{flex:1;height:1.6em;background:var(--grau);position:relative;min-width:0}
+.balken i{position:absolute;inset:0 auto 0 0;background:var(--prop);transition:width .5s ease}
+
+/* Gummibärchen */
+.buehne{display:grid;grid-template-columns:auto minmax(0,1fr);gap:1.2em;align-items:start}
+@media (max-width:700px){.buehne{grid-template-columns:1fr}}
+.tuete{width:9em;display:flex;flex-direction:column;align-items:center;gap:.3em}
+.tuete .sack{width:9em;min-height:9em;border:3px solid var(--anti);border-top-width:8px;background:#FFF8F3;display:flex;flex-wrap:wrap;align-content:flex-start;gap:2px;padding:.4em;box-sizing:border-box}
+.tuete b{font-size:1.05em}
+.kinder{display:flex;flex-wrap:wrap;gap:.8em 1em;align-content:flex-start}
+.kind{display:flex;flex-direction:column;align-items:center;gap:.2em;width:6.6em;animation:rein .3s ease-out both}
+.kind svg.figur{width:3.4em;height:4em}
+.teller{width:6.6em;min-height:3em;border:2.5px solid var(--leise);border-radius:0 0 2.5em 2.5em;display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:2px;padding:.25em;box-sizing:border-box;background:var(--papier)}
+.kind .anz{font-weight:700;font-size:1.15em;min-height:1.3em}
+.baer{width:1.25em;height:1.5em;flex:none}
+.teller .baer{animation:plopp .25s ease-out both}
+
+@keyframes rein{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes plopp{from{transform:scale(.2)}to{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Ergebnis */
+.ergebnis{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:.9em;align-items:start}
+@media (max-width:900px){.ergebnis{grid-template-columns:1fr}}
+.satz{font-size:1.45em;font-weight:700;margin:0;min-height:1.3em}
+.rechnung{font-size:1.25em;margin:.2em 0 0;font-variant-numeric:tabular-nums;min-height:1.3em}
+.vergleich{margin-top:.6em;padding:.5em .7em;background:var(--grau);font-size:1.1em;min-height:1.3em}
+.vergleich:empty{display:none}
+.vergleich .pf{font-weight:700;font-size:1.25em}
+.p .vergleich .pf{color:var(--prop)} .a .vergleich .pf{color:var(--anti)}
+
+.wt-box{display:flex;flex-direction:column;gap:.4em;min-width:0}
+.wt-scroll{overflow-x:auto}
+table.wt{border-collapse:collapse;font-variant-numeric:tabular-nums}
+.wt th,.wt td{border:1.5px solid var(--tinte);height:2.2em;min-width:3.2em;text-align:center;padding:0 .4em;font-size:1.05em}
+.wt th{background:var(--grau);text-align:left;white-space:nowrap}
+.wt td.jetzt{background:var(--smaragd-hell);font-weight:700}
+.wt-kopf{display:flex;justify-content:space-between;align-items:center;gap:.6em;font-weight:700}
+.klein{font:inherit;font-size:.8em;padding:.25em .7em;border:2px solid var(--smaragd);background:var(--papier);color:var(--tinte);cursor:pointer}
+
+.fuss{text-align:right;font-style:italic;color:var(--leise);font-size:.65em;margin:0}
+
+/* Ergänzung: geführte, gesprochene Erklärung */
+[hidden]{display:none!important}
+.lernfilm{position:sticky;top:0;z-index:2;border:2px solid #00805F;background:#F0FAF6;padding:.8em 1em;display:flex;flex-direction:column;gap:.55em}
+.lernfilm .steuerung{display:flex;gap:.5em;flex-wrap:wrap;align-items:center}
+.lernfilm button{font:inherit;font-weight:700;padding:.45em .85em;border:2px solid #00805F;background:white;cursor:pointer}
+.lernfilm button.start{background:#00805F;color:white}
+.lernfilm button:disabled{opacity:.45;cursor:not-allowed}
+.lernfilm .untertitel{font-size:1.15em;font-weight:700;min-height:2.6em}
+.lernfilm .hinweis{font-size:.8em;color:#555}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="baer" viewBox="0 0 20 24">
+      <circle cx="5" cy="3.5" r="2.6"/><circle cx="15" cy="3.5" r="2.6"/>
+      <circle cx="10" cy="7" r="5.2"/>
+      <ellipse cx="10" cy="16.5" rx="6.2" ry="6.5"/>
+      <circle cx="3.6" cy="13" r="2.3"/><circle cx="16.4" cy="13" r="2.3"/>
+      <circle cx="5.5" cy="21.5" r="2.5"/><circle cx="14.5" cy="21.5" r="2.5"/>
+    </symbol>
+    <symbol id="semmel" viewBox="0 0 100 70">
+      <ellipse cx="50" cy="40" rx="46" ry="28" fill="#D9A35B" stroke="#9C6420" stroke-width="3"/>
+      <path d="M22 30 q8 14 6 26 M40 18 q8 18 5 40 M60 18 q-6 18 -3 40 M78 30 q-8 14 -6 26" fill="none" stroke="#9C6420" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="blatt">
+<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a></div>
+  <h1 class="titel">Wie Einkaufen – wie Tüte teilen</h1>
+
+  <div class="reiter" role="tablist">
+    <button type="button" role="tab" class="p" id="tab-p" aria-selected="true" aria-controls="szene-p">
+      <svg viewBox="0 0 48 48" fill="none" stroke="#1565C0" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h6l5 24h24l5-16H13"/><circle cx="19" cy="40" r="3" fill="#1565C0"/><circle cx="35" cy="40" r="3" fill="#1565C0"/></svg>
+      Wie Einkaufen</button>
+    <button type="button" role="tab" class="a" id="tab-a" aria-selected="false" aria-controls="szene-a">
+      <svg viewBox="0 0 48 48" fill="none" stroke="#C2410C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 16h28l-3 26H13z"/><path d="M17 16c0-6 3-9 7-9s7 3 7 9"/></svg>
+      Wie Tüte teilen</button>
+  </div>
+
+  <!-- Szene 1: Einkaufen -->
+  <section class="szene p" id="szene-p" role="tabpanel" aria-labelledby="tab-p">
+    <h2>Beim Bäcker: Ein Brötchen kostet 40 ct.</h2>
+    <div class="innen">
+      <div class="wahl">Wie viele Brötchen?<div class="zahlen" id="wahl-p"></div></div>
+      <div class="tresen" id="tresen"></div>
+      <div class="balken-zeile"><span>Preis</span><div class="balken"><i id="balken" style="width:0"></i></div><span id="balken-wert">0,00 €</span></div>
+      <div class="ergebnis">
+        <div>
+          <p class="satz" id="satz-p">Tippe oben auf eine Zahl.</p>
+          <p class="rechnung" id="rech-p"></p>
+          <div class="vergleich" id="vgl-p"></div>
+        </div>
+        <div class="wt-box">
+          <div class="wt-kopf">Wertetabelle <button type="button" class="klein" data-leeren="p">Tabelle leeren</button></div>
+          <div class="wt-scroll"><table class="wt" id="wt-p"></table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Szene 2: Tüte teilen -->
+  <section class="szene a" id="szene-a" role="tabpanel" aria-labelledby="tab-a" hidden>
+    <h2>Eine Tüte mit 24 Gummibärchen wird gerecht verteilt.</h2>
+    <div class="innen">
+      <div class="wahl">Wie viele Kinder?<div class="zahlen" id="wahl-a"></div></div>
+      <div class="buehne">
+        <div class="tuete"><div class="sack" id="sack"></div><b id="sack-zahl">In der Tüte: 24</b></div>
+        <div class="kinder" id="kinder"></div>
+      </div>
+      <div class="ergebnis">
+        <div>
+          <p class="satz" id="satz-a">Tippe oben auf eine Zahl.</p>
+          <p class="rechnung" id="rech-a"></p>
+          <div class="vergleich" id="vgl-a"></div>
+        </div>
+        <div class="wt-box">
+          <div class="wt-kopf">Wertetabelle <button type="button" class="klein" data-leeren="a">Tabelle leeren</button></div>
+          <div class="wt-scroll"><table class="wt" id="wt-a"></table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude und ChatGPT.</p>
+</main>
+
+<script>
+(function(){
+  const FARBEN=['#E53935','#FDD835','#43A047','#FB8C00','#8E24AA','#F4F4F4'];
+  const ruhig=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const euro=ct=>(ct/100).toFixed(2).replace('.',',')+' €';
+  const baerSVG=i=>`<svg class="baer" viewBox="0 0 20 24" aria-hidden="true"><use href="#baer" fill="${FARBEN[i%FARBEN.length]}" stroke="#555" stroke-width="0.8"/></svg>`;
+
+  // ----- Reiter -----
+  const tabs={p:document.getElementById('tab-p'),a:document.getElementById('tab-a')};
+  const szenen={p:document.getElementById('szene-p'),a:document.getElementById('szene-a')};
+  function zeige(k){for(const x of ['p','a']){tabs[x].setAttribute('aria-selected',x===k);szenen[x].hidden=x!==k;}}
+  tabs.p.addEventListener('click',()=>zeige('p'));tabs.a.addEventListener('click',()=>zeige('a'));
+
+  // ----- Wertetabellen -----
+  const daten={p:new Map(),a:new Map()};
+  const kopf={p:['Anzahl Brötchen','Preis'],a:['Anzahl Kinder','Gummibärchen pro Kind']};
+  let aktuell={p:null,a:null},vorher={p:null,a:null};
+  function tabelle(k){
+    const t=document.getElementById('wt-'+k);const xs=[...daten[k].keys()].sort((a,b)=>a-b);
+    const zelle=(v,x)=>`<td${x===aktuell[k]?' class="jetzt"':''}>${v}</td>`;
+    t.innerHTML=`<tr><th>${kopf[k][0]}</th>${xs.map(x=>zelle(x,x)).join('')||'<td></td>'}</tr>`+
+      `<tr><th>${kopf[k][1]}</th>${xs.map(x=>zelle(k==='p'?euro(daten.p.get(x)):daten.a.get(x),x)).join('')||'<td></td>'}</tr>`;
+  }
+  document.querySelectorAll('[data-leeren]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.leeren;daten[k].clear();if(aktuell[k]!=null)daten[k].set(aktuell[k],k==='p'?aktuell[k]*40:24/aktuell[k]);tabelle(k);}));
+
+  function vergleich(k,alt,neu){
+    const el=document.getElementById('vgl-'+k);
+    if(alt==null||alt===neu){el.innerHTML='';return;}
+    const mehr=neu>alt;
+    let s;
+    if(k==='p') s=mehr?`<span class="pf">↑ ↑</span> Mehr Brötchen → mehr Geld.`:`<span class="pf">↓ ↓</span> Weniger Brötchen → weniger Geld.`;
+    else s=mehr?`<span class="pf">↑ ↓</span> Mehr Kinder → weniger Gummibärchen für jedes Kind.`:`<span class="pf">↓ ↑</span> Weniger Kinder → mehr Gummibärchen für jedes Kind.`;
+    const f=neu/alt,g=alt/neu;
+    const mal={2:'doppelt',3:'dreimal',4:'viermal'},teil={2:'halb',3:'ein Drittel',4:'ein Viertel'};
+    if(mal[f]) s+= k==='p'?`<br>${mal[f]} so viele Brötchen → ${mal[f]} so teuer`:`<br>${mal[f]} so viele Kinder → ${teil[f]} so viele Gummibärchen`;
+    else if(teil[g]) s+= k==='p'?`<br>${teil[g]} so viele Brötchen → ${teil[g]} so teuer`:`<br>${teil[g]} so viele Kinder → ${mal[g]} so viele Gummibärchen`;
+    el.innerHTML=s;
+  }
+
+  function knoepfe(k,werte,fn){
+    const box=document.getElementById('wahl-'+k);
+    werte.forEach(n=>{const b=document.createElement('button');b.type='button';b.textContent=n;b.setAttribute('aria-pressed','false');
+      b.addEventListener('click',()=>{box.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(n);});box.appendChild(b);});
+  }
+
+  // ----- Einkaufen -----
+  const tresen=document.getElementById('tresen');
+  knoepfe('p',[1,2,3,4,5,6,7,8],n=>{
+    vorher.p=aktuell.p;aktuell.p=n;
+    tresen.innerHTML='';
+    for(let i=0;i<n;i++){const d=document.createElement('div');d.className='broetchen';d.style.animationDelay=(ruhig?0:i*90)+'ms';
+      d.innerHTML='<svg viewBox="0 0 100 70" aria-hidden="true"><use href="#semmel"/></svg><span class="schild">40 ct</span>';tresen.appendChild(d);}
+    const ct=n*40;
+    document.getElementById('balken').style.width=(ct/320*100)+'%';
+    document.getElementById('balken-wert').textContent=euro(ct);
+    document.getElementById('satz-p').textContent=`${n} Brötchen ${n===1?'kostet':'kosten'} ${euro(ct)}.`;
+    document.getElementById('rech-p').textContent=`${n} · 40 ct = ${ct} ct = ${euro(ct)}`;
+    vergleich('p',vorher.p,n);daten.p.set(n,ct);tabelle('p');
+  });
+
+  // ----- Tüte teilen -----
+  const sack=document.getElementById('sack'),kinderBox=document.getElementById('kinder'),sackZahl=document.getElementById('sack-zahl');
+  function fuelleSack(){sack.innerHTML=Array.from({length:24},(_,i)=>baerSVG(i)).join('');sackZahl.textContent='In der Tüte: 24';}
+  fuelleSack();
+  let lauf=0;
+  const figur=(i)=>`<svg class="figur" viewBox="0 0 40 48" aria-hidden="true">
+     <circle cx="20" cy="11" r="9" fill="#F2C9A0" stroke="#555" stroke-width="1.5"/>
+     <path d="M7 46c0-12 6-20 13-20s13 8 13 20z" fill="${['#1565C0','#00805F','#8E24AA','#C2410C','#00838F','#6D4C41'][i%6]}"/>
+     <circle cx="16.5" cy="10" r="1.3"/><circle cx="23.5" cy="10" r="1.3"/>
+     <path d="M16 14.5q4 3 8 0" fill="none" stroke="#333" stroke-width="1.3" stroke-linecap="round"/></svg>`;
+  knoepfe('a',[1,2,3,4,6,8,12],n=>{
+    vorher.a=aktuell.a;aktuell.a=n;const meinLauf=++lauf;
+    fuelleSack();kinderBox.innerHTML='';
+    const teller=[];
+    for(let i=0;i<n;i++){const k=document.createElement('div');k.className='kind';
+      k.innerHTML=figur(i)+'<div class="teller"></div><div class="anz">0</div>';kinderBox.appendChild(k);teller.push(k);}
+    const pro=24/n;
+    document.getElementById('satz-a').textContent='Die Gummibärchen werden verteilt …';
+    document.getElementById('rech-a').textContent='';document.getElementById('vgl-a').innerHTML='';
+    const schritt=ruhig?0:Math.max(45,Math.min(140,2400/24));
+    const baeren=[...sack.querySelectorAll('.baer')];
+    function fertig(){
+      document.getElementById('satz-a').textContent=`Jedes Kind bekommt ${pro} Gummibärchen.`;
+      document.getElementById('rech-a').textContent=`24 : ${n} = ${pro}`;
+      vergleich('a',vorher.a,n);daten.a.set(n,pro);tabelle('a');
+    }
+    if(!schritt){baeren.forEach((b,i)=>teller[i%n].querySelector('.teller').appendChild(b));teller.forEach(k=>k.querySelector('.anz').textContent=pro);sackZahl.textContent='In der Tüte: 0';fertig();return;}
+    baeren.forEach((b,i)=>setTimeout(()=>{
+      if(meinLauf!==lauf)return;
+      const k=teller[i%n];k.querySelector('.teller').appendChild(b);
+      k.querySelector('.anz').textContent=k.querySelectorAll('.teller .baer').length;
+      sackZahl.textContent='In der Tüte: '+(23-i);
+      if(i===23)fertig();
+    },300+i*schritt));
+  });
+
+  // Geführte Erklärung mit integrierter Browser-Sprachausgabe.
+  // Die Originalinteraktion bleibt vollständig erhalten.
+  const film=document.createElement('section');
+  film.className='lernfilm';
+  film.setAttribute('aria-label','Gesprochene Erklärung');
+  film.innerHTML=`<strong>🎙️ Gesprochene Erklärung</strong>
+    <div class="steuerung"><button type="button" class="start" id="film-start">▶ Erklärung starten</button>
+    <button type="button" id="film-pause" disabled>⏸ Pause</button>
+    <button type="button" id="film-stop" disabled>■ Beenden</button>
+    <label for="film-tempo">Sprechtempo:</label><select id="film-tempo"><option value="0.85">Langsam</option><option value="0.95" selected>Normal</option><option value="1.1">Schnell</option></select></div>
+    <div class="hinweis" id="film-hinweis" role="status">Die Erklärung wird automatisch vorgelesen. Zum Starten bitte auf ▶ klicken.</div>`;
+  document.querySelector('.reiter').before(film);
+  const startBtn=film.querySelector('#film-start'),stopBtn=film.querySelector('#film-stop');
+  const pauseBtn=film.querySelector('#film-pause');
+  const hinweis=film.querySelector('#film-hinweis');
+  const synth=('speechSynthesis' in window)?window.speechSynthesis:null;
+  let bevorzugteStimme=null;
+  function ladeStimme(){
+    if(!synth)return;
+    const stimmen=synth.getVoices();
+    // Google Deutsch wird bevorzugt, sofern diese Stimme auf dem Endgerät verfügbar ist.
+    bevorzugteStimme=stimmen.find(v=>v.lang.toLowerCase().startsWith('de') && /google.*deutsch|google.*german/i.test(v.name))
+      || stimmen.find(v=>v.lang.toLowerCase().startsWith('de') && /google/i.test(v.name))
+      || stimmen.find(v=>v.lang.toLowerCase()==='de-de')
+      || stimmen.find(v=>v.lang.toLowerCase().startsWith('de')) || null;
+  }
+  ladeStimme();
+  if(synth)synth.addEventListener('voiceschanged',ladeStimme);
+  let filmLauf=0;
+  let pausiert=false;
+  let fortsetzen=null;
+
+  function warteAufFortsetzen(){
+    if(pausiert)return new Promise(resolve=>{fortsetzen=resolve;});
+  }
+  function loesePause(){
+    pausiert=false;
+    pauseBtn.textContent='⏸ Pause';
+    fortsetzen?.();
+    fortsetzen=null;
+  }
+  function setzeBedienung(laeuft){
+    startBtn.disabled=laeuft;
+    pauseBtn.disabled=!laeuft;
+    stopBtn.disabled=!laeuft;
+  }
+  const warte=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  function spreche(text,id){
+    if(!synth)return warte(Math.max(1800,text.length*65));
+    return new Promise(resolve=>{
+      if(id!==filmLauf){resolve();return;}
+      let fertig=false;
+      let fallback;
+      const ende=()=>{
+        if(fertig)return;
+        fertig=true;
+        clearTimeout(fallback);
+        resolve();
+      };
+      const sprechtext=text.replace('Das ist eine proportionale Zuordnung.', 'Das nennt man eine Zuordnung, die proportional ist.').replace('Das ist eine antiproportionale Zuordnung.', 'Das nennt man eine Zuordnung, die antiproportional ist.');
+      const u=new SpeechSynthesisUtterance(sprechtext);
+      u.lang='de-DE';u.rate=Number(film.querySelector('#film-tempo').value);u.pitch=1;
+      ladeStimme();
+      if(bevorzugteStimme)u.voice=bevorzugteStimme;
+      u.onend=ende;u.onerror=ende;
+      // Solange die Stimme pausiert oder noch spricht, bleibt der Schritt aktiv.
+      function pruefeSprechende(){
+        if(id===filmLauf&&(pausiert||synth.speaking||synth.pending)){
+          fallback=setTimeout(pruefeSprechende,1000);
+          return;
+        }
+        ende();
+      }
+      fallback=setTimeout(pruefeSprechende,Math.max(5000,text.length*170));
+      synth.speak(u);
+    });
+  }
+  function klicke(k,n){
+    const b=[...document.querySelectorAll('#wahl-'+k+' button')].find(b=>Number(b.textContent)===n);
+    if(b)b.click();
+  }
+  function beende(){
+    filmLauf++;
+    loesePause();
+    if(synth){
+      synth.cancel();
+      if(synth.paused)synth.resume();
+    }
+    setzeBedienung(false);
+  }
+  pauseBtn.addEventListener('click',()=>{
+    if(pausiert){
+      synth.resume();
+      loesePause();
+      hinweis.textContent='Die Erklärung läuft.';
+    }else{
+      pausiert=true;
+      synth.pause();
+      pauseBtn.textContent='▶ Fortsetzen';
+      hinweis.textContent='Die Erklärung ist pausiert.';
+    }
+  });
+  stopBtn.addEventListener('click',()=>{beende();hinweis.textContent='Erklärung beendet. Du kannst jetzt selbst mit dem Tafelbild arbeiten.';});
+  startBtn.addEventListener('click',async()=>{
+    if(!synth){hinweis.textContent='Dieser Browser unterstützt keine automatische Sprachausgabe.';return;}
+    hinweis.textContent='Die Erklärung läuft. Du kannst sie pausieren oder beenden.';
+    beende();const id=filmLauf;
+    setzeBedienung(true);
+    const schritte=[
+      ['p',null,'Wir vergleichen zwei Alltagssituationen. Zuerst gehen wir zum Bäcker. Ein Brötchen kostet vierzig Cent.'],
+      ['p',1,'Für ein Brötchen bezahlen wir vierzig Cent.'],
+      ['p',2,'Für zwei Brötchen bezahlen wir achtzig Cent. Doppelt so viele Brötchen kosten doppelt so viel.'],
+      ['p',4,'Vier Brötchen kosten einen Euro und sechzig Cent. Wir haben die Anzahl erneut verdoppelt, und auch der Preis verdoppelt sich.'],
+      ['p',null,'Je mehr Brötchen wir kaufen, desto mehr bezahlen wir. Das ist eine proportionale Zuordnung.'],
+      ['a',null,'Jetzt betrachten wir eine andere Situation. Vierundzwanzig Gummibärchen sollen gerecht auf Kinder verteilt werden.'],
+      ['a',2,'Bei zwei Kindern bekommt jedes Kind zwölf Gummibärchen.'],
+      ['a',4,'Bei vier Kindern bekommt jedes Kind nur noch sechs Gummibärchen. Doppelt so viele Kinder erhalten jeweils halb so viele Gummibärchen.'],
+      ['a',8,'Bei acht Kindern erhält jedes Kind drei Gummibärchen.'],
+      ['a',null,'Je mehr Kinder sich die feste Menge teilen, desto weniger bekommt jedes Kind. Das ist eine antiproportionale Zuordnung.'],
+      ['a',null,'Merke: Beim Einkaufen steigen Anzahl und Preis gemeinsam. Beim Teilen einer festen Menge steigt die Kinderzahl, während die Anzahl der Gummibärchen pro Kind sinkt. Jetzt bist du dran!']
+    ];
+    for(const [k,n,txt] of schritte){
+      if(id!==filmLauf)return;
+      if(pausiert)await warteAufFortsetzen();
+      if(id!==filmLauf)return;
+      zeige(k);
+      if(n!==null)klicke(k,n);
+      if(k==='a'&&n!==null)await warte(2800);
+      if(id!==filmLauf)return;
+      if(pausiert)await warteAufFortsetzen();
+      if(id!==filmLauf)return;
+      await spreche(txt,id);
+      if(id!==filmLauf)return;
+      await warte(450);
+    }
+    if(id!==filmLauf)return;
+    if(pausiert)await warteAufFortsetzen();
+    if(id===filmLauf){setzeBedienung(false);hinweis.textContent='Fertig! Probiere die beiden Situationen jetzt selbst aus.';}
+  });
+
+  tabelle('p');tabelle('a');
+})();
+</script>
+
+<script>
+(function(){
+  function still(){try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}}
+  document.getElementById('ll-zurueck').addEventListener('click',still);
+  window.addEventListener('pagehide',still);
+})();
+</script>

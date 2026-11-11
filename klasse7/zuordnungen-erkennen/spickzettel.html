@@ -1,0 +1,88 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Spickzettel Zuordnungen erkennen</title><style>
+:root{--rot:#B3261E;--rot-hell:#FBE3E1;--grau:#F2F2F2;--leise:#6F6F6F;--prop:#1565C0;--anti:#C2410C}
+body{margin:0;background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;font-size:17px;line-height:1.35;padding:18px}
+.blatt{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.titel{background:var(--rot);color:#fff;font-weight:700;text-align:center;font-size:1.5em;padding:.4em .5em;margin:0}
+.titel small{display:block;font-size:.55em;font-weight:400;letter-spacing:.12em;text-transform:uppercase;opacity:.9}
+.kasten{border:2px solid var(--rot)}.kasten>h2{margin:0;font-size:1em;background:var(--rot-hell);border-bottom:2px solid var(--rot);padding:.35em .7em}
+.innen{padding:.5em .9em .7em}.zwei{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.regel{font-weight:700;font-size:1.08em;margin:.2em 0 .4em}.regel.p{color:var(--prop)}.regel.a{color:var(--anti)}
+.merk{display:inline-block;border:2px solid currentColor;padding:.15em .5em;margin:.1em 0 .5em}
+.bsp{margin:.2em 0 .4em;font-style:italic}
+.tsvg{width:100%;height:auto;display:block}.tt{font:21px Arial;text-anchor:middle}.th{font:bold 15px Arial;text-anchor:middle}.lab{font:bold 19px Arial}
+ol{margin:.2em 0;padding-left:1.4em}li{margin:.2em 0}
+.achtung{border:2px dashed var(--rot);padding:.5em .9em;background:#fff8f7}.achtung b{color:var(--rot)}
+.fuss{text-align:right;font-style:italic;color:var(--leise);font-size:.75em;margin:0}
+.gl{display:flex;align-items:center;justify-content:center;gap:16px;font-size:24px;margin:.6em 0}
+.fr{display:inline-flex;flex-direction:column;align-items:center;min-width:60px}
+.fr>span{padding:0 10px}.fr>span:first-child{border-bottom:3px solid #000}
+.fr i{font-style:normal;font-size:12px;color:var(--leise);margin-top:4px;white-space:nowrap}
+.xv{font-weight:700;color:var(--rot)}
+.rech{font-size:19px;text-align:center;line-height:1.5;margin:.3em 0 .5em}.rech small{display:block;font-size:13px;color:var(--leise);margin-bottom:.35em}.rech .tr{display:inline-block;font-size:22px;border:2px solid #000;padding:.15em .6em;background:#fafafa}
+.flip{display:inline-block;font-size:13px;font-weight:700;border:1.5px solid var(--anti);color:var(--anti);border-radius:99px;padding:1px 9px}
+@media (max-width:700px){.zwei{grid-template-columns:1fr}body{padding:12px}}
+@media print{body{padding:0}}
+:root{--grau2:#555555}
+.start{display:block;width:max-content;margin:.2em auto 0;border:2.5px solid #000;border-radius:999px;padding:.35em 1.2em;font-weight:700}
+.ast{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+.zweig{display:flex;flex-direction:column;align-items:center;text-align:center}
+.pf{font-size:22px;line-height:1;margin:3px 0;font-weight:700}
+.bx{border:2.5px solid var(--c);border-radius:12px;padding:.35em .8em;background:#fff;min-width:60%}
+.bx.soft{background:var(--cs)}
+.bx .big{font-size:24px;font-weight:700;line-height:1.1}
+.bx small{display:block;font-size:13px}
+.lbl{font-size:13px;color:#333;margin:.1em 0 .2em}
+.ende{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+.ende>div{display:flex;flex-direction:column;align-items:center}
+.tag{font-size:12.5px;font-weight:700;border:2px solid currentColor;border-radius:8px;padding:1px 8px;margin-bottom:2px}
+.erg{border-radius:12px;color:#fff;padding:.35em .5em;width:100%;box-sizing:border-box;font-weight:700;font-size:17px;line-height:1.15}
+.erg small{display:block;font-size:12px;font-weight:700;opacity:.95}
+.bsp2{font-size:13.5px;margin:.25em 0 0}
+.graphs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center}
+.graphs svg{width:100%;max-width:160px;height:auto}
+.graphs b{display:block;font-size:15px}
+.graphs span{font-size:13.5px}
+@media (max-width:700px){.ast{grid-template-columns:1fr}.graphs{grid-template-columns:1fr}}
+.mini{border-collapse:collapse;margin:.45em auto .1em;font-size:16px}
+.mini th,.mini td{border:1.5px solid #000;width:42px;height:28px;text-align:center}
+.mini th{background:#F2F2F2}
+.mini tr.kr td{color:var(--c);font-weight:700;border-top:2.5px solid var(--c)}
+.mini tr.kr th{border-top:2.5px solid var(--c);color:var(--c)}
+</style></head><body><main class="blatt">
+<h1 class="titel"><small>Spickzettel · Zuordnungen</small>Zuordnungen erkennen</h1>
+<section class="kasten"><h2>An der Wertetabelle erkennen</h2><div class="innen">
+<span class="start">Lies die Tabelle so: x wird größer …</span>
+<div class="ast">
+<div class="zweig" style="--c:#1565C0;--cs:#E8EFFB">
+<div class="pf" style="color:#1565C0">↓</div>
+<div class="bx soft"><div class="big" style="color:#1565C0">y wird größer ↗</div><small>„je mehr, desto mehr“</small></div>
+<div class="pf" style="color:#1565C0">↓</div>
+<div class="lbl"><b>Berechne für jedes Wertepaar:</b></div>
+<div class="bx"><div class="big">y : x</div></div>
+<table class="mini" style="--c:#1565C0"><tr><th>x</th><td>1</td><td>2</td><td>4</td></tr><tr><th>y</th><td>8</td><td>16</td><td>32</td></tr><tr class="kr"><th style="background:#E8EFFB">k</th><td>8</td><td>8</td><td>8</td></tr></table>
+<div class="pf" style="color:#000">↓</div>
+<div class="ende">
+<div><span class="tag" style="color:#1565C0">immer gleich</span><div class="erg" style="background:#1565C0">proportional<small>quotientengleich</small></div></div>
+<div><span class="tag" style="color:#555555">nicht gleich</span><div class="erg" style="background:#555555">weder noch<small>&nbsp;</small></div></div>
+</div></div>
+<div class="zweig" style="--c:#C2410C;--cs:#FBEADF">
+<div class="pf" style="color:#C2410C">↓</div>
+<div class="bx soft"><div class="big" style="color:#C2410C">y wird kleiner ↘</div><small>„je mehr, desto weniger“</small></div>
+<div class="pf" style="color:#C2410C">↓</div>
+<div class="lbl"><b>Berechne für jedes Wertepaar:</b></div>
+<div class="bx"><div class="big">x · y</div></div>
+<table class="mini" style="--c:#C2410C"><tr><th>x</th><td>1</td><td>2</td><td>4</td></tr><tr><th>y</th><td>16</td><td>8</td><td>4</td></tr><tr class="kr"><th style="background:#FBEADF">k</th><td>16</td><td>16</td><td>16</td></tr></table>
+<div class="pf" style="color:#000">↓</div>
+<div class="ende">
+<div><span class="tag" style="color:#C2410C">immer gleich</span><div class="erg" style="background:#C2410C">antiproportional<small>produktgleich</small></div></div>
+<div><span class="tag" style="color:#555555">nicht gleich</span><div class="erg" style="background:#555555">weder noch<small>&nbsp;</small></div></div>
+</div></div>
+</div></div></section>
+<section class="kasten"><h2>Am Graphen erkennen</h2><div class="innen"><div class="graphs">
+<div><svg viewBox="0 0 140 112" role="img" aria-label="Gerade durch den Ursprung"><g stroke="#000" stroke-width="1.6" fill="none"><line x1="14" y1="98" x2="134" y2="98"/><line x1="14" y1="104" x2="14" y2="6"/><path d="M129 94 L134 98 L129 102"/><path d="M10 11 L14 6 L18 11"/></g><line x1="14" y1="98" x2="124" y2="18" stroke="#1565C0" stroke-width="3.5" stroke-linecap="round"/><circle cx="14" cy="98" r="5" fill="#1565C0"/></svg><b style="color:#1565C0">proportional</b><span>Gerade durch den Ursprung (0 | 0)</span></div>
+<div><svg viewBox="0 0 140 112" role="img" aria-label="Hyperbel"><g stroke="#000" stroke-width="1.6" fill="none"><line x1="14" y1="98" x2="134" y2="98"/><line x1="14" y1="104" x2="14" y2="6"/><path d="M129 94 L134 98 L129 102"/><path d="M10 11 L14 6 L18 11"/></g><polyline points="24,10 26,22 29,36 33,48 38,58 45,66 54,73 66,79 80,83 96,86 112,88 128,89" fill="none" stroke="#C2410C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><b style="color:#C2410C">antiproportional</b><span>Hyperbel – berührt die Achsen nie</span></div>
+<div><svg viewBox="0 0 140 112" role="img" aria-label="Gerade nicht durch den Ursprung"><g stroke="#000" stroke-width="1.6" fill="none"><line x1="14" y1="98" x2="134" y2="98"/><line x1="14" y1="104" x2="14" y2="6"/><path d="M129 94 L134 98 L129 102"/><path d="M10 11 L14 6 L18 11"/></g><line x1="14" y1="66" x2="126" y2="22" stroke="#555555" stroke-width="3.5" stroke-linecap="round"/><circle cx="14" cy="66" r="5" fill="#555555"/></svg><b style="color:#555555">weder noch</b><span>alle anderen, z. B. Gerade <u>nicht</u> durch den Ursprung</span></div>
+</div></div></section>
+<div class="achtung"><b>Achtung, Falle:</b> „Je mehr, desto mehr“ reicht <b>nicht</b> für proportional – y : x muss immer gleich sein. Beispiel Taxi: 4 € Grundgebühr + 2 € pro km. 1 km → 6 €, 2 km → 8 €. Doppelte Strecke, aber <b>nicht</b> doppelter Preis: weder noch!</div>
+<p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p>
+</main></body></html>

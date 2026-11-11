@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arbeitsblatt Zuordnungen erkennen</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: helles Arbeitsblatt wie Papier, eine Spalte, Aufgabenkarten untereinander, Petrol als Bedienfarbe wie im Zuordnungstrainer */
+:root{
+  --paper:#ffffff; --ink:#1b1f20; --muted:#56646a; --line:#c6d2d4; --soft:#f4f8f8;
+  --petrol:#167c80; --petrol-dark:#0f5f62; --petrol-soft:#e4f1f1;
+  --ok:#2f8b4b; --ok-soft:#edf8f0; --bad:#b83232; --bad-soft:#fff0f0;
+  --f:"Atkinson Hyperlegible", Arial, Helvetica, sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f);font-size:17px;line-height:1.45}
+.wrap{max-width:920px;margin:0 auto;padding-block:22px 30px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font-size:30px;line-height:1.15}
+h2{font-size:22px}
+h3{font-size:18px}
+p{margin:0}
+.school{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.sub{color:var(--muted)}
+header.top{display:flex;flex-direction:column;gap:10px;border-bottom:3px solid var(--ink);padding-bottom:14px}
+.fields{display:flex;gap:14px;flex-wrap:wrap}
+.fields label{display:flex;gap:8px;align-items:center;font-weight:700}
+.fields input{font:inherit;padding:7px 10px;border:2px solid var(--line);border-radius:8px;width:140px;max-width:100%}
+.progress{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar{flex:1 1 200px;height:12px;background:var(--soft);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.bar>div{height:100%;width:0;background:var(--petrol);transition:width .3s}
+.progress strong{font-variant-numeric:tabular-nums}
+
+section.part{display:flex;flex-direction:column;gap:14px}
+.parthead{display:flex;flex-direction:column;gap:4px;border-left:5px solid var(--petrol);padding-left:12px}
+.task{border:2px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.task.done{border-color:var(--ok)}
+.taskhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{font-size:13px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.chip.ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.story{font-size:19px;background:var(--petrol-soft);border-radius:8px;padding:10px 14px}
+
+button{font:inherit;cursor:pointer;border-radius:9px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--petrol);outline-offset:2px}
+.primary{background:var(--petrol);color:#fff;border:2px solid var(--petrol);padding:8px 16px;font-weight:700}
+.primary:hover{background:var(--petrol-dark);border-color:var(--petrol-dark)}
+.comma{background:#fff;color:var(--petrol);border:2px solid var(--petrol);width:42px;height:40px;font-size:22px;font-weight:700;padding:0}
+.choice{background:#fff;color:var(--ink);border:2px solid var(--line);padding:7px 12px}
+.choice.sel{background:var(--petrol);border-color:var(--petrol);color:#fff}
+.choice.right{background:var(--ok-soft);border-color:var(--ok)}
+.choice.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.choice.sel.right{background:var(--ok);color:#fff}
+.choice.sel.wrong{background:var(--bad);color:#fff}
+
+/* Schritte in Aufgabe 1 */
+.step{display:flex;flex-direction:column;gap:7px}
+.step>strong{font-size:16px}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.scroll{overflow-x:auto;padding:2px 0}
+table.wt{border-collapse:collapse;margin:0 auto;font-variant-numeric:tabular-nums}
+.wt th,.wt td{border:2px solid var(--ink);text-align:center;height:46px;min-width:76px;font-size:20px;padding:0 6px}
+.wt th{background:var(--petrol-soft);min-width:56px}
+.wt tr.krow th{background:#fff8e3}
+.kin{font:inherit;font-size:19px;width:72px;text-align:center;border:2px solid #8a9597;border-radius:7px;padding:4px;background:#fff;color:var(--ink)}
+.is-ok{border-color:var(--ok)!important;background:var(--ok-soft)!important}
+.is-bad{border-color:var(--bad)!important;background:var(--bad-soft)!important}
+.hintline{font-size:14px;color:var(--muted)}
+
+/* Aufgabe 2: Graphen */
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:14px}
+.gcard{border:2px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:9px}
+.gcard.okc{border-color:var(--ok)}
+.gcard.badc{border-color:var(--bad)}
+.gcard h3{font-size:17px}
+.gcard svg{width:100%;max-width:240px;height:auto;align-self:center;background:#fff}
+.gcard .lab{font-size:14px;font-weight:700;color:var(--muted)}
+.gcard .choice{padding:6px 10px;font-size:15px}
+
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fb{font-weight:700;padding:7px 11px;border-radius:8px}
+.fb:empty{display:none}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+
+.export{border:2px dashed var(--petrol);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.export img{border:1px solid var(--line);border-radius:6px;max-width:100%;display:block}
+.hint{color:var(--muted);font-size:15px}
+footer{text-align:right;font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+@media(prefers-reduced-motion:reduce){.bar>div{transition:none}}
+</style>
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a><button type="button" class="ll-spick" id="ll-spick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3 h9 l4 4 v14 h-13z M14 3 v5 h5 M9 12 h7 M9 16 h5"/></svg>Spickzettel</button></div>
+  <header class="top">
+    <span class="school">Emil-Petri-Schule Arnstadt · Mathematik Klasse 7</span>
+    <h1>Arbeitsblatt: Zuordnungen erkennen</h1>
+    <p class="sub">Proportional, antiproportional oder weder noch – passend zu Level 1 im Trainer Zuordnungen</p>
+    <div class="fields"><label for="date">Datum: <input id="date" autocomplete="off"></label></div>
+    <div class="progress"><div class="bar"><div id="barFill"></div></div><strong id="progText">0 von 5 Aufgaben gelöst</strong></div>
+  </header>
+
+  <section class="part" id="part1">
+    <div class="parthead"><h2>Aufgabe 1 · An der Wertetabelle erkennen</h2><p class="sub">Gehe Schritt für Schritt vor: Wie verhält sich y? Was musst du rechnen? Trage k für jedes Wertepaar ein und entscheide.</p></div>
+  </section>
+
+  <section class="part" id="part2">
+    <div class="parthead"><h2>Aufgabe 2 · Am Graphen erkennen</h2><p class="sub">Bestimme bei jedem Graphen zuerst die Form. Entscheide dann, welche Zuordnung vorliegt.</p></div>
+    <article class="task" id="task-2">
+      <div class="taskhead"><h3>Aufgabe 2</h3><span class="chip" id="chip-2">offen</span></div>
+      <div class="ggrid" id="ggrid"></div>
+      <div class="actions"><button class="primary" id="check-2" type="button">Prüfen</button><span class="fb" id="fb-2"></span></div>
+    </article>
+  </section>
+
+  <section class="export">
+    <h2>Ergebnis für OneNote</h2>
+    <p>Das Bild füllt sich automatisch mit deinen Eingaben. Wenn du fertig bist, kopiere es und füge es in OneNote ein.</p>
+    <div class="actions"><button class="primary" id="copyImg" type="button">Bild für OneNote kopieren</button><span class="fb" id="fbImg"></span></div>
+    <img id="outImg" alt="Ergebnisbild des Arbeitsblatts mit deinen Eingaben">
+    <p class="hint">Falls das Kopieren nicht klappt: Auf dem iPad das Bild lange antippen → „Kopieren“. Am Computer: Rechtsklick auf das Bild → „Bild kopieren“.</p>
+  </section>
+
+  <footer>Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const num=s=>{const t=String(s).trim().replace(/\s/g,'').replace(',','.');return t===''?NaN:Number(t)};
+const near=(a,b)=>Number.isFinite(a)&&Math.abs(a-b)<0.006;
+const fmt=n=>String(Math.round(n*100)/100).replace('.',',');
+(function(){$('date').value=new Date().toLocaleDateString('de-DE')})();
+
+const typeName={prop:'proportional',anti:'antiproportional',neither:'weder noch'};
+const solved={};
+const ALL_IDS=['1a','1b','1c','1d','2'];
+function setFb(id,cls,txt){const el=$(id);el.className='fb '+cls;el.textContent=txt}
+function mark(el,ok){el.classList.toggle('is-ok',ok);el.classList.toggle('is-bad',!ok)}
+function markSolved(id,ok){
+  solved[id]=ok;
+  $('chip-'+id).textContent=ok?'gelöst':'offen';$('chip-'+id).classList.toggle('ok',ok);
+  $('task-'+id).classList.toggle('done',ok);
+  const n=ALL_IDS.filter(k=>solved[k]).length;
+  $('barFill').style.width=(n/ALL_IDS.length*100)+'%';
+  $('progText').textContent=`${n} von ${ALL_IDS.length} Aufgaben gelöst`;
+  scheduleImg();
+}
+function choiceGroup(box,onPick){
+  box.addEventListener('click',e=>{
+    const b=e.target.closest('.choice');if(!b)return;
+    box.querySelectorAll('.choice').forEach(x=>{x.classList.toggle('sel',x===b);x.classList.remove('right','wrong')});
+    onPick(b.dataset.v);scheduleImg();
+  });
+}
+function showRight(box,val,ok){box.querySelectorAll('.choice').forEach(x=>x.classList.remove('right','wrong'));const b=box.querySelector(`.choice[data-v="${val}"]`);if(b)b.classList.add(ok?'right':'wrong')}
+
+/* ---------- Aufgabe 1: Wertetabellen ---------- */
+// dir: 'up' = y wird größer, 'down' = y wird kleiner
+const tables=[
+ {id:'1a',x:[2,3,5,8],y:[14,21,35,56],t:'prop',dir:'up'},
+ {id:'1b',x:[1,2,4,5],y:[40,20,10,8],t:'anti',dir:'down'},
+ {id:'1c',x:[1,2,3,6],y:[8,10,12,18],t:'neither',dir:'up'},
+ {id:'1d',x:[1,2,3,6],y:[30,20,12,5],t:'neither',dir:'down'}
+];
+const st={};
+const lastField={};
+tables.forEach(t=>{
+  st[t.id]={dir:null,op:null,type:null};
+  const art=document.createElement('article');art.className='task';art.id='task-'+t.id;
+  art.innerHTML=`<div class="taskhead"><h3>Aufgabe ${t.id}</h3><span class="chip" id="chip-${t.id}">offen</span></div>
+  <div class="scroll"><table class="wt" aria-label="Wertetabelle">
+    <tr><th>x</th>${t.x.map(v=>`<td>${fmt(v)}</td>`).join('')}</tr>
+    <tr><th>y</th>${t.y.map(v=>`<td>${fmt(v)}</td>`).join('')}</tr>
+    <tr class="krow"><th>k</th>${t.x.map((_,c)=>`<td><input class="kin" id="${t.id}-k${c}" inputmode="decimal" autocomplete="off" aria-label="k für Wertepaar ${c+1}"></td>`).join('')}</tr>
+  </table></div>
+  <div class="step"><strong>1. Wenn x größer wird, dann wird y …</strong><div class="opts" id="${t.id}-dir"><button type="button" class="choice" data-v="up">größer ↗</button><button type="button" class="choice" data-v="down">kleiner ↘</button></div></div>
+  <div class="step"><strong>2. Was rechnest du für jedes Wertepaar?</strong><div class="opts" id="${t.id}-op"><button type="button" class="choice" data-v="div">y : x</button><button type="button" class="choice" data-v="mul">x · y</button></div><span class="hintline">Trage die Ergebnisse oben in die Zeile k ein.</span></div>
+  <div class="step"><strong>3. Entscheidung: Die Zuordnung ist …</strong><div class="opts" id="${t.id}-type"><button type="button" class="choice" data-v="prop">proportional</button><button type="button" class="choice" data-v="anti">antiproportional</button><button type="button" class="choice" data-v="neither">weder noch</button></div></div>
+  <div class="actions"><button class="primary" type="button" id="${t.id}-check">Prüfen</button><button class="comma" type="button" id="${t.id}-comma" title="Komma in das zuletzt gewählte Feld einfügen">,</button><span class="fb" id="fb-${t.id}"></span></div>`;
+  $('part1').appendChild(art);
+  choiceGroup($(t.id+'-dir'),v=>st[t.id].dir=v);
+  choiceGroup($(t.id+'-op'),v=>st[t.id].op=v);
+  choiceGroup($(t.id+'-type'),v=>st[t.id].type=v);
+  t.x.forEach((_,c)=>$(t.id+'-k'+c).addEventListener('focus',e=>lastField[t.id]=e.target));
+  $(t.id+'-comma').onclick=()=>{
+    const el=lastField[t.id];if(!el)return;
+    if(el.value.includes(',')||el.value.includes('.')){el.focus();return}
+    const a=el.selectionStart??el.value.length,z=el.selectionEnd??a;
+    el.value=el.value.slice(0,a)+','+el.value.slice(z);el.focus();
+    try{el.setSelectionRange(a+1,a+1)}catch(_){}
+    scheduleImg();
+  };
+  $(t.id+'-check').onclick=()=>checkTable(t);
+});
+function checkTable(t){
+  const s=st[t.id],probs=[];
+  if(!s.dir)probs.push('Entscheide zuerst: Wird y größer oder kleiner?');
+  else{const ok=s.dir===t.dir;showRight($(t.id+'-dir'),s.dir,ok);if(!ok)probs.push('Schau noch einmal genau: Wird y größer oder kleiner, wenn x größer wird?')}
+  const needOp=t.dir==='up'?'div':'mul';
+  if(!s.op)probs.push('Wähle, was du rechnen musst: y : x oder x · y.');
+  else{const ok=s.op===needOp;showRight($(t.id+'-op'),s.op,ok);if(!ok)probs.push(t.dir==='up'?'Wird y größer, prüfst du auf proportional: Rechne y : x.':'Wird y kleiner, prüfst du auf antiproportional: Rechne x · y.')}
+  let kOK=true;
+  t.x.forEach((xv,c)=>{const el=$(t.id+'-k'+c),exp=needOp==='div'?t.y[c]/xv:t.y[c]*xv;const ok=near(num(el.value),Math.round(exp*100)/100);mark(el,ok);if(!ok)kOK=false});
+  if(!kOK)probs.push(t.x.every((_,c)=>$(t.id+'-k'+c).value.trim()==='')?'Trage für jedes Wertepaar k in die Tabelle ein.':'Prüfe die rot markierten Werte in der Zeile k.');
+  if(!s.type)probs.push('Triff noch deine Entscheidung.');
+  else{const ok=s.type===t.t;showRight($(t.id+'-type'),s.type,ok);if(!ok)probs.push('Schau auf die Zeile k: Ist k überall gleich? Nur dann ist die Zuordnung proportional oder antiproportional.')}
+  if(!probs.length){setFb('fb-'+t.id,'ok',t.t==='neither'?'Richtig – k ist nicht überall gleich, also weder noch.':`Richtig – k ist überall gleich, also ${typeName[t.t]}.`);markSolved(t.id,true)}
+  else{setFb('fb-'+t.id,'bad',probs[0]);markSolved(t.id,false)}
+}
+
+/* ---------- Aufgabe 2: Graphen ---------- */
+// Graphen im Raster 0..200 (x) und 0..150 (y), Ursprung bei (30,130)
+const graphs=[
+ {id:'A',t:'prop',form:'origin',d:'M30 130 L180 40'},
+ {id:'B',t:'neither',form:'other',d:'M30 40 L180 115'},
+ {id:'C',t:'anti',form:'hyper',d:'M44 14 C 52 80, 80 104, 180 117'},
+ {id:'D',t:'neither',form:'other',d:'M30 95 L180 30'},
+ {id:'E',t:'prop',form:'origin',d:'M30 130 L105 18'},
+ {id:'F',t:'neither',form:'other',d:'M30 130 Q 120 128 170 18'},
+ {id:'G',t:'anti',form:'hyper',d:'M38 20 C 44 95, 70 116, 185 122'},
+ {id:'H',t:'neither',form:'other',d:'M30 112 C 70 40, 110 40, 180 100'}
+];
+const formName={origin:'Gerade durch den Ursprung',hyper:'Hyperbel',other:'andere Form'};
+const gs={};
+const axes=`<g stroke="#1b1f20" stroke-width="1.6" fill="none"><line x1="22" y1="130" x2="196" y2="130"/><line x1="30" y1="138" x2="30" y2="6"/><path d="M190 126 L196 130 L190 134"/><path d="M26 12 L30 6 L34 12"/></g>`;
+const grid=(()=>{let s='<g stroke="#e3eaeb" stroke-width="1">';for(let x=50;x<=190;x+=20)s+=`<line x1="${x}" y1="10" x2="${x}" y2="130"/>`;for(let y=110;y>=10;y-=20)s+=`<line x1="30" y1="${y}" x2="194" y2="${y}"/>`;return s+'</g>'})();
+graphs.forEach(gr=>{
+  gs[gr.id]={form:null,type:null};
+  const c=document.createElement('div');c.className='gcard';c.id='card-'+gr.id;
+  c.innerHTML=`<h3>Graph ${gr.id}</h3>
+  <svg viewBox="0 0 200 150" role="img" aria-label="Graph ${gr.id}">${grid}${axes}<text x="18" y="146" font-size="11" font-weight="700" fill="#1b1f20">0</text><text x="190" y="146" font-size="12" font-weight="700" fill="#1b1f20">x</text><text x="14" y="16" font-size="12" font-weight="700" fill="#1b1f20">y</text><path d="${gr.d}" fill="none" stroke="#167c80" stroke-width="3.5" stroke-linecap="round"/></svg>
+  <span class="lab">Form:</span><div class="opts" id="g${gr.id}-form"><button type="button" class="choice" data-v="origin">Gerade durch den Ursprung</button><button type="button" class="choice" data-v="hyper">Hyperbel</button><button type="button" class="choice" data-v="other">andere Form</button></div>
+  <span class="lab">Zuordnung:</span><div class="opts" id="g${gr.id}-type"><button type="button" class="choice" data-v="prop">proportional</button><button type="button" class="choice" data-v="anti">antiproportional</button><button type="button" class="choice" data-v="neither">weder noch</button></div>`;
+  $('ggrid').appendChild(c);
+  choiceGroup($('g'+gr.id+'-form'),v=>gs[gr.id].form=v);
+  choiceGroup($('g'+gr.id+'-type'),v=>gs[gr.id].type=v);
+});
+$('check-2').onclick=()=>{
+  if(graphs.some(gr=>!gs[gr.id].form||!gs[gr.id].type)){setFb('fb-2','bad','Wähle bei jedem Graphen die Form und die Zuordnung.');return}
+  let right=0;const wrongForm=[],wrongType=[];
+  graphs.forEach(gr=>{
+    const s=gs[gr.id],fOK=s.form===gr.form,tOK=s.type===gr.t;
+    showRight($('g'+gr.id+'-form'),s.form,fOK);showRight($('g'+gr.id+'-type'),s.type,tOK);
+    const card=$('card-'+gr.id);card.classList.toggle('okc',fOK&&tOK);card.classList.toggle('badc',!(fOK&&tOK));
+    if(fOK&&tOK)right++;if(!fOK)wrongForm.push(gr.id);else if(!tOK)wrongType.push(gr.id);
+  });
+  if(right===graphs.length){setFb('fb-2','ok','Richtig – alle Graphen stimmen.');markSolved('2',true)}
+  else{
+    const tip=wrongForm.length?'Achte genau auf die Form: Geht die Gerade wirklich durch den Ursprung (0 | 0)? Eine fallende Gerade ist keine Hyperbel.':'Die Form stimmt schon. Denk dran: Gerade durch den Ursprung → proportional, Hyperbel → antiproportional, alles andere → weder noch.';
+    setFb('fb-2','bad',`${right} von ${graphs.length} Graphen richtig. ${tip}`);markSolved('2',false);
+  }
+};
+
+/* ---------- Bild für OneNote (füllt sich live) ---------- */
+const IMG_FONT='"Atkinson Hyperlegible", Arial, sans-serif';
+let imgTimer=null;
+function okMark(g,x,y){g.font=`bold 19px ${IMG_FONT}`;g.fillStyle='#2f8b4b';g.textAlign='right';g.fillText('✓ gelöst',x,y);g.textAlign='left'}
+function renderImage(){
+  const W=1100,P=50,F=IMG_FONT;
+  const c=document.createElement('canvas');c.width=W;c.height=6000;
+  const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,c.height);
+  const n=ALL_IDS.filter(k=>solved[k]).length;
+  g.fillStyle='#56646a';g.font=`bold 16px ${F}`;
+  let y=P+10;g.fillText('EMIL-PETRI-SCHULE ARNSTADT · MATHEMATIK KLASSE 7',P,y);
+  y+=42;g.fillStyle='#1b1f20';g.font=`bold 34px ${F}`;g.fillText('Arbeitsblatt: Zuordnungen erkennen',P,y);
+  y+=34;g.font=`20px ${F}`;g.fillText(`Datum: ${$('date').value}     Gelöst: ${n} von ${ALL_IDS.length}`,P,y);
+  y+=18;g.fillRect(P,y,W-2*P,3);y+=44;
+
+  g.font=`bold 24px ${F}`;g.fillStyle='#167c80';g.fillText('Aufgabe 1 · An der Wertetabelle erkennen',P,y);y+=24;
+  const cw=110,ch=44;
+  tables.forEach(t=>{
+    y+=26;g.font=`bold 21px ${F}`;g.fillStyle='#1b1f20';g.textAlign='left';g.fillText('Aufgabe '+t.id,P,y);
+    if(solved[t.id])okMark(g,W-P,y);
+    const tx=P,ty=y+14;
+    const rows=[['x',t.x.map(fmt)],['y',t.y.map(fmt)],['k',t.x.map((_,i)=>$(t.id+'-k'+i).value.trim())]];
+    rows.forEach(([h,vals],r)=>{
+      g.fillStyle=r===2?'#fff8e3':'#e4f1f1';g.fillRect(tx,ty+r*ch,70,ch);
+      g.strokeStyle='#1b1f20';g.lineWidth=2;g.strokeRect(tx,ty+r*ch,70,ch);
+      g.fillStyle='#1b1f20';g.font=`bold 20px ${F}`;g.textAlign='center';g.fillText(h,tx+35,ty+r*ch+29);
+      vals.forEach((v,i)=>{g.strokeRect(tx+70+i*cw,ty+r*ch,cw,ch);g.font=(r===2?'':'bold ')+`20px ${F}`;g.fillText(v,tx+70+i*cw+cw/2,ty+r*ch+29)});
+    });
+    const s=st[t.id],lx=tx+70+4*cw+40;g.textAlign='left';g.font=`19px ${F}`;g.fillStyle='#1b1f20';
+    g.fillText('y wird: '+(s.dir?{up:'größer',down:'kleiner'}[s.dir]:'…'),lx,ty+30);
+    g.fillText('Rechnung: '+(s.op?{div:'y : x',mul:'x · y'}[s.op]:'…'),lx,ty+64);
+    g.font=`bold 19px ${F}`;g.fillText('Entscheidung: '+(s.type?typeName[s.type]:'…'),lx,ty+98);
+    y=ty+3*ch+20;
+  });
+  y+=12;g.fillStyle='#c6d2d4';g.fillRect(P,y,W-2*P,1);y+=44;
+
+  g.font=`bold 24px ${F}`;g.fillStyle='#167c80';g.textAlign='left';g.fillText('Aufgabe 2 · Am Graphen erkennen',P,y);
+  if(solved['2'])okMark(g,W-P,y);
+  y+=20;
+  const gw=230,gh=172,cols=4;
+  graphs.forEach((gr,k)=>{
+    const col=k%cols,row=Math.floor(k/cols),ox=P+col*(gw+20),oy=y+row*(gh+96);
+    g.save();g.translate(ox,oy);g.scale(gw/200,gw/200);
+    g.strokeStyle='#1b1f20';g.lineWidth=1.6;
+    g.stroke(new Path2D('M22 130 L196 130 M30 138 L30 6 M190 126 L196 130 L190 134 M26 12 L30 6 L34 12'));
+    g.strokeStyle='#167c80';g.lineWidth=3.5;g.lineCap='round';g.stroke(new Path2D(gr.d));
+    g.restore();
+    const s=gs[gr.id];g.fillStyle='#1b1f20';g.textAlign='left';
+    g.font=`bold 18px ${F}`;g.fillText('Graph '+gr.id,ox,oy+gh+10);
+    g.font=`16px ${F}`;g.fillText(s.form?formName[s.form]:'Form: …',ox,oy+gh+34);
+    g.font=`bold 16px ${F}`;g.fillText(s.type?typeName[s.type]:'Zuordnung: …',ox,oy+gh+56);
+  });
+  y+=Math.ceil(graphs.length/cols)*(gh+96)+10;
+  g.font=`16px ${F}`;g.fillStyle='#56646a';g.textAlign='right';
+  g.fillText('Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.',W-P,y);
+  y+=P;
+  const out=document.createElement('canvas');out.width=W;out.height=y;
+  out.getContext('2d').drawImage(c,0,0);
+  $('outImg').src=out.toDataURL('image/png');
+}
+function scheduleImg(){clearTimeout(imgTimer);imgTimer=setTimeout(renderImage,250)}
+document.querySelector('.wrap').addEventListener('input',scheduleImg);
+(document.fonts?document.fonts.ready:Promise.resolve()).then(renderImage);
+
+function dataUrlToBlob(u){const b=atob(u.split(',')[1]),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return new Blob([a],{type:'image/png'})}
+function copyViaSelection(){
+  try{const r=document.createRange();r.selectNode($('outImg'));const s=getSelection();s.removeAllRanges();s.addRange(r);const ok=document.execCommand('copy');s.removeAllRanges();return ok}catch(_){return false}
+}
+$('copyImg').onclick=()=>{
+  clearTimeout(imgTimer);renderImage();
+  const blob=dataUrlToBlob($('outImg').src),viaSel=copyViaSelection();
+  const done=()=>setFb('fbImg','ok','Bild kopiert – jetzt in OneNote einfügen.');
+  const fail=()=>viaSel?done():setFb('fbImg','bad','Kopieren ging hier nicht. Tippe das Bild unten lange an und wähle „Kopieren“.');
+  try{if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write)navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).then(done).catch(fail);else fail()}catch(_){fail()}
+};
+</script>
+
+<div class="ll-fenster" id="ll-fenster" hidden><div class="ll-box" role="dialog" aria-modal="true" aria-label="Spickzettel"><button type="button" class="ll-zu" id="ll-zu" aria-label="Spickzettel schließen">✕ Schließen</button><iframe id="ll-frame" title="Spickzettel"></iframe></div></div><script>
+(function(){
+  var o=document.getElementById('ll-fenster'),f=document.getElementById('ll-frame'),b=document.getElementById('ll-spick');
+  function zu(){o.hidden=true;document.body.style.overflow='';b.focus();}
+  b.addEventListener('click',function(){if(!f.getAttribute('src'))f.src='spickzettel.html';o.hidden=false;document.body.style.overflow='hidden';document.getElementById('ll-zu').focus();});
+  document.getElementById('ll-zu').addEventListener('click',zu);
+  o.addEventListener('click',function(e){if(e.target===o)zu();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!o.hidden)zu();});
+  var z=document.getElementById('ll-zurueck'),t=null;
+  function eingetragen(){return Array.prototype.some.call(document.querySelectorAll('input,textarea'),function(i){return i.id!=='date'&&i.type!=='hidden'&&i.value.trim()!=='';});}
+  z.addEventListener('click',function(e){
+    if(z.classList.contains('ll-warn')||!eingetragen())return;
+    e.preventDefault();z.classList.add('ll-warn');z.textContent='Wirklich? Deine Eingaben gehen verloren.';
+    clearTimeout(t);t=setTimeout(function(){z.classList.remove('ll-warn');z.textContent='← Lern-Lounge';},4000);
+  });
+})();
+</script>
+</body>
+</html>

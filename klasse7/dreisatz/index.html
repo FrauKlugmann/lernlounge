@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arbeitsblatt Dreisatz</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: ein helles Arbeitsblatt wie Papier, eine Spalte, Aufgabenkarten untereinander, Petrol als Bedienfarbe wie im Zuordnungstrainer */
+:root{
+  --paper:#ffffff; --ink:#1b1f20; --muted:#56646a; --line:#c6d2d4; --soft:#f4f8f8;
+  --petrol:#167c80; --petrol-dark:#0f5f62; --petrol-soft:#e4f1f1;
+  --ok:#2f8b4b; --ok-soft:#edf8f0; --bad:#b83232; --bad-soft:#fff0f0;
+  --merk:#fff8e3; --merk-line:#d9b24c;
+  --f:"Atkinson Hyperlegible", Arial, Helvetica, sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f);font-size:17px;line-height:1.45}
+.wrap{max-width:920px;margin:0 auto;padding-block:22px 30px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font-size:30px;line-height:1.15}
+h2{font-size:22px}
+h3{font-size:18px}
+p{margin:0}
+.school{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.sub{color:var(--muted)}
+header.top{display:flex;flex-direction:column;gap:10px;border-bottom:3px solid var(--ink);padding-bottom:14px}
+.fields{display:flex;gap:14px;flex-wrap:wrap}
+.fields label{display:flex;gap:8px;align-items:center;font-weight:700}
+.fields input{font:inherit;padding:7px 10px;border:2px solid var(--line);border-radius:8px;min-width:0;width:220px;max-width:100%}
+.fields input#date{width:140px}
+.progress{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar{flex:1 1 200px;height:12px;background:var(--soft);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.bar>div{height:100%;width:0;background:var(--petrol);transition:width .3s}
+.progress strong{font-variant-numeric:tabular-nums}
+
+.merk{background:var(--merk);border:2px solid var(--merk-line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.merk h2{font-size:20px}
+.merkgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:16px}
+.merkgrid>div{min-width:0;display:flex;flex-direction:column;gap:8px}
+.merkgrid ul{margin:0;padding-left:20px}
+
+section.part{display:flex;flex-direction:column;gap:14px}
+.parthead{display:flex;flex-direction:column;gap:4px;border-left:5px solid var(--petrol);padding-left:12px}
+.task{border:2px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.task.done{border-color:var(--ok)}
+.taskhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{font-size:13px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.chip.ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.story{font-size:19px;background:var(--petrol-soft);border-radius:8px;padding:10px 14px}
+
+button{font:inherit;cursor:pointer;border-radius:9px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--petrol);outline-offset:2px}
+.primary{background:var(--petrol);color:#fff;border:2px solid var(--petrol);padding:8px 16px;font-weight:700}
+.primary:hover{background:var(--petrol-dark);border-color:var(--petrol-dark)}
+.ghost{background:#fff;color:var(--petrol);border:2px solid var(--petrol);padding:8px 14px;font-weight:700}
+.comma{background:#fff;color:var(--petrol);border:2px solid var(--petrol);width:42px;height:40px;font-size:22px;font-weight:700;padding:0}
+.choice{background:#fff;color:var(--ink);border:2px solid var(--line);padding:7px 12px}
+.choice.sel{background:var(--petrol);border-color:var(--petrol);color:#fff}
+.choice.right{background:var(--ok-soft);border-color:var(--ok);color:var(--ink)}
+.choice.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--ink)}
+.choice.sel.right{background:var(--ok);color:#fff}
+.choice.sel.wrong{background:var(--bad);color:#fff}
+
+.recog{display:flex;flex-direction:column;gap:0}
+.recog .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.recog .row:last-child{border-bottom:0}
+.recog .opts{display:flex;gap:6px;flex-wrap:wrap}
+@media(max-width:700px){.recog .row{grid-template-columns:1fr}}
+
+.typeRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.scroll{overflow-x:auto;padding:4px 0}
+.scheme{position:relative;display:block;width:max-content;margin:0 auto;padding:0 150px}
+table.dt{border-collapse:separate;border-spacing:0}
+table.dt th,table.dt td{border:2px solid var(--ink);text-align:center;width:170px;padding:0 6px}
+table.dt th{height:46px;background:var(--petrol-soft);font-size:15px;line-height:1.15}
+table.dt td{height:54px;font-size:20px;font-variant-numeric:tabular-nums}
+table.dt th+th,table.dt td+td{border-left:0}
+table.dt tr+tr td,table.dt tbody tr:first-child td{border-top:0}
+table.dt td.given{font-weight:700}
+.cellin,.arcin{font:inherit;text-align:center;border:2px solid #8a9597;border-radius:7px;padding:5px;background:#fff;color:var(--ink)}
+.cellin{width:110px;font-size:19px}
+.arcin{width:60px;font-size:17px}
+.arcsel{font:inherit;font-size:19px;width:50px;padding:3px;border:2px solid #8a9597;border-radius:7px;background:#fff;color:var(--ink);text-align:center}
+.is-ok{border-color:var(--ok)!important;background:var(--ok-soft)!important}
+.is-bad{border-color:var(--bad)!important;background:var(--bad-soft)!important}
+.arc{position:absolute;width:150px;height:54px;display:flex;align-items:center;gap:4px}
+.arc.l{left:0;justify-content:flex-end}
+.arc.r{right:0;justify-content:flex-start}
+.arc svg{flex:0 0 28px;height:54px}
+.arc .ro{font-size:19px;font-weight:700;color:var(--petrol);white-space:nowrap}
+.answer{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.answer label{font-weight:700}
+.answer input{font:inherit;flex:1 1 280px;min-width:0;padding:8px 10px;border:2px solid #8a9597;border-radius:8px}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fb{font-weight:700;padding:7px 11px;border-radius:8px}
+.fb:empty{display:none}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+
+.export{border:2px dashed var(--petrol);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.export img{border:1px solid var(--line);border-radius:6px;max-width:100%;display:block}
+.hint{color:var(--muted);font-size:15px}
+footer{text-align:right;font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+@media(prefers-reduced-motion:reduce){.bar>div{transition:none}}
+</style>
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a><button type="button" class="ll-spick" id="ll-spick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3 h9 l4 4 v14 h-13z M14 3 v5 h5 M9 12 h7 M9 16 h5"/></svg>Spickzettel</button></div>
+  <header class="top">
+    <span class="school">Emil-Petri-Schule Arnstadt · Mathematik Klasse 7</span>
+    <h1>Arbeitsblatt: Dreisatz</h1>
+    <p class="sub">Proportionale und antiproportionale Zuordnungen – passend zu Modul 3 im Zuordnungstrainer</p>
+    <div class="fields">
+      <label for="date">Datum: <input id="date" autocomplete="off"></label>
+    </div>
+    <div class="progress"><div class="bar"><div id="barFill"></div></div><strong id="progText">0 von 5 Aufgaben gelöst</strong></div>
+  </header>
+
+
+  <section class="part" id="part1">
+    <div class="parthead"><h2>Aufgabe 1 · Zuordnungsart erkennen</h2><p class="sub">Entscheide für jede Situation: proportional, antiproportional oder weder noch.</p></div>
+    <article class="task" id="task-1">
+      <div class="taskhead"><h3>Aufgabe 1</h3><span class="chip" id="chip-1">offen</span></div>
+      <div class="recog" id="recog"></div>
+      <div class="actions"><button class="primary" id="check-1" type="button">Prüfen</button><span class="fb" id="fb-1"></span></div>
+    </article>
+  </section>
+
+  <section class="part" id="part2">
+    <div class="parthead"><h2>Aufgabe 2 · Dreisatz bei proportionalen Zuordnungen</h2><p class="sub">Ergänze die Dreisatztabelle, trage an jedem Bogen die Rechenoperation ein und schreibe einen Antwortsatz.</p></div>
+  </section>
+  <section class="part" id="part3">
+    <div class="parthead"><h2>Aufgabe 3 · Dreisatz bei antiproportionalen Zuordnungen</h2><p class="sub">Denk daran: Rechts steht die Umkehroperation.</p></div>
+  </section>
+
+  <section class="part" id="part4">
+    <div class="parthead"><h2>Zusatzaufgabe · Gemischte Aufgaben</h2><p class="sub">Für alle, die mit Aufgabe 1 bis 3 fertig sind. Entscheide zuerst selbst, welche Zuordnung vorliegt. Dann löse mit dem Dreisatz.</p></div>
+  </section>
+
+  <section class="export">
+    <h2>Ergebnis für OneNote</h2>
+    <p>Das Bild füllt sich automatisch mit deinen Eingaben. Wenn du fertig bist, kopiere es und füge es in OneNote ein.</p>
+    <div class="actions"><button class="primary" id="copyImg" type="button">Bild für OneNote kopieren</button><span class="fb" id="fbImg"></span></div>
+    <img id="outImg" alt="Ergebnisbild des Arbeitsblatts mit deinen Eingaben">
+    <p class="hint">Falls das Kopieren nicht klappt: Auf dem iPad das Bild lange antippen → „Kopieren“. Am Computer: Rechtsklick auf das Bild → „Bild kopieren“.</p>
+  </section>
+
+  <footer>Erstellt von Marion Klugmann (Oktober 2026) mit freundlicher Unterstützung von Claude.</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const num=s=>{const t=String(s).trim().replace(/\s/g,'').replace(',','.');return t===''?NaN:Number(t)};
+const near=(a,b)=>Number.isFinite(a)&&Math.abs(a-b)<0.001;
+const fmt=n=>{const r=Math.round(n*1000)/1000;return String(r).replace('.',',')};
+const opSym={mul:'·',div:':'};
+
+(function(){const d=new Date();$('date').value=d.toLocaleDateString('de-DE');})();
+
+/* ---------- Aufgabe 1 ---------- */
+const recogItems=[
+ {s:'Anzahl der Eiskugeln → Preis',t:'prop'},
+ {s:'Anzahl der Maler → Zeit, bis ein Haus gestrichen ist',t:'anti'},
+ {s:'Alter eines Kindes → Körpergröße',t:'neither'},
+ {s:'gefahrene Strecke → verbrauchtes Benzin (bei gleichem Verbrauch)',t:'prop'},
+ {s:'Anzahl der Personen → Größe eines Pizzastücks (eine Pizza, gerecht geteilt)',t:'anti'},
+ {s:'Geschwindigkeit → Fahrzeit für dieselbe Strecke',t:'anti'},
+ {s:'Uhrzeit → Temperatur an einem Tag',t:'neither'},
+ {s:'Anzahl gleicher Hefte → Gesamtgewicht der Hefte',t:'prop'}
+];
+const typeName={prop:'proportional',anti:'antiproportional',neither:'weder noch'};
+const recogSel=new Array(recogItems.length).fill(null);
+recogItems.forEach((it,k)=>{
+  const row=document.createElement('div');row.className='row';
+  row.innerHTML=`<span>${String.fromCharCode(97+k)}) ${it.s}</span><div class="opts">${['prop','anti','neither'].map(v=>`<button type="button" class="choice" data-k="${k}" data-v="${v}">${typeName[v]}</button>`).join('')}</div>`;
+  $('recog').appendChild(row);
+});
+$('recog').addEventListener('click',e=>{
+  const b=e.target.closest('.choice');if(!b)return;
+  const k=+b.dataset.k;recogSel[k]=b.dataset.v;
+  b.parentElement.querySelectorAll('.choice').forEach(x=>{x.classList.toggle('sel',x===b);x.classList.remove('right','wrong')});
+});
+const solved={};
+$('check-1').onclick=()=>{
+  if(recogSel.some(v=>v===null)){setFb('fb-1','bad','Entscheide dich zuerst bei jeder Situation.');return}
+  let right=0;
+  $('recog').querySelectorAll('.row').forEach((row,k)=>{
+    const b=row.querySelector(`.choice[data-v="${recogSel[k]}"]`);
+    const ok=recogSel[k]===recogItems[k].t;if(ok)right++;
+    row.querySelectorAll('.choice').forEach(x=>x.classList.remove('right','wrong'));
+    b.classList.add(ok?'right':'wrong');
+  });
+  if(right===recogItems.length){setFb('fb-1','ok','Richtig – alle Zuordnungen stimmen.');markSolved('1',true)}
+  else{setFb('fb-1','bad',`${right} von ${recogItems.length} richtig. Überlege bei den roten noch einmal: je mehr … desto mehr oder desto weniger?`);markSolved('1',false)}
+};
+
+/* ---------- Dreisatz-Aufgaben ---------- */
+const tasks=[
+ {id:'2a',part:'part2',story:'3 Kugeln Eis kosten 4,50 €. Wie viel kosten 5 Kugeln?',x:'Anzahl Kugeln',y:'Preis in €',t:'prop',v:[3,4.5,1,1.5,5,7.5],seek:'y',unit:'€'},
+ {id:'2b',part:'part2',story:'6 m Gartenzaun kosten 84 €. Wie viele Meter Zaun bekommt man für 126 €?',x:'Zaunlänge in m',y:'Preis in €',t:'prop',v:[6,84,1,14,9,126],seek:'x',unit:'m'},
+ {id:'3a',part:'part3',story:'4 Maler streichen ein Haus in 9 Tagen. Wie lange brauchen 6 gleich schnelle Maler?',x:'Anzahl Maler',y:'Zeit in Tagen',t:'anti',v:[4,9,1,36,6,6],seek:'y',unit:'Tage'},
+ {id:'3b',part:'part3',story:'Ein Vorrat reicht für 12 Personen 5 Tage. Für wie viele Personen reicht derselbe Vorrat 4 Tage?',x:'Anzahl Personen',y:'Tage',t:'anti',v:[12,5,1,60,15,4],seek:'x',unit:'Personen'},
+ {id:'4a',part:'part4',story:'Ein Auto verbraucht auf 250 km 17,5 l Benzin. Wie viel Benzin braucht es bei gleichem Verbrauch für 420 km?',x:'Strecke in km',y:'Benzin in l',t:'prop',v:[250,17.5,1,0.07,420,29.4],seek:'y',unit:'l',chooseType:true,extra:true},
+ {id:'4b',part:'part4',story:'Bei 80 km/h dauert eine Fahrt 1,5 Stunden. Wie lange dauert dieselbe Fahrt bei 100 km/h?',x:'Geschwindigkeit in km/h',y:'Zeit in h',t:'anti',v:[80,1.5,1,120,100,1.2],seek:'y',unit:'h',chooseType:true,extra:true}
+];
+// Bogen-Definitionen: [Name, von-Index, nach-Index, Seite, Zeile]
+const arcs=[['L1',0,2,'l',1],['L2',2,4,'l',2],['R1',1,3,'r',1],['R2',3,5,'r',2]];
+const HEAD=46,ROW=54;
+
+function arcSvg(side){
+  const p=side==='l'?'M26 8 C 3 8, 3 46, 26 46':'M2 8 C 25 8, 25 46, 2 46';
+  const a=side==='l'?'18,41 26,46 18,51':'10,41 2,46 10,51';
+  return `<svg viewBox="0 0 28 54" aria-hidden="true"><path d="${p}" fill="none" stroke="#167c80" stroke-width="2.5"/><polygon points="${a}" fill="#167c80"/></svg>`;
+}
+function arcOps(t){ // richtige Operationen für Beispiel-/Bildausgabe
+  const v=t.v;
+  return arcs.map(([n,f,to])=>{const from=v[f],dest=v[to];
+    if(dest<from){const k=from/dest;return {n,op:'div',k}}else{const k=dest/from;return {n,op:'mul',k}}});
+}
+function buildScheme(t,readonly){
+  const wrap=document.createElement('div');wrap.className='scheme';
+  const v=t.v,id=t.id;
+  const given=new Set([0,1,t.seek==='y'?4:5]);
+  const cell=i=>{
+    if(readonly||given.has(i))return `<td class="${given.has(i)?'given':''}">${fmt(v[i])}</td>`;
+    return `<td><input class="cellin" id="${id}-c${i}" inputmode="decimal" autocomplete="off" aria-label="Tabellenfeld"></td>`;
+  };
+  wrap.innerHTML=`<table class="dt"><thead><tr><th>${t.x}</th><th>${t.y}</th></tr></thead><tbody>
+    <tr>${cell(0)}${cell(1)}</tr><tr>${cell(2)}${cell(3)}</tr><tr>${cell(4)}${cell(5)}</tr></tbody></table>`;
+  const ops=arcOps(t);
+  arcs.forEach(([n,,,side,r],k)=>{
+    const a=document.createElement('div');a.className='arc '+side;
+    a.style.top=(HEAD+ROW*(r-1)+ROW/2)+'px';
+    const ctrl=readonly
+      ?`<span class="ro">${opSym[ops[k].op]} ${fmt(ops[k].k)}</span>`
+      :`<select class="arcsel" id="${id}-${n}op" aria-label="Rechenzeichen"><option value="">?</option><option value="mul">·</option><option value="div">:</option></select><input class="arcin" id="${id}-${n}n" inputmode="decimal" autocomplete="off" aria-label="Zahl am Bogen">`;
+    a.innerHTML=side==='l'?ctrl+arcSvg('l'):arcSvg('r')+ctrl;
+    wrap.appendChild(a);
+  });
+  return wrap;
+}
+
+const lastField={};
+const typeSel={};
+tasks.forEach(t=>{
+  const art=document.createElement('article');art.className='task';art.id='task-'+t.id;
+  art.innerHTML=`<div class="taskhead"><h3>${t.extra?'Zusatzaufgabe':'Aufgabe'} ${t.id}</h3><span class="chip" id="chip-${t.id}">offen</span></div>
+    <p class="story">${t.story}</p>
+    ${t.chooseType?`<div class="typeRow" id="${t.id}-type"><strong>Zuordnung:</strong><button type="button" class="choice" data-v="prop">proportional</button><button type="button" class="choice" data-v="anti">antiproportional</button></div>`:''}
+    <div class="scroll"></div>
+    <div class="answer"><label for="${t.id}-ans">Antwortsatz:</label><input id="${t.id}-ans" autocomplete="off" placeholder="Schreibe einen ganzen Satz."></div>
+    <div class="actions"><button class="primary" type="button" id="${t.id}-check">Prüfen</button><button class="comma" type="button" id="${t.id}-comma" title="Komma in das zuletzt gewählte Zahlenfeld einfügen">,</button><span class="fb" id="fb-${t.id}"></span></div>`;
+  $(t.part).appendChild(art);
+  art.querySelector('.scroll').appendChild(buildScheme(t,false));
+  art.querySelectorAll('.cellin,.arcin').forEach(inp=>inp.addEventListener('focus',()=>lastField[t.id]=inp));
+  $(t.id+'-comma').onclick=()=>{
+    const el=lastField[t.id];if(!el)return;
+    if(el.value.includes(',')||el.value.includes('.')){el.focus();return}
+    const a=el.selectionStart??el.value.length,z=el.selectionEnd??a;
+    el.value=el.value.slice(0,a)+','+el.value.slice(z);el.focus();
+    try{el.setSelectionRange(a+1,a+1)}catch(_){}
+  };
+  if(t.chooseType){
+    $(t.id+'-type').addEventListener('click',e=>{
+      const b=e.target.closest('.choice');if(!b)return;typeSel[t.id]=b.dataset.v;
+      $(t.id+'-type').querySelectorAll('.choice').forEach(x=>{x.classList.toggle('sel',x===b);x.classList.remove('right','wrong')});
+    });
+  }
+  $(t.id+'-check').onclick=()=>checkTask(t);
+});
+
+function mark(el,ok){el.classList.toggle('is-ok',ok);el.classList.toggle('is-bad',!ok)}
+function numbersIn(text){return (String(text).match(/\d+(?:[.,]\d+)?/g)||[]).map(s=>Number(s.replace(',','.')))}
+function checkTask(t){
+  const v=t.v,id=t.id,probs=[];
+  if(t.chooseType){
+    const sel=typeSel[id];
+    const btns=$(id+'-type').querySelectorAll('.choice');
+    btns.forEach(x=>x.classList.remove('right','wrong'));
+    if(!sel)probs.push('Entscheide zuerst, welche Zuordnung vorliegt.');
+    else{const ok=sel===t.t;$(id+'-type').querySelector(`.choice[data-v="${sel}"]`).classList.add(ok?'right':'wrong');if(!ok)probs.push('Prüfe die Zuordnungsart: je mehr … desto mehr oder desto weniger?')}
+  }
+  let cellsOK=true;
+  [2,3,4,5].forEach(i=>{const el=$(id+'-c'+i);if(!el)return;const ok=near(num(el.value),v[i]);mark(el,ok);if(!ok)cellsOK=false});
+  if(!cellsOK)probs.push('Prüfe die rot markierten Werte in der Tabelle.');
+  let arcsOK=true;
+  arcs.forEach(([n,f,to])=>{
+    const op=$(id+'-'+n+'op'),inp=$(id+'-'+n+'n'),k=num(inp.value);
+    let ok=false;
+    if(Number.isFinite(k)&&k!==0&&op.value){ok=op.value==='mul'?near(v[f]*k,v[to]):near(v[f]/k,v[to])}
+    mark(op,ok);mark(inp,ok);if(!ok)arcsOK=false;
+  });
+  if(!arcsOK)probs.push(t.t==='anti'?'Prüfe die Rechenoperationen an den Bögen. Bei antiproportionalen Zuordnungen rechnest du rechts die Umkehroperation.':'Prüfe die Rechenoperationen an den Bögen. Bei proportionalen Zuordnungen rechnest du links und rechts dasselbe.');
+  const ansEl=$(id+'-ans'),target=v[t.seek==='y'?5:4],txt=ansEl.value.trim();
+  const ansOK=txt.split(/\s+/).length>=3&&numbersIn(txt).some(n=>near(n,target));
+  mark(ansEl,ansOK);
+  if(!ansOK)probs.push(txt===''?'Schreibe noch einen Antwortsatz.':'Dein Antwortsatz braucht das richtige Ergebnis und muss ein ganzer Satz sein.');
+  if(probs.length===0){setFb('fb-'+id,'ok','Richtig – Dreisatz vollständig gelöst.');markSolved(id,true)}
+  else{setFb('fb-'+id,'bad',probs[0]);markSolved(id,false)}
+}
+
+const MAIN_IDS=['1','2a','2b','3a','3b'];
+function mainSolved(){return MAIN_IDS.filter(k=>solved[k]).length}
+function extraSolved(){return ['4a','4b'].filter(k=>solved[k]).length}
+function setFb(id,cls,txt){const el=$(id);el.className='fb '+cls;el.textContent=txt}
+function markSolved(id,ok){
+  solved[id]=ok;
+  $('chip-'+id).textContent=ok?'gelöst':'offen';$('chip-'+id).classList.toggle('ok',ok);
+  $('task-'+id).classList.toggle('done',ok);
+  const n=mainSolved(),z=extraSolved();
+  $('barFill').style.width=(n/5*100)+'%';
+  $('progText').textContent=`${n} von 5 Aufgaben gelöst`+(z?` · Zusatz: ${z} von 2`:'');
+  if(typeof scheduleImg==='function')scheduleImg();
+}
+
+/* ---------- Bild für OneNote (füllt sich live) ---------- */
+const IMG_FONT='"Atkinson Hyperlegible", Arial, sans-serif';
+let lastCanvas=null,imgTimer=null;
+function wrapText(ctx,text,x,y,maxW,lh){
+  const words=String(text).split(' ');let line='';
+  for(const w of words){const test=line?line+' '+w:w;if(ctx.measureText(test).width>maxW&&line){ctx.fillText(line,x,y);y+=lh;line=w}else line=test}
+  if(line){ctx.fillText(line,x,y);y+=lh}
+  return y;
+}
+function drawArc(ctx,x,y1,y2,side){
+  const dir=side==='l'?-1:1;
+  ctx.beginPath();ctx.moveTo(x,y1+4);ctx.bezierCurveTo(x+dir*30,y1+4,x+dir*30,y2-4,x,y2-4);
+  ctx.strokeStyle='#167c80';ctx.lineWidth=2.5;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x,y2-4);ctx.lineTo(x+dir*9,y2-10);ctx.lineTo(x+dir*9,y2+2);ctx.closePath();ctx.fillStyle='#167c80';ctx.fill();
+}
+function okMark(g,x,y){g.font=`bold 19px ${IMG_FONT}`;g.fillStyle='#2f8b4b';g.textAlign='right';g.fillText('✓ gelöst',x,y);g.textAlign='left'}
+function renderImage(){
+  const W=1100,P=50,F=IMG_FONT;
+  const c=document.createElement('canvas');c.width=W;c.height=5000;
+  const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,c.height);
+  const n=mainSolved(),z=extraSolved();
+  g.fillStyle='#56646a';g.font=`bold 16px ${F}`;
+  let y=P+10;g.fillText('EMIL-PETRI-SCHULE ARNSTADT · MATHEMATIK KLASSE 7',P,y);
+  y+=42;g.fillStyle='#1b1f20';g.font=`bold 34px ${F}`;g.fillText('Arbeitsblatt: Dreisatz',P,y);
+  y+=34;g.font=`20px ${F}`;g.fillText(`Datum: ${$('date').value}     Gelöst: ${n} von 5`+(z?`     Zusatz: ${z} von 2`:''),P,y);
+  y+=18;g.fillRect(P,y,W-2*P,3);y+=40;
+
+  // Aufgabe 1
+  g.font=`bold 24px ${F}`;g.fillStyle='#167c80';g.fillText('Aufgabe 1 · Zuordnungsart erkennen',P,y);
+  if(solved['1'])okMark(g,W-P,y);
+  y+=34;
+  recogItems.forEach((it,k)=>{
+    g.font=`19px ${F}`;g.fillStyle='#1b1f20';
+    g.fillText(`${String.fromCharCode(97+k)}) ${it.s}`,P,y);
+    g.font=`bold 19px ${F}`;g.fillStyle=recogSel[k]?'#1b1f20':'#9aa5a7';
+    g.fillText(recogSel[k]?typeName[recogSel[k]]:'…',W-P-190,y);
+    y+=28;
+  });
+  y+=12;g.fillStyle='#c6d2d4';g.fillRect(P,y,W-2*P,1);y+=40;
+
+  // Dreisatz-Aufgaben
+  tasks.filter(t=>!t.extra||solved[t.id]).forEach(t=>{
+    g.font=`bold 24px ${F}`;g.fillStyle='#167c80';g.textAlign='left';
+    g.fillText(`${t.extra?'Zusatzaufgabe':'Aufgabe'} ${t.id} · ${t.t==='prop'?'proportionale':'antiproportionale'} Zuordnung`,P,y);
+    if(solved[t.id])okMark(g,W-P,y);
+    y+=32;
+    g.font=`20px ${F}`;g.fillStyle='#1b1f20';y=wrapText(g,t.story,P,y,W-2*P,28)+12;
+    const colW=220,headH=44,rowH=48,tx=(W-2*colW)/2,ty=y;
+    g.lineWidth=2;g.strokeStyle='#1b1f20';
+    g.fillStyle='#e4f1f1';g.fillRect(tx,ty,colW*2,headH);
+    for(let r=0;r<4;r++){const yy=r===0?ty:ty+headH+(r-1)*rowH,h=r===0?headH:rowH;g.strokeRect(tx,yy,colW,h);g.strokeRect(tx+colW,yy,colW,h)}
+    g.fillStyle='#1b1f20';g.textAlign='center';g.font=`bold 17px ${F}`;
+    g.fillText(t.x,tx+colW/2,ty+28);g.fillText(t.y,tx+colW*1.5,ty+28);
+    for(let r=0;r<3;r++)for(let s2=0;s2<2;s2++){
+      const i=r*2+s2,inp=$(t.id+'-c'+i);
+      const val=inp?inp.value.trim():fmt(t.v[i]);
+      g.font=inp?`22px ${F}`:`bold 22px ${F}`;
+      g.fillText(val,tx+colW*(s2+.5),ty+headH+r*rowH+31);
+    }
+    arcs.forEach(([nm,,,side,r])=>{
+      const y1=ty+headH+(r-1)*rowH+rowH/2,y2=y1+rowH,x=side==='l'?tx-8:tx+colW*2+8;
+      drawArc(g,x,y1,y2,side);
+      const op=$(t.id+'-'+nm+'op').value,k=$(t.id+'-'+nm+'n').value.trim();
+      const label=((op?opSym[op]:'')+' '+k).trim();
+      if(label){g.font=`bold 21px ${F}`;g.fillStyle='#167c80';g.textAlign=side==='l'?'right':'left';
+        g.fillText(label,side==='l'?x-34:x+34,(y1+y2)/2+7)}
+    });
+    g.textAlign='left';g.fillStyle='#1b1f20';
+    y=ty+headH+3*rowH+34;
+    g.font=`bold 20px ${F}`;g.fillText('Antwort:',P,y);g.font=`20px ${F}`;
+    const ans=$(t.id+'-ans').value.trim();
+    y=wrapText(g,ans||' ',P+95,y,W-2*P-95,28)+14;
+    g.fillStyle='#c6d2d4';g.fillRect(P,y,W-2*P,1);g.fillStyle='#1b1f20';y+=36;
+  });
+  g.font=`16px ${F}`;g.fillStyle='#56646a';g.textAlign='right';
+  g.fillText('Erstellt von Marion Klugmann (Oktober 2026) mit freundlicher Unterstützung von Claude.',W-P,y);
+  y+=P;
+  const out=document.createElement('canvas');out.width=W;out.height=y;
+  out.getContext('2d').drawImage(c,0,0);
+  lastCanvas=out;
+  $('outImg').src=out.toDataURL('image/png');
+}
+function scheduleImg(){clearTimeout(imgTimer);imgTimer=setTimeout(renderImage,250)}
+document.querySelector('.wrap').addEventListener('input',scheduleImg);
+document.querySelector('.wrap').addEventListener('change',scheduleImg);
+$('recog').addEventListener('click',scheduleImg);
+(document.fonts?document.fonts.ready:Promise.resolve()).then(renderImage);
+
+function dataUrlToBlob(url){
+  const b=atob(url.split(',')[1]),a=new Uint8Array(b.length);
+  for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);
+  return new Blob([a],{type:'image/png'});
+}
+function copyViaSelection(){
+  // Ersatzweg: das Bild auf der Seite markieren und kopieren
+  try{
+    const img=$('outImg'),r=document.createRange();r.selectNode(img);
+    const sel=getSelection();sel.removeAllRanges();sel.addRange(r);
+    const ok=document.execCommand('copy');sel.removeAllRanges();return ok;
+  }catch(_){return false}
+}
+$('copyImg').onclick=()=>{
+  clearTimeout(imgTimer);renderImage();               // Bild sofort auf den neuesten Stand bringen
+  const blob=dataUrlToBlob($('outImg').src);
+  const viaSel=copyViaSelection();
+  const done=()=>setFb('fbImg','ok','Bild kopiert – jetzt in OneNote einfügen.');
+  const fail=()=>viaSel?done():setFb('fbImg','bad','Kopieren ging hier nicht. Tippe das Bild unten lange an und wähle „Kopieren“.');
+  try{
+    if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
+      navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).then(done).catch(fail);
+    }else fail();
+  }catch(_){fail()}
+};
+</script>
+
+<div class="ll-fenster" id="ll-fenster" hidden><div class="ll-box" role="dialog" aria-modal="true" aria-label="Spickzettel"><button type="button" class="ll-zu" id="ll-zu" aria-label="Spickzettel schließen">✕ Schließen</button><iframe id="ll-frame" title="Spickzettel"></iframe></div></div><script>
+(function(){
+  var o=document.getElementById('ll-fenster'),f=document.getElementById('ll-frame'),b=document.getElementById('ll-spick');
+  function zu(){o.hidden=true;document.body.style.overflow='';b.focus();}
+  b.addEventListener('click',function(){if(!f.getAttribute('src'))f.src='spickzettel.html';o.hidden=false;document.body.style.overflow='hidden';document.getElementById('ll-zu').focus();});
+  document.getElementById('ll-zu').addEventListener('click',zu);
+  o.addEventListener('click',function(e){if(e.target===o)zu();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!o.hidden)zu();});
+  var z=document.getElementById('ll-zurueck'),t=null;
+  function eingetragen(){return Array.prototype.some.call(document.querySelectorAll('input,textarea'),function(i){return i.id!=='date'&&i.type!=='hidden'&&i.value.trim()!=='';});}
+  z.addEventListener('click',function(e){
+    if(z.classList.contains('ll-warn')||!eingetragen())return;
+    e.preventDefault();z.classList.add('ll-warn');z.textContent='Wirklich? Deine Eingaben gehen verloren.';
+    clearTimeout(t);t=setTimeout(function(){z.classList.remove('ll-warn');z.textContent='← Lern-Lounge';},4000);
+  });
+})();
+</script>
+</body>
+</html>

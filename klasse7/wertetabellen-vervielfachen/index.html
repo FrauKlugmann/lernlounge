@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vervielfachen üben</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+</style>
+<style>
+/* Layout: Arbeitsblatt-Stil (grüner Titelbalken, Kästen); Sternleiste oben; je Kasten eine Tabelle mit Bogenzonen; bewusst nur heller Look */
+:root{
+  --papier:#ffffff; --tinte:#000000; --grau:#F2F2F2; --leise:#6F6F6F;
+  --smaragd:#00805F; --smaragd-hell:#D3F2E5;
+  --ok:#00805F; --ok-hell:#DDF3E8; --falsch:#CC0000; --falsch-hell:#FDE2E2;
+  --wahl:#FFE873; --fokus:#FFF3B0; --stern:#F5B700;
+  --schrift:Arial,Helvetica,"Liberation Sans",sans-serif;
+  color-scheme:light;
+}
+html{background:var(--papier)}
+body{background:var(--papier);color:var(--tinte);font-family:var(--schrift);font-size:clamp(14px,1.35vw,20px);line-height:1.35;
+  padding-block:16px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.blatt{max-width:1150px;margin:0 auto;display:flex;flex-direction:column;gap:1em}
+.titel{background:var(--smaragd);color:#fff;font-weight:700;text-align:center;font-size:1.5em;padding:.4em .5em;margin:0;text-wrap:balance}
+
+.kasten{border:2px solid var(--smaragd)}
+.kasten>h2{margin:0;font-size:1em;background:var(--smaragd-hell);border-bottom:2px solid var(--smaragd);padding:.35em .7em;display:flex;justify-content:space-between;align-items:center;gap:.6em;flex-wrap:wrap}
+.innen{padding:.6em .8em .8em;display:flex;flex-direction:column;gap:.4em}
+
+.anleitung ol{margin:0;padding-left:1.4em;display:grid;gap:.25em}
+.anleitung li{max-width:70ch}
+kbd{font:inherit;font-weight:700;border:1.5px solid var(--leise);padding:0 .35em;background:var(--grau)}
+
+.sterne{display:flex;align-items:center;gap:1em;flex-wrap:wrap;border:2px solid var(--stern);padding:.45em .8em;background:#FFF9E3}
+.sterne .reihe{font-size:1.6em;letter-spacing:.08em;color:var(--stern);min-height:1.2em}
+.sterne .reihe:empty::before{content:"–";color:var(--leise);font-size:.6em}
+.sterne .bis{display:flex;align-items:center;gap:.35em}
+.punkt{width:.9em;height:.9em;border-radius:50%;border:2px solid var(--stern);display:inline-block}
+.punkt.voll{background:var(--stern)}
+.sterne .zahl{margin-left:auto;color:var(--leise)}
+
+.knoepfe{display:flex;gap:.5em;flex-wrap:wrap}
+button.knopf{font:inherit;font-size:.9em;background:var(--papier);color:var(--tinte);border:2px solid var(--smaragd);padding:.3em .9em;cursor:pointer;font-weight:700}
+button.knopf.haupt{background:var(--smaragd);color:#fff}
+button.knopf:hover{filter:brightness(.95)}
+button:focus-visible{outline:3px solid var(--smaragd);outline-offset:2px}
+
+.scroll{overflow-x:auto;min-width:0}
+.tw{position:relative;width:100%;min-width:30em}
+.bogen{position:relative;height:5.4em}
+.bogen svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.bogen path{fill:none;stroke-width:2.6;stroke-linecap:round}
+.etikett{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:.15em;z-index:2}
+.etikett input{font:inherit;font-weight:700;width:3.4em;height:1.55em;text-align:center;border:2px solid;background:var(--papier);padding:0;border-radius:0}
+.etikett input:focus{outline:none;background:var(--fokus)}
+.etikett input.falsch{background:var(--falsch-hell);outline:3px solid var(--falsch)}
+.etikett input.richtig{background:var(--ok-hell)}
+.etikett .weg{font:inherit;font-size:.7em;width:1.7em;height:1.7em;border:1.5px solid var(--leise);background:var(--papier);color:var(--leise);cursor:pointer;padding:0;line-height:1}
+
+table.wt{border-collapse:collapse;width:100%;table-layout:fixed;font-variant-numeric:tabular-nums}
+.wt th,.wt td{border:1.5px solid var(--tinte);height:2.4em;text-align:center;font-size:1.15em;padding:0}
+.wt th{background:var(--grau);width:2.6em}
+.wt td{cursor:pointer;user-select:none;-webkit-user-select:none}
+.wt td.gewaehlt{background:var(--wahl)}
+.wt td.richtig{background:var(--ok-hell)}
+.wt td.falsch{background:var(--falsch-hell)}
+.wt td input{font:inherit;width:100%;height:2.4em;border:0;text-align:center;background:transparent;color:var(--tinte);padding:0}
+.wt td input:focus{outline:none;background:var(--fokus)}
+
+.meldung{margin:0;min-height:1.4em;font-weight:700}
+.meldung.ok{color:var(--ok)} .meldung.nein{color:var(--falsch)}
+.meldung ul{margin:.2em 0 0;padding-left:1.3em;font-weight:400;color:var(--tinte)}
+
+.fuss{text-align:right;font-style:italic;color:var(--leise);font-size:.65em;margin:0}
+@media (prefers-reduced-motion:no-preference){.neu-stern{animation:pop .6s ease-out}}
+@keyframes pop{0%{transform:scale(.3)}60%{transform:scale(1.4)}100%{transform:scale(1)}}
+</style>
+
+<main class="blatt">
+<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a><button type="button" class="ll-spick" id="ll-spick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3 h9 l4 4 v14 h-13z M14 3 v5 h5 M9 12 h7 M9 16 h5"/></svg>Spickzettel</button></div>
+  <h1 class="titel">Wertetabellen ergänzen durch Vervielfachen</h1>
+
+  <section class="kasten anleitung" aria-labelledby="h-anl">
+    <h2 id="h-anl">Ergänze die Tabellen, ohne k zu berechnen.</h2>
+    <div class="innen">
+      <ol>
+        <li>Tippe auf die Spalte mit dem bekannten Wert und dann auf die Spalte, die du ausrechnen willst. Es erscheint ein Pfeilbogen über und unter der Tabelle.</li>
+        <li>Schreibe an jeden Bogen, was du rechnest: <kbd>*</kbd> für mal (wird zu ·) und <kbd>:</kbd> für geteilt, z. B. <b>*2</b> oder <b>:3</b>.</li>
+        <li>Trage den y-Wert in die Tabelle ein. Von einem ausgerechneten Wert aus darfst du weiterrechnen.</li>
+        <li>Tippe auf <b>Prüfen</b>. Einen falschen Bogen löschst du mit ✕.</li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="sterne" aria-live="polite">
+    <span class="reihe" id="sterne"></span>
+    <span class="bis" id="bis" aria-label="Fortschritt bis zum nächsten Stern"></span>
+    <span>bis zum nächsten Stern</span>
+    <span class="zahl" id="geloest">0 Aufgaben gelöst</span>
+  </div>
+
+  <section class="kasten" data-typ="p" aria-labelledby="h-p">
+    <h2 id="h-p"><span>Proportionale Zuordnung</span><span class="knoepfe"><button type="button" class="knopf" data-aktion="neu">Neue Aufgabe</button><button type="button" class="knopf haupt" data-aktion="pruefen">Prüfen</button></span></h2>
+    <div class="innen"><div class="scroll"><div class="tw"></div></div><div class="meldung" aria-live="polite"></div></div>
+  </section>
+
+  <section class="kasten" data-typ="a" aria-labelledby="h-a">
+    <h2 id="h-a"><span>Antiproportionale Zuordnung</span><span class="knoepfe"><button type="button" class="knopf" data-aktion="neu">Neue Aufgabe</button><button type="button" class="knopf haupt" data-aktion="pruefen">Prüfen</button></span></h2>
+    <div class="innen"><div class="scroll"><div class="tw"></div></div><div class="meldung" aria-live="polite"></div></div>
+  </section>
+
+  <p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p>
+</main>
+
+<script>
+(function(){
+  const NS='http://www.w3.org/2000/svg';
+  const FARBEN=['#1565C0','#C2410C','#2E7D32','#8E24AA','#00838F','#AD1457','#6D4C41','#E65100'];
+  const FAKT=[2,3,4,5,6,10];
+  const zufall=a=>a[Math.floor(Math.random()*a.length)];
+  const gleich=(a,b)=>Math.abs(a-b)<1e-6;
+  const zahlText=v=>(Math.round(v*100)/100).toString().replace('.',',');
+  const ggt=(a,b)=>b?ggt(b,a%b):a, kgv=(a,b)=>a*b/ggt(a,b);
+
+  // ---------- Aufgaben erzeugen ----------
+  function erreichbar(xs,start){
+    const da=new Set([start]),q=[start];
+    while(q.length){const i=q.shift();xs.forEach((x,j)=>{if(da.has(j))return;const r=Math.max(x,xs[i])/Math.min(x,xs[i]);
+      if(FAKT.some(f=>gleich(r,f))){da.add(j);q.push(j);}});}
+    return da.size===xs.length;
+  }
+  function neueAufgabe(typ,alt){
+    for(let n=0;n<500;n++){
+      const b=zufall([1,1,2,3]);
+      const pool=[1,2,3,4,5,6,8,10,12,15,20,24,30,40,60].map(m=>m*b).filter(v=>v<=120);
+      const xs=[];while(xs.length<6){const v=zufall(pool);if(!xs.includes(v))xs.push(v);}
+      xs.sort((p,q)=>p-q);
+      const geg=Math.floor(Math.random()*6);
+      if(!erreichbar(xs,geg))continue;
+      let ys;
+      if(typ==='p'){const k=zufall([2,3,4,5,6,7,8,9,12,1.5,2.5]);ys=xs.map(x=>Math.round(x*k*100)/100);}
+      else{const L=xs.reduce(kgv,1);if(L>240)continue;const c=L*zufall([1,2,3].filter(m=>L*m<=480));ys=xs.map(x=>c/x);}
+      const sig=xs.join()+'|'+geg;if(alt&&alt===sig)continue;
+      return {xs,ys,geg,sig};
+    }
+  }
+
+  // ---------- Zustand ----------
+  let geloest=0;
+  const bereiche=[...document.querySelectorAll('.kasten[data-typ]')].map(sec=>({sec,typ:sec.dataset.typ,tw:sec.querySelector('.tw'),
+    meldung:sec.querySelector('.meldung'),boegen:[],wahl:null,zaehler:0,auf:null,fertig:false}));
+
+  function aufbauen(B){
+    B.auf=neueAufgabe(B.typ,B.auf&&B.auf.sig);B.boegen=[];B.wahl=null;B.zaehler=0;B.fertig=false;
+    B.meldung.className='meldung';B.meldung.textContent='';
+    const {xs,ys,geg}=B.auf,id=B.typ;
+    B.tw.innerHTML='<div class="bogen oben"></div><table class="wt"></table><div class="bogen unten"></div>';
+    B.oben=B.tw.querySelector('.oben');B.unten=B.tw.querySelector('.unten');B.tab=B.tw.querySelector('table');
+    B.tab.innerHTML=`<tr><th>x</th>${xs.map((x,c)=>`<td data-col="${c}">${zahlText(x)}</td>`).join('')}</tr>`+
+      `<tr><th>y</th>${ys.map((y,c)=>c===geg?`<td data-col="${c}">${zahlText(y)}</td>`:
+        `<td data-col="${c}"><input id="${id}-y${c}" inputmode="decimal" autocomplete="off" aria-label="y-Wert zu x gleich ${zahlText(xs[c])}"></td>`).join('')}</tr>`;
+    B.tab.addEventListener('click',e=>{const td=e.target.closest('td');if(!td||e.target.tagName==='INPUT')return;klick(B,+td.dataset.col);});
+    zeichne(B);
+  }
+
+  function markiere(B){B.tab.querySelectorAll('td').forEach(td=>td.classList.toggle('gewaehlt',B.wahl!==null&&+td.dataset.col===B.wahl));}
+  function klick(B,col){
+    bereiche.forEach(o=>{if(o!==B&&o.wahl!==null){o.wahl=null;markiere(o);}});
+    if(B.wahl===null){B.wahl=col;markiere(B);return;}
+    if(B.wahl===col){B.wahl=null;markiere(B);return;}
+    const von=B.wahl,nach=col;B.wahl=null;markiere(B);
+    if(B.boegen.some(b=>(b.von===von&&b.nach===nach)||(b.von===nach&&b.nach===von)))return;
+    const b={von,nach,id:B.typ+'-'+B.zaehler,farbe:FARBEN[B.zaehler%FARBEN.length],oben:'',unten:'',status:{}};B.zaehler++;
+    B.boegen.push(b);zeichne(B);
+    const f=B.oben.querySelector(`[data-id="${b.id}"] input`);if(f)f.focus();
+  }
+
+  function ebenen(boegen){
+    const s=[...boegen].sort((p,q)=>Math.abs(p.von-p.nach)-Math.abs(q.von-q.nach)),f=[];
+    s.forEach(b=>{const a1=Math.min(b.von,b.nach),b1=Math.max(b.von,b.nach);let l=0;
+      f.forEach(o=>{const a2=Math.min(o.von,o.nach),b2=Math.max(o.von,o.nach);if(a1<b2&&a2<b1)l=Math.max(l,o.ebene+1);});
+      b.ebene=l;f.push(b);});
+  }
+  function zeichne(B){
+    ebenen(B.boegen);
+    const em=parseFloat(getComputedStyle(B.tw).fontSize),twR=B.tw.getBoundingClientRect();
+    const mitte=[...B.tab.rows[0].cells].slice(1).map(c=>{const r=c.getBoundingClientRect();return r.left-twR.left+r.width/2;});
+    const hoehe=l=>em*(1.5+1.9*l);
+    const maxL=B.boegen.reduce((m,b)=>Math.max(m,b.ebene),-1);
+    const H=Math.max(em*5.4,(maxL>=0?hoehe(maxL):0)+em*1.3);
+    [['oben',B.oben],['unten',B.unten]].forEach(([seite,zone])=>{
+      zone.style.height=H+'px';zone.innerHTML='';
+      const svg=document.createElementNS(NS,'svg');zone.appendChild(svg);
+      const pfeil=em*.42;
+      B.boegen.forEach(b=>{
+        const dir=Math.sign(b.nach-b.von),spreiz=em*.45+em*.3*b.ebene;
+        const x1=mitte[b.von]+spreiz*dir,x2=mitte[b.nach]-spreiz*dir,h=hoehe(b.ebene);
+        const y0=seite==='oben'?H:0,s=seite==='oben'?-1:1,k=h*4/3;
+        const p=document.createElementNS(NS,'path');
+        p.setAttribute('d',`M${x1},${y0} C${x1},${y0+s*k} ${x2},${y0+s*k} ${x2},${y0+s*pfeil*.6}`);p.style.stroke=b.farbe;svg.appendChild(p);
+        const g=document.createElementNS(NS,'polygon');
+        g.setAttribute('points',`${x2-pfeil*.6},${y0+s*pfeil*1.1} ${x2+pfeil*.6},${y0+s*pfeil*1.1} ${x2},${y0}`);g.style.fill=b.farbe;svg.appendChild(g);
+        const et=document.createElement('div');et.className='etikett';et.dataset.id=b.id;
+        et.style.left=((x1+x2)/2)+'px';et.style.top=(y0+s*h)+'px';
+        const inp=document.createElement('input');inp.id=`bogen-${b.id}-${seite}`;inp.autocomplete='off';inp.value=b[seite];
+        inp.style.borderColor=b.farbe;inp.style.color=b.farbe;
+        if(b.status[seite])inp.classList.add(b.status[seite]);
+        inp.setAttribute('aria-label',`Pfeilbogen ${seite}: Rechnung`);
+        inp.addEventListener('input',()=>{b[seite]=inp.value;b.status[seite]=null;inp.classList.remove('richtig','falsch');});
+        et.appendChild(inp);
+        if(seite==='oben'){const x=document.createElement('button');x.type='button';x.className='weg';x.textContent='✕';x.setAttribute('aria-label','Bogen löschen');
+          x.addEventListener('click',()=>{B.boegen=B.boegen.filter(q=>q!==b);zeichne(B);});et.appendChild(x);}
+        zone.appendChild(et);
+      });
+    });
+  }
+
+  // ---------- Prüfen ----------
+  function liesRechnung(t){
+    const s=(t||'').replace(/\s/g,'').replace(/[*x×⋅]/gi,'·').replace(/[\/÷]/g,':').replace(',','.');
+    const m=s.match(/^([·:])(\d+(?:\.\d+)?)$/);return m?{op:m[1],n:parseFloat(m[2])}:null;
+  }
+  const wende=(v,r)=>r.op==='·'?v*r.n:v/r.n;
+  function liesZahl(t){const s=(t||'').trim().replace(',','.');return s===''||isNaN(+s)?null:+s;}
+
+  function pruefen(B){
+    const {xs,ys,geg}=B.auf,fehler=[];
+    // Bögen prüfen
+    B.boegen.forEach(b=>{
+      const o=liesRechnung(b.oben),u=liesRechnung(b.unten);
+      b.status.oben=o&&gleich(wende(xs[b.von],o),xs[b.nach])?'richtig':'falsch';
+      b.status.unten=u&&gleich(wende(ys[b.von],u),ys[b.nach])?'richtig':'falsch';
+      b.ok=b.status.oben==='richtig'&&b.status.unten==='richtig';
+    });
+    // Erreichbarkeit über richtige Bögen
+    const da=new Set([geg]);let neu=true;
+    while(neu){neu=false;B.boegen.forEach(b=>{if(b.ok&&da.has(b.von)&&!da.has(b.nach)){da.add(b.nach);neu=true;}});}
+    // Werte
+    let werteOk=true;
+    xs.forEach((x,c)=>{if(c===geg)return;
+      const td=B.tab.querySelector(`td[data-col="${c}"] input`).parentElement;const v=liesZahl(td.querySelector('input').value);
+      const ok=v!==null&&gleich(v,ys[c]);td.classList.toggle('richtig',ok);td.classList.toggle('falsch',!ok);
+      if(!ok){werteOk=false;fehler.push(v===null?`Bei x = ${zahlText(x)} fehlt noch der y-Wert.`:`Der y-Wert bei x = ${zahlText(x)} stimmt nicht.`);}
+      else if(!da.has(c))fehler.push(`Zu x = ${zahlText(x)} fehlt ein richtiger Pfeilbogen, der zeigt, wie du hinkommst.`);
+    });
+    const falscheBoegen=B.boegen.filter(b=>!b.ok).length;
+    if(falscheBoegen)fehler.push(falscheBoegen===1?'Ein Pfeilbogen ist falsch beschriftet (rot markiert).':`${falscheBoegen} Pfeilbögen sind falsch beschriftet (rot markiert).`);
+    zeichne(B);
+    if(!fehler.length){
+      B.meldung.className='meldung ok';
+      if(!B.fertig){B.fertig=true;geloest++;sterneZeigen(true);B.meldung.textContent='Super, alles richtig! Tippe auf „Neue Aufgabe“.';}
+      else B.meldung.textContent='Diese Aufgabe hast du schon gelöst. Tippe auf „Neue Aufgabe“.';
+    }else{
+      B.meldung.className='meldung nein';
+      B.meldung.innerHTML='Noch nicht ganz:<ul>'+fehler.map(f=>`<li>${f}</li>`).join('')+'</ul>';
+    }
+  }
+
+  function sterneZeigen(neu){
+    const s=Math.floor(geloest/3),rest=geloest%3;
+    const reihe=document.getElementById('sterne');
+    reihe.innerHTML='★'.repeat(Math.max(0,s-1))+(s?`<span class="${neu&&rest===0?'neu-stern':''}" style="display:inline-block">★</span>`:'');
+    document.getElementById('bis').innerHTML=[0,1,2].map(i=>`<span class="punkt${i<rest?' voll':''}"></span>`).join('');
+    document.getElementById('geloest').textContent=geloest===1?'1 Aufgabe gelöst':`${geloest} Aufgaben gelöst`;
+  }
+
+  // * wird zum Malpunkt
+  document.addEventListener('input',e=>{const f=e.target;if(f.tagName!=='INPUT'||!f.value.includes('*'))return;
+    const pos=f.selectionStart;f.value=f.value.replace(/\*/g,'·');try{f.setSelectionRange(pos,pos);}catch(_){}
+    f.dispatchEvent(new Event('input'));});
+  // Tabellenwerte: Markierung beim Ändern entfernen
+  document.addEventListener('input',e=>{const td=e.target.closest&&e.target.closest('.wt td');if(td)td.classList.remove('richtig','falsch');});
+
+  bereiche.forEach(B=>{
+    B.sec.querySelector('[data-aktion="neu"]').addEventListener('click',()=>aufbauen(B));
+    B.sec.querySelector('[data-aktion="pruefen"]').addEventListener('click',()=>pruefen(B));
+    aufbauen(B);
+  });
+  window.addEventListener('resize',()=>bereiche.forEach(zeichne));
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>bereiche.forEach(zeichne));
+  sterneZeigen(false);
+})();
+</script>
+
+<div class="ll-fenster" id="ll-fenster" hidden><div class="ll-box" role="dialog" aria-modal="true" aria-label="Spickzettel"><button type="button" class="ll-zu" id="ll-zu" aria-label="Spickzettel schließen">✕ Schließen</button><iframe id="ll-frame" title="Spickzettel"></iframe></div></div><script>
+(function(){
+  var o=document.getElementById('ll-fenster'),f=document.getElementById('ll-frame'),b=document.getElementById('ll-spick');
+  function zu(){o.hidden=true;document.body.style.overflow='';b.focus();}
+  b.addEventListener('click',function(){if(!f.getAttribute('src'))f.src='spickzettel.html';o.hidden=false;document.body.style.overflow='hidden';document.getElementById('ll-zu').focus();});
+  document.getElementById('ll-zu').addEventListener('click',zu);
+  o.addEventListener('click',function(e){if(e.target===o)zu();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!o.hidden)zu();});
+  var z=document.getElementById('ll-zurueck'),t=null;
+  function eingetragen(){return Array.prototype.some.call(document.querySelectorAll('input,textarea'),function(i){return i.id!=='date'&&i.type!=='hidden'&&i.value.trim()!=='';});}
+  z.addEventListener('click',function(e){
+    if(z.classList.contains('ll-warn')||!eingetragen())return;
+    e.preventDefault();z.classList.add('ll-warn');z.textContent='Wirklich? Deine Eingaben gehen verloren.';
+    clearTimeout(t);t=setTimeout(function(){z.classList.remove('ll-warn');z.textContent='← Lern-Lounge';},4000);
+  });
+})();
+</script>
