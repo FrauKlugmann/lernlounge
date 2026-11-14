@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Spickzettel Prozente Grundbegriffe</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root{--rot:#B3261E;--rothell:#FBE3E1;--G:#1565C0;--Gh:#DCE8F8;--W:#C2410C;--Wh:#FBEADF;--P:#2e7d32;--Ph:#E5F4E6;color-scheme:light}
+*{box-sizing:border-box}
+html{background:#fff}
+body{background:#fff;color:#000;font-family:Arial,"Liberation Sans",Helvetica,sans-serif;font-size:16px;line-height:1.35;
+  padding-block:16px 24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.blatt{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.titel{background:var(--rot);color:#fff;font-weight:700;text-align:center;font-size:1.6em;padding:.25em .5em .3em;margin:0}
+.titel small{display:block;font-size:.42em;font-weight:400;letter-spacing:.14em;text-transform:uppercase;opacity:.92}
+.spalten{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.spalte{display:flex;flex-direction:column;gap:12px;min-width:0}
+.kasten{border:2px solid var(--rot)}
+.kasten>h2{margin:0;font-size:1em;background:var(--rothell);border-bottom:2px solid var(--rot);padding:.3em .6em}
+.innen{padding:.5em .7em .6em;display:flex;flex-direction:column;gap:.45em}
+.innen p{margin:0}
+.gross{font-size:1.15em;font-weight:700;text-align:center}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.1;margin:0 .12em}
+.frac span:first-child{border-bottom:2px solid currentColor;padding:0 .15em}
+.reihe{display:flex;align-items:center;gap:.8em 2em;flex-wrap:wrap;justify-content:center}
+.g100{display:grid;grid-template-columns:repeat(10,1fr);width:5.5em;aspect-ratio:1;border:1.5px solid #000;flex:none}
+.g100 i{border:.5px solid #777}.g100 i.an{background:#7fb89a}
+/* Erweitern */
+.erw{display:flex;align-items:center;justify-content:center;gap:.25em;font-size:1.2em;font-weight:700}
+.erwm{display:flex;flex-direction:column;align-items:center;font-size:.75em;color:var(--rot)}
+.erwm svg{width:3em;height:.8em;overflow:visible}.erwm path{fill:none;stroke:var(--rot);stroke-width:2}
+/* Umwandeln-Schema */
+.schema{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:.2em;text-align:center}
+.bx{border:2px solid #000;border-radius:9px;padding:.3em .3em;font-weight:700;background:#fff}
+.pf{display:flex;flex-direction:column;align-items:center;font-size:.75em;line-height:1.15;color:var(--rot);font-weight:700}
+.pf b{font-size:1.5em;line-height:1}
+.bsp{text-align:center;color:#333}
+/* Promille */
+.zwei{display:grid;grid-template-columns:1fr 1fr;gap:.5em}
+.chip{border:2px solid #000;border-radius:9px;padding:.3em .5em;text-align:center}
+/* G W p */
+.tab3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4em;text-align:center}
+.tab3 div{border-radius:9px;padding:.35em .3em;font-size:.92em}
+.tab3 b{display:block;font-size:1.05em}
+.cG{background:var(--Gh);border:2px solid var(--G)}.cG b{color:var(--G)}
+.cW{background:var(--Wh);border:2px solid var(--W)}.cW b{color:var(--W)}
+.cP{background:var(--Ph);border:2px solid var(--P)}.cP b{color:var(--P)}
+.streifen{display:flex;height:1.9em;border:2px solid var(--G);background:var(--Gh);margin:.2em 1em 0}
+.streifen .w{width:30%;background:var(--Wh);border-right:2px solid var(--W);display:flex;align-items:center;justify-content:center;color:var(--W);font-weight:700}
+.klammer{display:block;width:calc(100% - 2em);height:1.1em;margin:0 1em;overflow:visible}
+.klammer path{fill:none;stroke:var(--G);stroke-width:2.5}
+.klt{text-align:center;color:var(--G);font-weight:700;margin-top:-.1em}
+.satz{line-height:1.8}
+.satz .G,.satz .W,.satz .P{font-weight:700;padding:0 .2em;border-radius:4px}
+.satz .G{color:var(--G);background:var(--Gh)}.satz .W{color:var(--W);background:var(--Wh)}.satz .P{color:var(--P);background:var(--Ph)}
+/* Kopfrechnen */
+table.km{border-collapse:collapse;width:100%;font-size:inherit}
+.km th,.km td{border:1.5px solid #000;padding:.25em .5em;text-align:center}
+.km th{background:#F2F2F2}
+.km td:last-child{font-weight:700;color:var(--W)}
+.achtung{border:2px dashed var(--rot);padding:.5em .7em;background:#fff8f7}
+.achtung b{color:var(--rot)}
+.achtung ul{margin:.3em 0 0;padding-left:1.2em;display:flex;flex-direction:column;gap:.2em}
+.fuss{text-align:right;font-style:italic;color:#6F6F6F;font-size:.72em;margin:0}
+@media (max-width:760px){.spalten{grid-template-columns:1fr}}
+@media print{body{font-size:11.5px;padding:0}@page{size:A4;margin:1cm}.kasten,.achtung{break-inside:avoid}}
+</style>
+
+</head><body>
+<main class="blatt">
+  <h1 class="titel"><small>Spickzettel · Prozentrechnung</small>Prozente – Grundbegriffe</h1>
+  <div class="spalten">
+    <div class="spalte">
+      <section class="kasten"><h2>Was ist Prozent?</h2><div class="innen">
+        <p class="gross">Prozent heißt „von Hundert“</p>
+        <p class="gross">1 % = <span class="frac"><span>1</span><span>100</span></span> = 0,01</p>
+        <div class="reihe">
+          <div class="g100" aria-label="Hunderterfeld mit 23 gefärbten Kästchen" id="g23"></div>
+          <p><b>23 von 100</b> gefärbt:<br><span class="frac"><span>23</span><span>100</span></span> = 0,23 = <b>23 %</b></p>
+        </div>
+      </div></section>
+
+      <section class="kasten"><h2>Brüche erweitern</h2><div class="innen">
+        <p>Zähler und Nenner mit <b>derselben Zahl</b> malnehmen, bis im Nenner <b>100</b> steht.</p>
+        <div class="reihe">
+          <div class="erw"><span class="frac"><span>3</span><span>4</span></span>
+            <span class="erwm">· 25<svg viewBox="0 0 60 16"><path d="M4 14 C14 0,46 0,56 12"/><path d="M50 10 L57 13 L56 5"/></svg>=<svg viewBox="0 0 60 16"><path d="M4 2 C14 16,46 16,56 4"/><path d="M50 6 L57 3 L56 11"/></svg>· 25</span>
+            <span class="frac"><span>75</span><span>100</span></span> = 75 %</div>
+          <div class="erw"><span class="frac"><span>2</span><span>5</span></span>
+            <span class="erwm">· 20<svg viewBox="0 0 60 16"><path d="M4 14 C14 0,46 0,56 12"/><path d="M50 10 L57 13 L56 5"/></svg>=<svg viewBox="0 0 60 16"><path d="M4 2 C14 16,46 16,56 4"/><path d="M50 6 L57 3 L56 11"/></svg>· 20</span>
+            <span class="frac"><span>40</span><span>100</span></span> = 40 %</div>
+        </div>
+        <p class="bsp">Kürzen musst du nicht: <span class="frac"><span>45</span><span>100</span></span> ist richtig.</p>
+      </div></section>
+
+      <section class="kasten"><h2>Umwandeln</h2><div class="innen">
+        <div class="schema">
+          <div class="bx">Bruch</div>
+          <div class="pf">auf 100<br>erweitern<b>⇄</b></div>
+          <div class="bx">Dezimal&shy;zahl</div>
+          <div class="pf">Komma 2 nach rechts<b>→</b><b>←</b>Komma 2 nach links</div>
+          <div class="bx">Prozent</div>
+        </div>
+        <p class="bsp"><span class="frac"><span>7</span><span>100</span></span> = 0,07 = 7 % &nbsp;·&nbsp; 0,3 = 0,30 = 30 % &nbsp;·&nbsp; 45 % = 0,45</p>
+      </div></section>
+
+      <section class="kasten"><h2>Prozent und Promille</h2><div class="innen">
+        <div class="zwei">
+          <div class="chip"><b>%</b> „von Hundert“<br>1 % = <span class="frac"><span>1</span><span>100</span></span> = 0,01</div>
+          <div class="chip"><b>‰</b> „von Tausend“<br>1 ‰ = <span class="frac"><span>1</span><span>1000</span></span> = 0,001</div>
+        </div>
+        <p class="gross">1 % = 10 ‰</p>
+        <p style="text-align:center">1 ‰ ist der 10. Teil <span class="frac"><span>1</span><span>10</span></span> von 1 %.</p>
+        <div class="zwei" style="text-align:center"><div><b>% → ‰:</b> · 10<br>5 % = 50 ‰</div><div><b>‰ → %:</b> : 10<br>30 ‰ = 3 %</div></div>
+      </div></section>
+
+    </div>
+
+    <div class="spalte">
+      <section class="kasten"><h2>Grundwert, Prozentwert, Prozentsatz</h2><div class="innen">
+        <div class="tab3">
+          <div class="cG"><b>G</b>Grundwert<br>das Ganze (100 %)</div>
+          <div class="cW"><b>W</b>Prozentwert<br>der Teil vom Ganzen</div>
+          <div class="cP"><b>p %</b>Prozentsatz<br>der Anteil in %</div>
+        </div>
+        <div class="streifen"><div class="w">W ≙ p %</div></div>
+        <svg class="klammer" viewBox="0 0 1000 40" preserveAspectRatio="none"><path vector-effect="non-scaling-stroke" d="M2,2 Q2,20 40,20 L460,20 Q500,20 500,38 Q500,20 540,20 L960,20 Q998,20 998,2"/></svg>
+        <p class="klt">G ≙ 100 %</p>
+        <p class="satz">Von <span class="G">25 Schülern</span> tragen <span class="W">5 Schüler</span> eine Brille, das sind <span class="P">20 %</span>.</p>
+        <p class="bsp">G steht oft nach „von“ · p % erkennst du am %-Zeichen</p>
+      </div></section>
+
+      <section class="kasten"><h2>Prozentwert im Kopf</h2><div class="innen">
+        <table class="km"><tr><th>p %</th><th>Bruch</th><th>So rechnest du W</th></tr>
+          <tr><td>50 %</td><td><span class="frac"><span>1</span><span>2</span></span></td><td>G : 2</td></tr>
+          <tr><td>10 %</td><td><span class="frac"><span>1</span><span>10</span></span></td><td>G : 10</td></tr>
+          <tr><td>1 %</td><td><span class="frac"><span>1</span><span>100</span></span></td><td>G : 100</td></tr>
+          <tr><td>25 %</td><td><span class="frac"><span>1</span><span>4</span></span></td><td>G : 4</td></tr>
+          <tr><td>20 %</td><td><span class="frac"><span>1</span><span>5</span></span></td><td>G : 5</td></tr>
+          <tr><td>75 %</td><td><span class="frac"><span>3</span><span>4</span></span></td><td>G : 4 · 3</td></tr>
+        </table>
+        <p class="bsp">75 % von 40 € = 40 € : 4 · 3 = <b>30 €</b></p>
+      </div></section>
+    </div>
+  </div>
+
+  <div class="achtung"><b>Achtung, Falle:</b>
+    <ul>
+      <li>Komma richtig schieben: 0,07 = <b>7 %</b>, nicht 70 %. Und 0,5 = <b>50 %</b>, nicht 5 %.</li>
+      <li>5 % und 5 ‰ sind nicht gleich: 5 % = 50 ‰ – Prozent ist zehnmal mehr.</li>
+    </ul>
+  </div>
+  <p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p>
+</main>
+<script>
+(function(){const g=document.getElementById('g23');let h='';for(let k=0;k<100;k++)h+='<i class="'+(k<23?'an':'')+'"></i>';g.innerHTML=h;})();
+</script>
+
+</body></html>

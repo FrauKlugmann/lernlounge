@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hefter-Eintrag · Prozentsatz</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; }
+  .toolbar { position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid #ccc; padding: 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .toolbar .sep { width: 1px; background: #ccc; align-self: stretch; margin: 0 6px; }
+  button { font: inherit; font-size: 14px; padding: 6px 10px; border: 1px solid #999; border-radius: 6px; background: #fff; cursor: pointer; }
+  button.tab { min-width: 52px; font-weight: bold; }
+  button.tab.act { background: #2e7d32; color: #fff; border-color: #2e7d32; }
+  button.tool.act { outline: 3px solid #000; outline-offset: 1px; }
+  button.mG { background: rgba(21,101,192,.35); border-color: #1565C0; }
+  button.mW { background: rgba(194,65,12,.35); border-color: #C2410C; }
+  button.mP { background: rgba(46,125,50,.35); border-color: #2e7d32; }
+
+  .sheet { display: none; position: relative; max-width: 940px; margin: 16px auto; padding: 24px; border: 1px solid #ccc; min-height: 860px; }
+  .sheet.act { display: block; }
+  canvas.pen { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: multiply; z-index: 5; }
+  canvas.pen.on { pointer-events: auto; touch-action: none; cursor: crosshair; }
+
+  .title { background: #2e7d32; color: #fff; padding: 10px 14px; font-weight: bold; font-size: 20px; margin: -24px -24px 10px; }
+  .ziel { font-size: 14px; margin-bottom: 14px; }
+  .kasten { border: 2px solid #2e7d32; border-radius: 6px; margin: 14px 0; overflow: hidden; }
+  .kasten .kopf { background: #e8f5e9; padding: 6px 10px; font-weight: bold; }
+  .kasten .inhalt { padding: 10px 12px; }
+  .zeile { margin: 10px 0; font-size: 18px; line-height: 2.3; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+  .grid3 .kasten { margin: 0; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+  .grid2 .kasten { margin: 0; }
+  .gruppe { margin: 14px 0; }
+
+  .f { width: 60px; font-size: 18px; border: none; border-bottom: 1.5px solid #888; background: #fff; text-align: center; font-family: inherit; padding: 2px 4px; color: #000; }
+  .f.wide { width: 100%; text-align: left; }
+  .f.cG { color: #1565C0; font-weight: bold; }
+  .f.cW { color: #C2410C; font-weight: bold; }
+  .f.cP { color: #2e7d32; font-weight: bold; }
+  .gG { color: #1565C0; font-weight: bold; }
+  .gW { color: #C2410C; font-weight: bold; }
+  .gP { color: #2e7d32; font-weight: bold; }
+
+  /* Bruch: alle Zeilen gleich hoch, damit alle Bruchstriche auf gleicher Höhe liegen */
+  .frac { display: inline-flex; flex-direction: column; align-items: stretch; vertical-align: middle; margin: 0 6px; font-size: 18px; line-height: 1; }
+  .frac > .f, .frac > span { height: 34px; display: flex; align-items: center; justify-content: center; border-bottom: none; }
+  .frac > .f { width: 70px; }
+  .frac .bar { display: block; width: 100%; height: 2px; background: #000; }
+  .z3 .frac > .f { width: 52px; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 15px; margin-top: 6px; }
+  th, td { border: 1px solid #000; padding: 6px; text-align: center; }
+  th { background: #e5e5e5; }
+  td .frac { margin: 0; }
+  .fuss { text-align: right; font-size: 12px; margin-top: 28px; }
+  .hinweis { font-size: 13px; color: #333; margin: 8px 0 0; }
+  svg.strip { display: block; margin: 4px 0; }
+  @page { size: A4; }
+  @media print {
+    .toolbar { display: none; }
+    .sheet { display: block !important; border: none; margin: 0; max-width: none; page-break-after: always; min-height: 0; }
+  }
+
+.video-controls{max-width:940px;margin:10px auto 0;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding:4px 10px;font:14px Arial,sans-serif}.video-controls .instruction{font-weight:600;margin-right:6px}.video-controls button{border:1px solid #aaa;border-radius:7px;padding:7px 11px;background:white}.video-controls .start{background:#b91c1c;color:white;border-color:#b91c1c}.video-controls .status{font-size:12px;color:#555;min-width:75px}.video-controls button:disabled{opacity:.5}.video-active{outline:2px solid #f59e0b;outline-offset:2px;background:#fff8e1!important} .sheet{margin-top:6px} @media print{.video-controls{display:none}}
+</style>
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+.ll-oben{max-width:1080px;margin:0 auto;padding:10px 16px 0;box-sizing:border-box}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+<a class="ll-zurueck" id="ll-zurueck" href="../" style="margin-right:6px">← Lern-Lounge</a>
+  <button class="tab act" data-z="1">Z1</button>
+  <button class="tab" data-z="2">Z2</button>
+  <button class="tab" data-z="3">Z3</button>
+  <div class="sep"></div>
+  <button class="tool act" data-t="eingabe">⌨ Tippen</button>
+  <button class="tool mG" data-t="#1565C0">Marker G</button>
+  <button class="tool mW" data-t="#C2410C">Marker W</button>
+  <button class="tool mP" data-t="#2e7d32">Marker p %</button>
+  <button class="tool" data-t="radier">Radierer</button>
+  <div class="sep"></div>
+  <button id="clr-page">Seite leeren</button>
+  <button id="clr-all">Alles löschen</button>
+</div>
+
+<div class="video-controls" id="video-controls"><span class="instruction">Klicke auf ▶ Start, um dir die Erklärung anzuhören.</span><button class="start" id="video-start">▶ Start</button><button id="video-pause">⏸ Pause</button><button id="video-stop">■ Stopp</button><span class="status" id="video-status">Bereit</span></div>
+<!-- ============ Z1 ============ -->
+<section class="sheet act" id="s1">
+  <div class="title">Prozentsatz mit der Verhältnisgleichung berechnen</div>
+  <div class="ziel"><b>Ziel Z1:</b> Ich kann mit Hilfe der Verhältnisgleichung bei gegebenem Prozentwert W und Grundwert G den Prozentsatz p % berechnen.</div>
+
+  <div class="kasten">
+    <div class="kopf">Merke</div>
+    <div class="inhalt">
+      <div class="zeile">
+        <span class="frac"><input class="f cG"><i class="bar"></i><span>100 %</span></span>
+        =
+        <span class="frac"><input class="f cW"><i class="bar"></i><input class="f cP"></span>
+      </div>
+      <div class="hinweis">Grundwert G zu 100 % ist wie Prozentwert W zu p %.</div>
+    </div>
+  </div>
+
+  <div class="kasten">
+    <div class="kopf">Musterbeispiel 1</div>
+    <div class="inhalt">
+      <div class="zeile">geg.: <span class="gG">G = 240</span> &nbsp;&nbsp; <span class="gW">W = 36</span> &nbsp;&nbsp;&nbsp; ges.: <input class="f cP"></div>
+      <div class="zeile">
+        <span class="frac"><input class="f cG"><i class="bar"></i><span>100 %</span></span>
+        =
+        <span class="frac"><input class="f cW"><i class="bar"></i><span class="gP">x</span></span>
+      </div>
+      <div class="zeile">x = <input class="f"> · <input class="f"> : <input class="f"> = <input class="f"></div>
+      <div class="zeile">p = <input class="f cP"> %</div>
+    </div>
+  </div>
+
+  <div class="kasten">
+    <div class="kopf">Musterbeispiel 2</div>
+    <div class="inhalt">
+      <div class="zeile">geg.: <span class="gG">G = 150</span> &nbsp;&nbsp; <span class="gW">W = 60</span> &nbsp;&nbsp;&nbsp; ges.: <input class="f cP"></div>
+      <div class="zeile">
+        <span class="frac"><input class="f cG"><i class="bar"></i><span>100 %</span></span>
+        =
+        <span class="frac"><input class="f cW"><i class="bar"></i><span class="gP">x</span></span>
+      </div>
+      <div class="zeile">x = <input class="f"> · <input class="f"> : <input class="f"> = <input class="f"></div>
+      <div class="zeile">p = <input class="f cP"> %</div>
+    </div>
+  </div>
+
+  <div class="kasten">
+    <div class="kopf">Jetzt ihr</div>
+    <div class="inhalt">
+      <div class="zeile">geg.: <span class="gG">G = 480</span> &nbsp;&nbsp; <span class="gW">W = 96</span> &nbsp;&nbsp;&nbsp; ges.: <input class="f cP"></div>
+      <div class="zeile">
+        <span class="frac"><input class="f cG"><i class="bar"></i><span>100 %</span></span>
+        =
+        <span class="frac"><input class="f cW"><i class="bar"></i><span class="gP">x</span></span>
+      </div>
+      <div class="zeile">x = <input class="f"> · <input class="f"> : <input class="f"> = <input class="f"></div>
+      <div class="zeile">p = <input class="f cP"> %</div>
+    </div>
+  </div>
+
+  <div class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude und ChatGPT.</div>
+  <canvas class="pen"></canvas>
+</section>
+
+<!-- ============ Z2 ============ -->
+<section class="sheet" id="s2">
+  <div class="title">Sachaufgaben: gesuchten Prozentsatz bestimmen</div>
+  <div class="ziel"><b>Ziel Z2:</b> Ich kann Sachaufgaben lösen, in denen der Prozentsatz p % gesucht ist.</div>
+
+  <div class="kasten">
+    <div class="kopf">Musterbeispiel 1</div>
+    <div class="inhalt">
+      <div>In einer Klasse mit 25 Schülern haben 7 Schüler ein Haustier. Wie viel Prozent der Schüler haben ein Haustier?</div>
+      <div class="zeile">geg.: <span class="gG">G =</span> <input class="f cG"> &nbsp;&nbsp; <span class="gW">W =</span> <input class="f cW"> &nbsp;&nbsp;&nbsp; ges.: <input class="f cP"></div>
+      <div class="zeile">
+        <span class="frac"><input class="f cG"><i class="bar"></i><span>100 %</span></span>
+        =
+        <span class="frac"><input class="f cW"><i class="bar"></i><span class="gP">x</span></span>
+      </div>
+      <div class="zeile">x = <input class="f"> · <input class="f"> : <input class="f"> = <input class="f"></div>
+      <div class="zeile">p = <input class="f cP"> %</div>
+      <div class="zeile">Antwort: <input class="f wide"></div>
+    </div>
+  </div>
+
+  <div class="kasten">
+    <div class="kopf">Musterbeispiel 2</div>
+    <div class="inhalt">
+      <div>Ein Bus hat 50 Sitzplätze. 38 Plätze sind besetzt. Wie viel Prozent der Sitzplätze sind besetzt?</div>
+      <div class="zeile">geg.: <span class="gG">G =</span> <input class="f cG"> &nbsp;&nbsp; <span class="gW">W =</span> <input class="f cW"> &nbsp;&nbsp;&nbsp; ges.: <input class="f cP"></div>
+      <div class="zeile">
+        <span class="frac"><input class="f cG"><i class="bar"></i><span>100 %</span></span>
+        =
+        <span class="frac"><input class="f cW"><i class="bar"></i><span class="gP">x</span></span>
+      </div>
+      <div class="zeile">x = <input class="f"> · <input class="f"> : <input class="f"> = <input class="f"></div>
+      <div class="zeile">p = <input class="f cP"> %</div>
+      <div class="zeile">Antwort: <input class="f wide"></div>
+    </div>
+  </div>
+
+  <div class="kasten">
+    <div class="kopf">Jetzt ihr</div>
+    <div class="inhalt">
+      <div>Ein Kino hat 200 Plätze. 130 Plätze sind besetzt. Wie viel Prozent der Plätze sind besetzt?</div>
+      <div class="zeile">geg.: <span class="gG">G =</span> <input class="f cG"> &nbsp;&nbsp; <span class="gW">W =</span> <input class="f cW"> &nbsp;&nbsp;&nbsp; ges.: <input class="f cP"></div>
+      <div class="zeile">
+        <span class="frac"><input class="f cG"><i class="bar"></i><span>100 %</span></span>
+        =
+        <span class="frac"><input class="f cW"><i class="bar"></i><span class="gP">x</span></span>
+      </div>
+      <div class="zeile">x = <input class="f"> · <input class="f"> : <input class="f"> = <input class="f"></div>
+      <div class="zeile">p = <input class="f cP"> %</div>
+      <div class="zeile">Antwort: <input class="f wide"></div>
+    </div>
+  </div>
+
+  <div class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude und ChatGPT.</div>
+  <canvas class="pen"></canvas>
+</section>
+
+<!-- ============ Z3 ============ -->
+<section class="sheet z3" id="s3">
+  <div class="title">Prozentsätze erkennen</div>
+  <div class="ziel"><b>Ziel Z3:</b> Ich kann Prozentsätze wie 1 %, 10 %, 20 %, 25 %, 50 %, 100 % und 200 % am gegebenen Grundwert G und Prozentwert W erkennen.</div>
+
+  <div class="kasten">
+    <div class="kopf">Merke</div>
+    <div class="inhalt">
+      <table>
+        <tr><th>Prozentsatz</th><th>1 %</th><th>10 %</th><th>20 %</th><th>25 %</th><th>50 %</th><th>100 %</th><th>200 %</th></tr>
+        <tr>
+          <th>Anteil von G</th>
+          <td><span class="frac"><input class="f"><i class="bar"></i><input class="f"></span></td>
+          <td><span class="frac"><input class="f"><i class="bar"></i><input class="f"></span></td>
+          <td><span class="frac"><input class="f"><i class="bar"></i><input class="f"></span></td>
+          <td><span class="frac"><input class="f"><i class="bar"></i><input class="f"></span></td>
+          <td><span class="frac"><input class="f"><i class="bar"></i><input class="f"></span></td>
+          <td><span class="frac"><input class="f"><i class="bar"></i><input class="f"></span></td>
+          <td><span class="frac"><input class="f"><i class="bar"></i><input class="f"></span></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid3 gruppe">
+    <div class="kasten">
+      <div class="kopf">Musterbeispiel 1</div>
+      <div class="inhalt">
+        <svg class="strip" viewBox="0 0 220 56" width="100%" aria-hidden="true">
+          <rect x="2" y="2" width="216" height="22" fill="#1565C0"/>
+          <rect x="2" y="28" width="108" height="22" fill="#C2410C"/>
+        </svg>
+        <div class="zeile"><span class="gW">30 km</span> sind <span class="frac"><input class="f"><i class="bar"></i><input class="f"></span> von <span class="gG">60 km</span>.</div>
+        <div class="zeile"><span class="frac"><input class="f"><i class="bar"></i><input class="f"></span> entspricht <input class="f cP"> %</div>
+        <div class="zeile"><span class="gW">30 km</span> sind <input class="f cP"> % von <span class="gG">60 km</span>.</div>
+      </div>
+    </div>
+    <div class="kasten">
+      <div class="kopf">Musterbeispiel 2</div>
+      <div class="inhalt">
+        <svg class="strip" viewBox="0 0 220 56" width="100%" aria-hidden="true">
+          <rect x="2" y="2" width="216" height="22" fill="#1565C0"/>
+          <rect x="2" y="28" width="54" height="22" fill="#C2410C"/>
+        </svg>
+        <div class="zeile"><span class="gW">15 €</span> sind <span class="frac"><input class="f"><i class="bar"></i><input class="f"></span> von <span class="gG">60 €</span>.</div>
+        <div class="zeile"><span class="frac"><input class="f"><i class="bar"></i><input class="f"></span> entspricht <input class="f cP"> %</div>
+        <div class="zeile"><span class="gW">15 €</span> sind <input class="f cP"> % von <span class="gG">60 €</span>.</div>
+      </div>
+    </div>
+    <div class="kasten">
+      <div class="kopf">Musterbeispiel 3</div>
+      <div class="inhalt">
+        <svg class="strip" viewBox="0 0 220 56" width="100%" aria-hidden="true">
+          <rect x="2" y="2" width="216" height="22" fill="#1565C0"/>
+          <rect x="2" y="28" width="21.6" height="22" fill="#C2410C"/>
+        </svg>
+        <div class="zeile"><span class="gW">6 €</span> sind <span class="frac"><input class="f"><i class="bar"></i><input class="f"></span> von <span class="gG">60 €</span>.</div>
+        <div class="zeile"><span class="frac"><input class="f"><i class="bar"></i><input class="f"></span> entspricht <input class="f cP"> %</div>
+        <div class="zeile"><span class="gW">6 €</span> sind <input class="f cP"> % von <span class="gG">60 €</span>.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2 gruppe">
+    <div class="kasten">
+      <div class="kopf">Jetzt ihr 1</div>
+      <div class="inhalt">
+        <div class="zeile"><span class="gW">16 Kinder</span> sind <span class="frac"><input class="f"><i class="bar"></i><input class="f"></span> von <span class="gG">80 Kindern</span>.</div>
+        <div class="zeile"><span class="frac"><input class="f"><i class="bar"></i><input class="f"></span> entspricht <input class="f cP"> %</div>
+        <div class="zeile"><span class="gW">16 Kinder</span> sind <input class="f cP"> % von <span class="gG">80 Kindern</span>.</div>
+      </div>
+    </div>
+    <div class="kasten">
+      <div class="kopf">Jetzt ihr 2</div>
+      <div class="inhalt">
+        <div class="zeile"><span class="gW">3 €</span> sind <span class="frac"><input class="f"><i class="bar"></i><input class="f"></span> von <span class="gG">300 €</span>.</div>
+        <div class="zeile"><span class="frac"><input class="f"><i class="bar"></i><input class="f"></span> entspricht <input class="f cP"> %</div>
+        <div class="zeile"><span class="gW">3 €</span> sind <input class="f cP"> % von <span class="gG">300 €</span>.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude und ChatGPT.</div>
+  <canvas class="pen"></canvas>
+</section>
+
+<script>
+  let tool = 'eingabe';
+  const sheets = [...document.querySelectorAll('.sheet')];
+  sheets.forEach(s => { s._strokes = []; });
+  const active = () => document.querySelector('.sheet.act');
+
+  /* ---------- Reiter ---------- */
+  document.querySelectorAll('button.tab').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('button.tab').forEach(x => x.classList.toggle('act', x === b));
+    sheets.forEach(s => s.classList.toggle('act', s.id === 's' + b.dataset.z));
+    redraw(active());
+  }));
+
+  /* ---------- Werkzeuge ---------- */
+  function setTool(t) {
+    tool = t;
+    document.querySelectorAll('button.tool').forEach(b => b.classList.toggle('act', b.dataset.t === t));
+    document.querySelectorAll('canvas.pen').forEach(c => c.classList.toggle('on', t !== 'eingabe'));
+  }
+  document.querySelectorAll('button.tool').forEach(b => b.addEventListener('click', () => setTool(b.dataset.t)));
+
+  /* ---------- Textmarker ---------- */
+  function redraw(sheet) {
+    const c = sheet.querySelector('canvas.pen');
+    const w = sheet.clientWidth, h = sheet.clientHeight;
+    if (!w || !h) return;
+    const dpr = window.devicePixelRatio || 1;
+    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) {
+      c.width = Math.round(w * dpr);
+      c.height = Math.round(h * dpr);
+    }
+    const ctx = c.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    ctx.globalAlpha = 0.38;
+    ctx.lineWidth = 22;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    sheet._strokes.forEach(s => {
+      ctx.strokeStyle = s.color;
+      ctx.beginPath();
+      ctx.moveTo(s.pts[0].x, s.pts[0].y);
+      s.pts.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.stroke();
+    });
+  }
+
+  sheets.forEach(sheet => {
+    const c = sheet.querySelector('canvas.pen');
+    let cur = null;
+    const pos = e => {
+      const r = c.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    };
+    const erase = p => {
+      const before = sheet._strokes.length;
+      sheet._strokes = sheet._strokes.filter(s => !s.pts.some(q => Math.hypot(q.x - p.x, q.y - p.y) < 18));
+      if (sheet._strokes.length !== before) redraw(sheet);
+    };
+    c.addEventListener('pointerdown', e => {
+      if (tool === 'eingabe') return;
+      c.setPointerCapture(e.pointerId);
+      const p = pos(e);
+      if (tool === 'radier') { cur = 'erase'; erase(p); return; }
+      cur = { color: tool, pts: [p] };
+      sheet._strokes.push(cur);
+      redraw(sheet);
+    });
+    c.addEventListener('pointermove', e => {
+      if (!cur) return;
+      const p = pos(e);
+      if (cur === 'erase') { erase(p); return; }
+      cur.pts.push(p);
+      redraw(sheet);
+    });
+    const stop = () => { cur = null; };
+    c.addEventListener('pointerup', stop);
+    c.addEventListener('pointercancel', stop);
+    new ResizeObserver(() => redraw(sheet)).observe(sheet);
+  });
+
+  /* ---------- Löschen mit Sicherheitsklick ---------- */
+  function arm(btn, fn) {
+    if (btn._armed) {
+      btn._armed = false;
+      btn.textContent = btn._label;
+      fn();
+    } else {
+      btn._label = btn._label || btn.textContent;
+      btn._armed = true;
+      btn.textContent = 'Sicher? Nochmal tippen';
+      setTimeout(() => {
+        if (btn._armed) { btn._armed = false; btn.textContent = btn._label; }
+      }, 3000);
+    }
+  }
+  function clearSheet(sheet) {
+    sheet.querySelectorAll('input.f').forEach(i => i.value = '');
+    sheet._strokes = [];
+    redraw(sheet);
+  }
+  document.getElementById('clr-page').addEventListener('click', e => arm(e.currentTarget, () => clearSheet(active())));
+  document.getElementById('clr-all').addEventListener('click', e => arm(e.currentTarget, () => sheets.forEach(clearSheet)));
+
+  /* ---------- Enter springt zum nächsten Feld ---------- */
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || !e.target.matches('input.f')) return;
+    e.preventDefault();
+    const list = [...e.target.closest('.sheet').querySelectorAll('input.f')];
+    const i = list.indexOf(e.target);
+    if (i >= 0 && i < list.length - 1) list[i + 1].focus();
+  });
+</script>
+
+<script>
+(()=>{
+const chapters={"1": [["Wir beginnen mit dem Merksatz. Der Grundwert G gehört immer zu hundert Prozent. Der Prozentwert W gehört zum gesuchten Prozentsatz p Prozent.", [[0, "G"], [1, "W"], [2, "p %"]]], ["Im ersten Musterbeispiel sind gegeben: der Grundwert G gleich zweihundertvierzig und der Prozentwert W gleich sechsunddreißig. Gesucht ist der Prozentsatz p Prozent.", [[3, "p %"]]], ["Wir tragen den Grundwert zweihundertvierzig über hundert Prozent und den Prozentwert sechsunddreißig über x in die Verhältnisgleichung ein.", [[4, "240"], [5, "36"]]], ["Nun berechnen wir x. Sechsunddreißig mal hundert geteilt durch zweihundertvierzig ergibt fünfzehn.", [[6, "36"], [7, "100"], [8, "240"], [9, "15"]]], ["Der gesuchte Prozentsatz beträgt fünfzehn Prozent.", [[10, "15"]]], ["Im zweiten Musterbeispiel sind gegeben: G gleich einhundertfünfzig und W gleich sechzig. Gesucht ist wieder p Prozent.", [[11, "p %"]]], ["In die Verhältnisgleichung tragen wir einhundertfünfzig und sechzig ein.", [[12, "150"], [13, "60"]]], ["Sechzig mal hundert geteilt durch einhundertfünfzig ergibt vierzig.", [[14, "60"], [15, "100"], [16, "150"], [17, "40"]]], ["Also beträgt der Prozentsatz vierzig Prozent.", [[18, "40"]]], ["Jetzt seid ihr dran. Gegeben sind G gleich vierhundertachtzig und W gleich sechsundneunzig. Gesucht ist p Prozent. Stoppt das Video und löst die Aufgabe selbst. Danach könnt ihr eure Lösung überprüfen.", [[19, "p %"]]], ["Die Verhältnisgleichung lautet: vierhundertachtzig zu hundert Prozent ist gleich sechsundneunzig zu x.", [[20, "480"], [21, "96"]]], ["Sechsundneunzig mal hundert geteilt durch vierhundertachtzig ergibt zwanzig.", [[22, "96"], [23, "100"], [24, "480"], [25, "20"]]], ["Das Ergebnis lautet zwanzig Prozent.", [[26, "20"]]]], "2": [["Bei Sachaufgaben lesen wir zuerst genau und notieren, was gegeben und was gesucht ist. In einer Klasse mit fünfundzwanzig Schülern haben sieben Schüler ein Haustier. Der Grundwert ist fünfundzwanzig, der Prozentwert ist sieben. Gesucht ist der Prozentsatz.", [[0, "25"], [1, "7"], [2, "p %"]]], ["Wir setzen die Werte in die Verhältnisgleichung ein: fünfundzwanzig zu hundert Prozent ist gleich sieben zu x.", [[3, "25"], [4, "7"]]], ["Sieben mal hundert geteilt durch fünfundzwanzig ergibt achtundzwanzig.", [[5, "7"], [6, "100"], [7, "25"], [8, "28"]]], ["Also ist p gleich achtundzwanzig Prozent.", [[9, "28"]]], ["Antwort: Achtundzwanzig Prozent der Schüler haben ein Haustier.", [[10, "28 % der Schüler haben ein Haustier."]]], ["Im zweiten Beispiel hat ein Bus fünfzig Sitzplätze. Achtunddreißig sind besetzt. Gegeben sind G gleich fünfzig und W gleich achtunddreißig. Gesucht ist p Prozent.", [[11, "50"], [12, "38"], [13, "p %"]]], ["Wir setzen fünfzig und achtunddreißig in die Verhältnisgleichung ein.", [[14, "50"], [15, "38"]]], ["Achtunddreißig mal hundert geteilt durch fünfzig ergibt sechsundsiebzig.", [[16, "38"], [17, "100"], [18, "50"], [19, "76"]]], ["Der Prozentsatz beträgt sechsundsiebzig Prozent.", [[20, "76"]]], ["Antwort: Sechsundsiebzig Prozent der Sitzplätze sind besetzt.", [[21, "76 % der Sitzplätze sind besetzt."]]], ["Jetzt ihr: Ein Kino hat zweihundert Plätze. Einhundertdreißig sind besetzt. Bestimmt selbst den Grundwert, den Prozentwert und den gesuchten Prozentsatz. Haltet das Video an und rechnet.", [[22, "200"], [23, "130"], [24, "p %"]]], ["Die Verhältnisgleichung lautet zweihundert zu hundert Prozent ist gleich einhundertdreißig zu x.", [[25, "200"], [26, "130"]]], ["Einhundertdreißig mal hundert geteilt durch zweihundert ergibt fünfundsechzig.", [[27, "130"], [28, "100"], [29, "200"], [30, "65"]]], ["Damit ist p gleich fünfundsechzig Prozent.", [[31, "65"]]], ["Antwort: Fünfundsechzig Prozent der Kinoplätze sind besetzt.", [[32, "65 % der Kinoplätze sind besetzt."]]]], "3": [["Manche Prozentsätze können wir sofort als Bruchteil erkennen. Ein Prozent ist ein Hundertstel. Zehn Prozent ist ein Zehntel. Zwanzig Prozent ist ein Fünftel. Fünfundzwanzig Prozent ist ein Viertel. Fünfzig Prozent ist die Hälfte. Hundert Prozent ist das Ganze. Zweihundert Prozent ist das Doppelte.", [[0, "1"], [1, "100"], [2, "1"], [3, "10"], [4, "1"], [5, "5"], [6, "1"], [7, "4"], [8, "1"], [9, "2"], [10, "1"], [11, "1"], [12, "2"], [13, "1"]]], ["Im ersten Musterbeispiel sind dreißig Kilometer die Hälfte von sechzig Kilometern. Ein Halb entspricht fünfzig Prozent.", [[14, "1"], [15, "2"], [16, "1"], [17, "2"], [18, "50"], [19, "50"]]], ["Im zweiten Beispiel sind fünfzehn Euro ein Viertel von sechzig Euro. Ein Viertel entspricht fünfundzwanzig Prozent.", [[20, "1"], [21, "4"], [22, "1"], [23, "4"], [24, "25"], [25, "25"]]], ["Im dritten Beispiel sind sechs Euro ein Zehntel von sechzig Euro. Ein Zehntel entspricht zehn Prozent.", [[26, "1"], [27, "10"], [28, "1"], [29, "10"], [30, "10"], [31, "10"]]], ["Jetzt ihr: Sechzehn Kinder von achtzig Kindern. Welcher Bruchteil und welcher Prozentsatz ist das? Überlegt selbst.", []], ["Sechzehn von achtzig ist ein Fünftel. Das entspricht zwanzig Prozent.", [[32, "1"], [33, "5"], [34, "1"], [35, "5"], [36, "20"], [37, "20"]]], ["Noch eine Aufgabe: Drei Euro von dreihundert Euro. Welcher Prozentsatz ist das? Überlegt selbst.", []], ["Drei von dreihundert ist ein Hundertstel. Das entspricht einem Prozent.", [[38, "1"], [39, "100"], [40, "1"], [41, "100"], [42, "1"], [43, "1"]]]]};
+const start=document.getElementById('video-start'),pause=document.getElementById('video-pause'),stop=document.getElementById('video-stop'),status=document.getElementById('video-status');
+let token=0,chapter=1,index=0,running=false,paused=false,utterance=null,activeFields=[];
+const inputs=n=>Array.from(document.querySelectorAll('#s'+n+' input.f'));
+const voice=()=>{const vs=speechSynthesis.getVoices();return vs.find(v=>/google deutsch/i.test(v.name))||vs.find(v=>v.lang.toLowerCase()==='de-de'&&/google/i.test(v.name))||vs.find(v=>v.lang.toLowerCase().startsWith('de'))||null};
+function reset(n){inputs(n).forEach(x=>{x.value='';x.classList.remove('video-active')});}
+function clearHighlight(){activeFields.forEach(x=>x.classList.remove('video-active'));activeFields=[];}
+function halt(){token++;running=false;paused=false;speechSynthesis.cancel();utterance=null;clearHighlight();pause.textContent='⏸ Pause';status.textContent='Bereit';}
+function fill(n,items){clearHighlight();items.forEach(([i,v])=>{const el=inputs(n)[i];if(el){el.value=v;el.classList.add('video-active');activeFields.push(el)}});}
+function next(t){if(t!==token||!running||paused)return;const steps=chapters[chapter];if(index>=steps.length){running=false;clearHighlight();status.textContent='Fertig';return;}const [speech,entries]=steps[index++];status.textContent='Erklärt '+(index)+' / '+steps.length;const u=new SpeechSynthesisUtterance(speech);utterance=u;u.lang='de-DE';u.rate=.88;u.pitch=1;const v=voice();if(v)u.voice=v;let ended=false;u.onend=()=>{if(ended||t!==token)return;ended=true;fill(chapter,entries);next(t)};u.onerror=()=>{if(ended||t!==token)return;ended=true;fill(chapter,entries);next(t)};speechSynthesis.speak(u);}
+start.onclick=()=>{halt();chapter=Number(document.querySelector('button.tab.act').dataset.z);reset(chapter);index=0;running=true;status.textContent='Startet';next(token)};
+pause.onclick=()=>{if(!running)return;if(paused){paused=false;speechSynthesis.resume();pause.textContent='⏸ Pause';status.textContent='Läuft';}else{paused=true;speechSynthesis.pause();pause.textContent='▶ Weiter';status.textContent='Pausiert';}};
+stop.onclick=()=>{const n=chapter;halt();reset(n)};
+document.querySelectorAll('button.tab').forEach(b=>b.addEventListener('click',()=>{halt();chapter=Number(b.dataset.z);reset(chapter)}));
+window.addEventListener('pagehide',()=>speechSynthesis.cancel());
+})();
+</script>
+<script>
+(function(){
+  function still(){try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}}
+  document.getElementById('ll-zurueck').addEventListener('click',still);
+  window.addEventListener('pagehide',still);
+})();
+</script>
+</body>
+</html>

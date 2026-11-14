@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spickzettel · Grundwert</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:#000;font-family:Arial,"Liberation Sans",Helvetica,sans-serif;font-size:17px;line-height:1.4}
+.wrap{max-width:1000px;margin:0 auto;padding:16px}
+.kopf{background:#B3261E;color:#fff;text-align:center;font-weight:bold;border-radius:4px;padding:10px 12px 12px}
+.kopf small{display:block;font-size:13px;letter-spacing:.18em;text-transform:uppercase;font-weight:bold;opacity:.95}
+.kopf div{font-size:30px;margin-top:2px}
+.spalten{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.box{border:2px solid #B3261E;border-radius:4px;margin-bottom:14px;break-inside:avoid}
+.box h3{margin:0;background:#FBE3E1;border-bottom:2px solid #B3261E;padding:5px 10px;font-size:17px}
+.box .in{padding:8px 10px}
+.G{color:#1565C0;font-weight:bold}.W{color:#C2410C;font-weight:bold}.P{color:#2e7d32;font-weight:bold}
+.chip{display:inline-block;color:#fff;border-radius:5px;padding:0 7px;font-weight:bold;min-width:2.2em;text-align:center}
+.bG{background:#1565C0}.bW{background:#C2410C}.bP{background:#2e7d32}
+.formel{background:#f4f4f4;border-radius:6px;padding:7px 10px;margin:7px 0;font-weight:bold;text-align:center}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 5px}
+.fr>span:first-child{border-bottom:2px solid #000;padding:0 5px 2px}.fr>span:last-child{padding:2px 5px 0}
+.pille{display:inline-block;border:2px solid #555;border-radius:999px;padding:3px 12px;font-weight:bold;background:#fff}
+.schritte{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.pfeil{font-size:20px;line-height:1;color:#555}
+.ast{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.erg{border-radius:8px;padding:6px 8px;text-align:center;font-weight:bold}
+.minus{background:#FBEADF;border:2px solid #C2410C}.plus{background:#E8EFFB;border:2px solid #1565C0}
+table{border-collapse:collapse;width:100%;margin:4px 0;font-size:16px}
+th,td{border:1px solid #000;padding:4px 3px;text-align:center}
+th{background:#F2F2F2}
+td.G{color:#1565C0}
+.bsp{font-size:15px;margin-top:6px}
+.falle{border:2px dashed #B3261E;background:#fff8f7;border-radius:6px;padding:8px 12px;grid-column:1/-1}
+.falle b.t{color:#B3261E}
+.fuss{text-align:right;font-style:italic;color:#666;font-size:13px;margin-top:12px}
+svg{display:block;max-width:100%;height:auto}
+@media (max-width:700px){.spalten{grid-template-columns:1fr}}
+@media print{.wrap{padding:0}body{font-size:14px}.box{margin-bottom:8px}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kopf"><small>Spickzettel · Prozentrechnung</small><div>Grundwert berechnen</div></div>
+
+  <div class="spalten">
+    <div>
+      <div class="box"><h3>Wann ist G gesucht?</h3><div class="in">
+        <svg viewBox="-4 0 408 96" aria-hidden="true">
+          <text x="45" y="16" font-size="15" font-weight="bold" fill="#C2410C" text-anchor="middle">W</text>
+          <rect x="0" y="22" width="400" height="30" fill="#1565C0" stroke="#000" stroke-width="1.5"/>
+          <rect x="0" y="22" width="90" height="30" fill="#C2410C" stroke="#000" stroke-width="1.5"/>
+          <path d="M2 56 Q2 64 11 64 L192 64 Q200 64 200 72 Q200 64 208 64 L389 64 Q398 64 398 56" fill="none" stroke="#1565C0" stroke-width="2.5"/>
+          <text x="200" y="90" font-size="16" font-weight="bold" fill="#1565C0" text-anchor="middle">G = ? ≙ 100 %</text>
+        </svg>
+        <div><span class="chip bW">W</span> und <span class="chip bP">p %</span> sind gegeben, das Ganze <span class="chip bG">G</span> fehlt.</div>
+        <div class="bsp">„<span class="W">36</span> sind <span class="P">15 %</span> von <span class="G">wie viel</span>?“</div>
+      </div></div>
+
+      <div class="box"><h3>Verhältnisgleichung</h3><div class="in">
+        <div class="formel"><span class="fr"><span class="G">x</span><span>100 %</span></span> = <span class="fr"><span class="W">W</span><span class="P">p %</span></span></div>
+        <div class="formel">x = <span class="W">W</span> · 100 : <span class="P">p</span></div>
+        <div class="bsp"><b>Beispiel:</b> <span class="W">36</span> sind <span class="P">15 %</span> von G<br>
+          <span class="fr"><span>x</span><span>100 %</span></span> = <span class="fr"><span>36</span><span>15 %</span></span>
+          → x = 36 · 100 : 15 = 240 → <span class="G">G = 240</span></div>
+      </div></div>
+
+      <div class="box"><h3>Sachaufgabe in 4 Schritten</h3><div class="in schritte">
+        <span class="pille">1 geg.: W und p % · ges.: G</span><span class="pfeil">↓</span>
+        <span class="pille">2 Verhältnisgleichung aufstellen</span><span class="pfeil">↓</span>
+        <span class="pille">3 ausrechnen, Ergebnis mit Einheit</span><span class="pfeil">↓</span>
+        <span class="pille">4 Antwortsatz</span>
+        <div class="bsp">Lea zahlt <span class="W">72 €</span> an, das sind <span class="P">15 %</span>.<br>x = 72 · 100 : 15 = 480 → „Das Smartphone kostet 480 €.“</div>
+      </div></div>
+    </div>
+
+    <div>
+      <div class="box"><h3>G im Kopf</h3><div class="in">
+        <table>
+          <tr><th>W ist … von G</th><th>1 %</th><th>10 %</th><th>20 %</th><th>25 %</th><th>50 %</th><th>200 %</th></tr>
+          <tr><th>Anteil</th><td><span class="fr"><span>1</span><span>100</span></span></td><td><span class="fr"><span>1</span><span>10</span></span></td><td><span class="fr"><span>1</span><span>5</span></span></td><td><span class="fr"><span>1</span><span>4</span></span></td><td><span class="fr"><span>1</span><span>2</span></span></td><td>2</td></tr>
+          <tr><th><span class="G">G</span> = <span class="W">W</span> …</th><td class="G">· 100</td><td class="G">· 10</td><td class="G">· 5</td><td class="G">· 4</td><td class="G">· 2</td><td class="G">: 2</td></tr>
+        </table>
+        <div class="bsp"><span class="W">30 km</span> sind <span class="P">50 %</span> → G = 30 km · 2 = <span class="G">60 km</span><br>
+        75 %: erst : 3 (= 25 %), dann · 4 → 45 € sind 75 % → <span class="G">G = 60 €</span></div>
+      </div></div>
+
+      <div class="box"><h3>★ Preis nach Rabatt oder Erhöhung</h3><div class="in">
+        <div style="text-align:center"><span class="pille">Welchen Prozentsatz hat der neue Preis?</span></div>
+        <div class="ast">
+          <div class="erg minus">Rabatt r %<br>neu ≙ 100 % − r %</div>
+          <div class="erg plus">Erhöhung r %<br>neu ≙ 100 % + r %</div>
+        </div>
+        <div class="bsp"><b>Beispiel:</b> nach 25 % Rabatt 60 € → 60 € ≙ 75 %<br>
+          <span class="fr"><span>x</span><span>100 %</span></span> = <span class="fr"><span>60</span><span>75 %</span></span> → x = 60 · 100 : 75 = <span class="G">80 €</span></div>
+      </div></div>
+
+      <div class="box"><h3>Probe</h3><div class="in">
+        Bei p % kleiner als 100 % ist <span class="G">G</span> immer <b>größer</b> als <span class="W">W</span>.<br>
+        Rückwärts prüfen: <span class="P">15 %</span> von <span class="G">240</span> = <span class="W">36</span> ✓
+      </div></div>
+    </div>
+
+    <div class="falle"><b class="t">Achtung, Falle:</b> Nach 25 % Rabatt kostet ein Hoodie 60 €. <b>Falsch:</b> 25 % von 60 € = 15 € → 75 €.
+      <b>Richtig:</b> 60 € sind nur 75 % → G = 80 €. &nbsp;·&nbsp; Und: W nicht als G einsetzen (36 · 15 : 100 = 5,4 ist zu klein!).</div>
+  </div>
+
+  <p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p>
+</div>
+</body>
+</html>

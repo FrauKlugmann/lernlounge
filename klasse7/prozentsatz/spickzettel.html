@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spickzettel Prozentsatz</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:#000;font:17px/1.4 Arial,Helvetica,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:10px 14px 16px}
+.kopf{background:#B3261E;color:#fff;text-align:center;font-weight:700;padding:10px 12px 12px}
+.kopf small{display:block;font-size:.72em;letter-spacing:.18em;text-transform:uppercase}
+.kopf span{display:block;font-size:1.6em;line-height:1.2}
+.spalten{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;align-items:start}
+.kasten{border:2px solid #B3261E;margin-bottom:12px;break-inside:avoid}
+.kasten h2{margin:0;background:#FBE3E1;color:#000;font-size:1em;font-weight:700;padding:6px 10px}
+.innen{padding:8px 10px}
+.innen p{margin:.35em 0}
+.pille{display:inline-block;border:2px solid #000;border-radius:2em;padding:.15em .9em;font-weight:700;background:#fff}
+.pfeil{text-align:center;font-size:1.3em;line-height:1;margin:.15em 0}
+.mitte{text-align:center}
+.frac{display:inline-block;vertical-align:middle;text-align:center;margin:0 .15em}
+.frac .fz{display:block;padding:0 .3em;border-bottom:2px solid #000;line-height:1.25}
+.frac .fn{display:block;padding:0 .3em;line-height:1.25}
+.G{color:#1565C0;font-weight:700}.W{color:#C2410C;font-weight:700}.P{color:#2e7d32;font-weight:700}
+.erg{display:inline-block;border:2px solid #2e7d32;background:#E8F5E9;color:#2e7d32;font-weight:700;border-radius:2em;padding:.15em .9em}
+.formel{font-size:1.25em;text-align:center;margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.2em 0}
+th,td{border:1.5px solid #000;padding:3px 8px;text-align:center}
+th{background:#F2F2F2}
+.falle{border:2px dashed #B3261E;background:#fff8f7;padding:8px 12px;margin-top:2px}
+.falle b.t{color:#B3261E}
+.falle p{margin:.3em 0}
+.fuss{text-align:right;font-style:italic;color:#6F6F6F;font-size:.72em;margin:12px 0 0}
+@media (max-width:700px){.spalten{grid-template-columns:1fr}}
+@media print{.wrap{padding:0}body{font-size:14px}.kasten{margin-bottom:8px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kopf"><small>Spickzettel · Prozentrechnung</small><span>Prozentsatz berechnen und erkennen</span></div>
+
+<div class="spalten">
+<div>
+  <div class="kasten"><h2>Prozentsatz p % berechnen</h2><div class="innen">
+    <div class="mitte"><span class="pille">G und W bekannt, p % gesucht</span></div>
+    <div class="pfeil">↓</div>
+    <div class="formel"><span class="frac"><span class="fz G">G</span><span class="fn">100 %</span></span> = <span class="frac"><span class="fz W">W</span><span class="fn P">p %</span></span></div>
+    <div class="pfeil">↓</div>
+    <p class="mitte">Taschenrechner: <b>x = W · 100 : G</b></p>
+    <div class="pfeil">↓</div>
+    <div class="mitte"><span class="erg">p % = x %</span></div>
+  </div></div>
+
+  <div class="kasten"><h2>Beispiel</h2><div class="innen">
+    <p>G = 240, W = 36</p>
+    <div class="formel"><span class="frac"><span class="fz">240</span><span class="fn">100 %</span></span> = <span class="frac"><span class="fz">36</span><span class="fn">x</span></span></div>
+    <p class="mitte">x = 36 · 100 : 240 = 15</p>
+    <p class="mitte"><span class="erg">p % = 15 %</span></p>
+  </div></div>
+
+  <div class="kasten"><h2>Sachaufgabe</h2><div class="innen">
+    <p>geg.: G = … &nbsp; W = …</p>
+    <p>ges.: p in %</p>
+    <p>Verhältnisgleichung, Rechnung, <b>Antwortsatz</b></p>
+    <p>Preisnachlass: W = alter Preis − neuer Preis</p>
+  </div></div>
+</div>
+
+<div>
+  <div class="kasten"><h2>Prozentsätze erkennen (ohne Rechnung)</h2><div class="innen">
+    <table>
+      <tr><th>Prozentsatz</th><th>Bruch</th></tr>
+      <tr><td>1 %</td><td><span class="frac"><span class="fz">1</span><span class="fn">100</span></span></td></tr>
+      <tr><td>10 %</td><td><span class="frac"><span class="fz">1</span><span class="fn">10</span></span></td></tr>
+      <tr><td>20 %</td><td><span class="frac"><span class="fz">1</span><span class="fn">5</span></span></td></tr>
+      <tr><td>25 %</td><td><span class="frac"><span class="fz">1</span><span class="fn">4</span></span></td></tr>
+      <tr><td>50 %</td><td><span class="frac"><span class="fz">1</span><span class="fn">2</span></span></td></tr>
+      <tr><td>100 %</td><td>1 (das Ganze)</td></tr>
+      <tr><td>200 %</td><td>2 (das Doppelte)</td></tr>
+    </table>
+  </div></div>
+
+  <div class="kasten"><h2>So gehst du vor</h2><div class="innen">
+    <p class="mitte">30 km von 60 km</p>
+    <div class="pfeil">↓</div>
+    <p class="mitte">30 km sind <span class="frac"><span class="fz">1</span><span class="fn">2</span></span> von 60 km.</p>
+    <div class="pfeil">↓</div>
+    <p class="mitte"><span class="frac"><span class="fz">1</span><span class="fn">2</span></span> entspricht 50 %.</p>
+    <div class="pfeil">↓</div>
+    <div class="mitte"><span class="erg">30 km sind 50 % von 60 km.</span></div>
+  </div></div>
+</div>
+</div>
+
+<div class="falle"><p><b class="t">Achtung, Falle:</b> G und W nicht vertauschen!</p>
+<p>G ist das Ganze (steht nach „von“). Bei 36 von 240 ist G = 240, nicht 36.</p>
+<p>Ist W größer als G, kommt mehr als 100 % heraus (z. B. 60 von 30 sind 200 %).</p></div>
+
+<p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p>
+</div>
+</body>
+</html>

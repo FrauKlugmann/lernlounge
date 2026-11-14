@@ -1,0 +1,265 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="claude:viewport-fit-sides" content="cover"><title>Hefter-Eintrag Prozentwert</title><style>
+*{box-sizing:border-box}
+:root{--g:#00805F;--gl:#D3F2E5;--G:#1565C0;--GL:#E8EFFB;--W:#C2410C;--WL:#FBEADF;--P:#2e7d32;--PL:#E3F3E4}
+body{margin:0;background:#fff;color:#000;font-family:Arial,"Liberation Sans",Helvetica,sans-serif;line-height:1.35}
+.wrap{max-width:1080px;margin:0 auto;padding-block:12px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;padding:6px 0 14px}
+.grp{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.grp .lab{font-size:14px;font-weight:700;color:#333;margin-right:2px}
+.tb{font:inherit;font-size:17px;font-weight:700;padding:8px 16px;border:2px solid var(--g);border-radius:8px;background:#fff;color:#000;cursor:pointer}
+.tb:focus-visible,.f:focus-visible{outline:3px solid #000;outline-offset:2px}
+.tab.on{background:var(--g);color:#fff}
+.pen{display:inline-flex;align-items:center;gap:7px;padding:7px 12px}
+.pen i{width:16px;height:16px;border-radius:50%;display:inline-block;border:2px solid #000}
+.pen[data-pen=G] i{background:var(--G)}.pen[data-pen=W] i{background:var(--W)}.pen[data-pen=p] i{background:var(--P)}.pen[data-pen=x] i{background:#fff}
+.pen[aria-pressed=true]{background:#FFF1A8;border-color:#000;box-shadow:0 0 0 2px #000}
+.clr{border-color:#8a1c1c;color:#8a1c1c}
+.clr.arm{background:#8a1c1c;color:#fff}
+.seite{display:none;font-size:20px}
+.seite.on{display:block}
+.titel{background:var(--g);color:#fff;font-weight:700;font-size:1.45em;margin:0 0 .45em;padding:.3em .6em;border-radius:.2em}
+.ziel{font-size:1.1em;margin:0 0 .6em}
+.ziel span{display:inline-block;background:var(--gl);border:2px solid var(--g);border-radius:.3em;padding:0 .45em;margin-right:.5em}
+.k{border:2px solid var(--g);border-radius:.4em;margin:0 0 .65em;break-inside:avoid;overflow:hidden}
+.k>h3{margin:0;background:var(--gl);font-size:1em;padding:.28em .65em;border-bottom:2px solid var(--g)}
+.k .b{padding:.4em .7em .5em}
+.k p{margin:.4em 0}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:.65em}
+.cols .k{margin:0}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:.2em 1.2em}
+@media (max-width:780px){.cols,.cols2{grid-template-columns:1fr}}
+.cG{color:var(--G)}.cW{color:var(--W)}.cp{color:var(--P)}
+b.cG,b.cW,b.cp{font-weight:700}
+.f{font:inherit;color:#000;border:0;border-bottom:2px solid #000;border-radius:0;background:transparent;padding:.05em .15em;text-align:center;outline:none;min-width:0;height:1.45em}
+.f:focus{background:#FFF8D6}
+.f.cG{color:var(--G);font-weight:700;border-bottom-color:var(--G)}
+.f.cW{color:var(--W);font-weight:700;border-bottom-color:var(--W)}
+.f.cp{color:var(--P);font-weight:700;border-bottom-color:var(--P)}
+.f.xs{width:2.7em}.f.s{width:3.7em}.f.m{width:5.6em}.f.l{width:8.6em}.f.xl{width:12em}
+.f.line0{flex:1;text-align:left}
+.f.line{display:block;width:100%;text-align:left;margin:.5em 0 .1em}
+.strip-row{display:grid;grid-template-columns:minmax(0,13em) 1fr;gap:1em;align-items:center}
+.strip-row p{margin:.45em 0}
+.streifen{width:100%;height:auto;display:block}
+.gl-row{display:flex;flex-wrap:wrap;gap:.8em 1.5em;align-items:center}
+.eq{display:inline-flex;align-items:center;gap:.5em;position:relative;padding:.3em .5em}
+.eq .is{font-weight:700;font-size:1.1em}
+.eq .x{position:absolute;inset:0;width:100%;height:100%;display:none;pointer-events:none}
+.eq.on .x{display:block}
+.eq .x line{stroke:#333;stroke-width:2.5;vector-effect:non-scaling-stroke;stroke-linecap:round}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle}
+.fr .n{border-bottom:2px solid #000;padding:0 .25em .15em;display:flex;justify-content:center}
+.fr .d{padding:.15em .25em 0;display:flex;align-items:center;gap:.15em;white-space:nowrap}
+.fr .f{border:1.5px solid #888;border-radius:.2em;height:1.55em}
+.fr .f.cG{border-color:var(--G)}.fr .f.cW{border-color:var(--W)}.fr .f.cp{border-color:var(--P)}
+.cl{display:flex;align-items:baseline;gap:.4em;margin:.4em 0}
+.aufg{font-weight:700}
+.gwp{white-space:normal}
+.tok{border-radius:.2em;padding:0 .1em}
+body[data-pen] .tok{cursor:pointer}
+body[data-pen="G"] .tok:hover{background:var(--GL)}body[data-pen="W"] .tok:hover{background:var(--WL)}body[data-pen="p"] .tok:hover{background:var(--PL)}body[data-pen="x"] .tok:hover{background:#eee}
+.tok.cG{background:var(--GL);font-weight:700}.tok.cW{background:var(--WL);font-weight:700}.tok.cp{background:var(--PL);font-weight:700}
+table.t{border-collapse:collapse;width:100%;margin:.2em 0 .4em}
+table.t th,table.t td{border:2px solid #000;padding:.25em .35em;text-align:center}
+table.t th{background:#F2F2F2;text-align:left;white-space:nowrap}
+table.t td.th{background:#F2F2F2;font-weight:700}
+table.t td .f{width:100%}
+.merke{font-size:1.15em;font-weight:700}
+.rech{display:flex;flex-wrap:wrap;align-items:baseline;gap:.3em 1.2em;margin:.55em 0}
+.rech .lbl{font-weight:700;min-width:8.5em}
+.vgl{white-space:nowrap}
+.cyc{padding:2px 12px;min-width:2.2em;font-size:1em}
+.pbox{display:none;width:1.5em;height:1.3em;border:2px solid #000;vertical-align:middle}
+.hint{font-style:italic;color:#333}
+.schritte{margin:.3em 0;padding-left:1.4em}
+.schritte li{margin:.55em 0}
+.as{font-weight:700;margin-bottom:0!important}
+.foot{text-align:right;font-size:.62em;color:#333;margin-top:.9em}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+/* PDF-Ausgabe: A4, links 2,5 cm, rechts 1,5 cm */
+@page{size:A4;margin:1.4cm 1.5cm 1.2cm 2.5cm}
+body.pdf .toolbar,body.pdf .noprint{display:none!important}
+body.pdf .wrap{max-width:none;padding:0}
+body.pdf .seite{display:flex!important;flex-direction:column;font-size:12.2pt;height:26.9cm;break-after:page;overflow:hidden}
+body.pdf .seite:last-child{break-after:auto}
+body.pdf .foot{margin-top:auto;font-size:8pt}
+body.pdf .pbox{display:inline-block}
+body.pdf .f:focus{background:transparent}
+body.pdf .cl{margin:.7em 0}
+body.pdf .k .b{padding:.55em .8em .65em}
+body.pdf .k p{margin:.55em 0}
+body.pdf .cols{grid-template-columns:1fr 1fr}
+body.pdf .cols2{grid-template-columns:1fr 1fr}
+body.pdf .strip-row{grid-template-columns:minmax(0,11em) 1fr}
+</style><style id="video-style">
+.video-bar{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin:0 0 12px;flex-wrap:wrap}.video-bar button{font:700 16px Arial;border:2px solid #00805F;border-radius:7px;padding:8px 14px;background:white;color:#005f48;cursor:pointer}.video-bar button:first-child{background:#00805F;color:white}.video-bar button:disabled{opacity:.4;cursor:default}.video-status{font:14px Arial;color:#444;margin-right:8px}.video-active{outline:3px solid #e7b843;outline-offset:3px}.video-bar button:focus-visible{outline:3px solid #000}body.pdf .video-bar{display:none!important}@media(max-width:650px){.video-bar{justify-content:center}.video-bar button{font-size:15px;padding:7px 10px}}
+</style><style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+.ll-oben{max-width:1080px;margin:0 auto;padding:10px 16px 0;box-sizing:border-box}
+</style>
+</head><body><div class="wrap">
+<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a></div><nav class="toolbar noprint" aria-label="Werkzeuge"><div class="grp"><button type="button" class="tb tab" data-t="z1" aria-pressed="true">Z1</button><button type="button" class="tb tab" data-t="z2" aria-pressed="false">Z2</button><button type="button" class="tb tab" data-t="z3" aria-pressed="false">Z3</button></div><div class="grp"><span class="lab">Markieren:</span><button type="button" class="tb pen" data-pen="G" aria-pressed="false"><i></i>G</button><button type="button" class="tb pen" data-pen="W" aria-pressed="false"><i></i>W</button><button type="button" class="tb pen" data-pen="p" aria-pressed="false"><i></i>p %</button><button type="button" class="tb pen" data-pen="x" aria-pressed="false"><i></i>Radierer</button></div><div class="grp"><button type="button" class="tb clr" data-scope="seite">Seite leeren</button><button type="button" class="tb clr" data-scope="alle">Alles löschen</button></div></nav><article class="seite" id="z1"><h1 class="titel">Prozentwert berechnen</h1><h2 class="ziel"><span>Z1</span>Mit der Verhältnisgleichung rechnen</h2><section class="k "><h3>Die drei Größen</h3><div class="b"><div class="strip-row"><svg class="streifen" viewBox="0 0 260 120" role="img" aria-label="Streifen: das ganze Rechteck ist das Ganze, der orange Teil links ist der Anteil"><rect x="10" y="44" width="240" height="32" fill="#1565C0" stroke="#000" stroke-width="2"/><rect x="10" y="44" width="84" height="32" fill="#C2410C" stroke="#000" stroke-width="2"/><path d="M10,82 Q10,90 20,90 L120.0,90 Q130.0,90 130.0,98 Q130.0,90 140.0,90 L240,90 Q250,90 250,82" fill="none" stroke="#1565C0" stroke-width="3" stroke-linecap="round"/><path d="M10,38 Q10,30 20,30 L42.0,30 Q52.0,30 52.0,22 Q52.0,30 62.0,30 L84,30 Q94,30 94,38" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round"/></svg><div><p>Das Ganze heißt <input class="f l cG" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> (<b class="cG">G</b>) und entspricht <input class="f xs " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> %.</p><p>Der Anteil heißt <input class="f l cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> (<b class="cW">W</b>).</p><p>Die Zahl mit dem %-Zeichen heißt <input class="f l cp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> (<b class="cp">p&nbsp;%</b>).</p><p>Hinter dem Wort „<input class="f s " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld">“ steht G.</p></div></div></div></section><section class="k "><h3>Die Verhältnisgleichung</h3><div class="b"><div class="gl-row"><span class="eq" id="cross1"><span class="fr"><span class="n"><input class="f s cG" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></span><span class="d"><input class="f xs " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> %</span></span><span class="is">=</span><span class="fr"><span class="n"><input class="f s cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></span><span class="d"><input class="f xs cp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> %</span></span><svg class="x" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="10" y1="22" x2="90" y2="78"/><line x1="10" y1="78" x2="90" y2="22"/></svg></span><button type="button" class="tb tog noprint" data-target="cross1">✕ Kreuz zeigen</button></div><p>In der Gleichung stehen nur <input class="f m " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld">, keine <input class="f m " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld">. Die gesuchte Größe nennen wir <input class="f xs " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld">.</p><p>Über Kreuz lösen: die zwei bekannten Zahlen über <input class="f m " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> multiplizieren und durch die <input class="f m " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> Zahl teilen.</p></div></section><div class="cols"><section class="k "><h3>Musterbeispiel</h3><div class="b"><p class="aufg">Berechne: <span class="tok">15&nbsp;%</span> von <span class="tok">240</span></p><p class="gwp">G = <input class="f xs cG" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> &nbsp;W = <input class="f xs cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> &nbsp;p % = <input class="f xs cp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> %</p><p><span class="eq"><span class="fr"><span class="n"><input class="f s cG" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></span><span class="d"><input class="f xs " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> %</span></span><span class="is">=</span><span class="fr"><span class="n"><input class="f s cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></span><span class="d"><input class="f xs cp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> %</span></span><svg class="x" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="10" y1="22" x2="90" y2="78"/><line x1="10" y1="78" x2="90" y2="22"/></svg></span></p><div class="cl"><span>x =</span><input class="f line0 " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></div><div class="cl"><span>x =</span><input class="f line0 " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></div><p>Ergebnis: W = <input class="f s cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></p></div></section><section class="k "><h3>Jetzt ihr</h3><div class="b"><p class="aufg">Berechne: <span class="tok">10&nbsp;%</span> von <span class="tok">450</span></p><p class="gwp">G = <input class="f xs cG" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> &nbsp;W = <input class="f xs cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> &nbsp;p % = <input class="f xs cp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> %</p><p><span class="eq"><span class="fr"><span class="n"><input class="f s cG" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></span><span class="d"><input class="f xs " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> %</span></span><span class="is">=</span><span class="fr"><span class="n"><input class="f s cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></span><span class="d"><input class="f xs cp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> %</span></span><svg class="x" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="10" y1="22" x2="90" y2="78"/><line x1="10" y1="78" x2="90" y2="22"/></svg></span></p><div class="cl"><span>x =</span><input class="f line0 " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></div><div class="cl"><span>x =</span><input class="f line0 " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></div><p>Ergebnis: W = <input class="f s cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></p></div></section></div><div class="foot">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude und ChatGPT.</div></article><article class="seite" id="z2"><h1 class="titel">Prozentwert berechnen</h1><h2 class="ziel"><span>Z2</span>Mit dem Taschenrechner rechnen</h2><section class="k "><h3>Prozent als Dezimalzahl</h3><div class="b"><table class="t"><tr><th>Prozentsatz</th><td class="th">15 %</td><td class="th">5 %</td><td class="th">2 %</td><td class="th">2,5 %</td><td class="th">150 %</td></tr><tr><th>Dezimalzahl</th><td><input class="f m " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></td><td><input class="f m " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></td><td><input class="f m " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></td><td><input class="f m " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></td><td><input class="f m " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></td></tr></table><p>Durch <input class="f xs " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> teilen: Das Komma wandert <input class="f xs " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> Stellen nach <input class="f m " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld">.</p><p>Achtung, Falle: 2 % = <input class="f m " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld">, nicht 0,2!</p></div></section><section class="k "><h3>Prozentwert mit dem Taschenrechner</h3><div class="b"><p class="merke">W = p % als <input class="f l cp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> · <input class="f s cG" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></p><p>Keine Gleichung nötig: Das Ergebnis ist dasselbe wie bei Z1.</p></div></section><section class="k "><h3>Musterbeispiele</h3><div class="b"><p class="hint">Vergleiche das erste Beispiel mit Z1.</p><div class="rech"><span class="lbl"><span class="tok">15&nbsp;%</span> von <span class="tok">240</span></span><span>0,<input class="f xs cp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> · <input class="f s cG" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> = <input class="f s cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></span></div><div class="rech"><span class="lbl"><span class="tok">2&nbsp;%</span> von <span class="tok">400</span></span><span>0,<input class="f xs cp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> · <input class="f s cG" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> = <input class="f s cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></span></div><div class="rech"><span class="lbl">★ <span class="tok">150&nbsp;%</span> von <span class="tok">60</span></span><span><input class="f xs cp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> · <input class="f s cG" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> = <input class="f s cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></span><span class="vgl"><b class="cW">W</b> <span class="cycwrap"><button type="button" class="tb cyc noprint" data-opts="&lt;|&gt;|=" aria-label="Zeichen wählen">?</button><span class="pbox"></span></span> <b class="cG">G</b></span></div></div></section><section class="k "><h3>Probe mit Kopfrechnen</h3><div class="b"><p>10 % von 240 = <input class="f s " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld">. Also liegt 15 % von 240 zwischen <input class="f s " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> und <input class="f s " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld">.</p></div></section><div class="foot">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude und ChatGPT.</div></article><article class="seite" id="z3"><h1 class="titel">Prozentwert berechnen</h1><h2 class="ziel"><span>Z3</span>Sachaufgaben zum Prozentwert</h2><section class="k "><h3>Sachaufgaben in 4 Schritten</h3><div class="b"><ol class="schritte"><li>G, W und p % <input class="f xl " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld">. Frage: Was ist das <input class="f m " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld">?</li><li><input class="f xl " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> aufstellen.</li><li>Ausrechnen. Das Ergebnis schreibt man mit <input class="f l " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> (bei Anzahlen ohne Einheit).</li><li><input class="f xl " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> schreiben: ein ganzer Satz mit Ergebnis und Einheit.</li></ol></div></section><section class="k "><h3>Musterbeispiel 1 · Fahrrad</h3><div class="b"><div class="cols2"><div><p class="aufg">Ein Fahrrad kostet <span class="tok">250&nbsp;€</span>. Es gibt <span class="tok">20&nbsp;%</span> Rabatt. <span class="tok">Wie viel Euro spart man?</span></p><p><span class="eq"><span class="fr"><span class="n"><input class="f s cG" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></span><span class="d"><input class="f xs " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> %</span></span><span class="is">=</span><span class="fr"><span class="n"><input class="f s cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></span><span class="d"><input class="f xs cp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> %</span></span><svg class="x" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="10" y1="22" x2="90" y2="78"/><line x1="10" y1="78" x2="90" y2="22"/></svg></span></p></div><div><div class="cl"><span>x =</span><input class="f line0 " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></div><div class="cl"><span>x =</span><input class="f line0 " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></div><p>Ergebnis: W = <input class="f s cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> <input class="f xs " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></p></div></div><p class="as">Antwortsatz:</p><input class="f line " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"><input class="f line " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></div></section><section class="k "><h3>Musterbeispiel 2 · Bus</h3><div class="b"><div class="cols2"><div><p class="aufg">Eine Klasse hat <span class="tok">20 Schüler</span>. <span class="tok">40&nbsp;%</span> fahren mit dem Bus. <span class="tok">Wie viele Schüler fahren mit dem Bus?</span></p><p><span class="eq"><span class="fr"><span class="n"><input class="f s cG" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></span><span class="d"><input class="f xs " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> %</span></span><span class="is">=</span><span class="fr"><span class="n"><input class="f s cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></span><span class="d"><input class="f xs cp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"> %</span></span><svg class="x" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="10" y1="22" x2="90" y2="78"/><line x1="10" y1="78" x2="90" y2="22"/></svg></span></p></div><div><div class="cl"><span>x =</span><input class="f line0 " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></div><div class="cl"><span>x =</span><input class="f line0 " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></div><p>Ergebnis: W = <input class="f s cW" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></p></div></div><p class="as">Antwortsatz:</p><input class="f line " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"><input class="f line " type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Eingabefeld"></div></section><div class="foot">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude und ChatGPT.</div></article></div><script>
+(function(){
+  var seiten=[].slice.call(document.querySelectorAll('.seite'));
+  var tabs=[].slice.call(document.querySelectorAll('.tab'));
+  var pens=[].slice.call(document.querySelectorAll('.pen'));
+  var pen=null;
+  function show(id){
+    if(!document.getElementById(id)||seiten.every(function(s){return s.id!==id;})) id='z1';
+    seiten.forEach(function(s){s.classList.toggle('on',s.id===id);});
+    tabs.forEach(function(t){var on=t.dataset.t===id;t.classList.toggle('on',on);t.setAttribute('aria-pressed',String(on));});
+  }
+  tabs.forEach(function(t){t.addEventListener('click',function(){show(t.dataset.t);try{location.hash=t.dataset.t;}catch(e){}});});
+  window.addEventListener('hashchange',function(){show(location.hash.slice(1)||'z1');});
+  function refresh(){
+    if(pen){document.body.setAttribute('data-pen',pen);}else{document.body.removeAttribute('data-pen');}
+    pens.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.pen===pen));});
+  }
+  pens.forEach(function(b){b.addEventListener('click',function(){pen=(pen===b.dataset.pen)?null:b.dataset.pen;refresh();});});
+  [].slice.call(document.querySelectorAll('.tok')).forEach(function(t){
+    t.addEventListener('click',function(){
+      if(!pen)return;
+      t.classList.remove('cG','cW','cp');
+      if(pen!=='x')t.classList.add('c'+pen);
+    });
+  });
+  [].slice.call(document.querySelectorAll('.cyc')).forEach(function(b){
+    var o=b.dataset.opts.split('|');
+    b.addEventListener('click',function(){var i=o.indexOf(b.textContent);b.textContent=o[(i+1)%o.length];});
+  });
+  [].slice.call(document.querySelectorAll('.tog')).forEach(function(b){
+    b.addEventListener('click',function(){
+      var e=document.getElementById(b.dataset.target);
+      var on=e.classList.toggle('on');
+      b.textContent=on?'✕ Kreuz verbergen':'✕ Kreuz zeigen';
+    });
+  });
+  function clearEl(root){
+    [].slice.call(root.querySelectorAll('.f')).forEach(function(i){i.value='';});
+    [].slice.call(root.querySelectorAll('.tok')).forEach(function(t){t.classList.remove('cG','cW','cp');});
+    [].slice.call(root.querySelectorAll('.cyc')).forEach(function(b){b.textContent='?';});
+    [].slice.call(root.querySelectorAll('.eq.on')).forEach(function(e){e.classList.remove('on');});
+    [].slice.call(root.querySelectorAll('.tog')).forEach(function(b){b.textContent='✕ Kreuz zeigen';});
+  }
+  [].slice.call(document.querySelectorAll('.clr')).forEach(function(b){
+    var orig=b.textContent,timer=null;
+    function reset(){clearTimeout(timer);b.classList.remove('arm');b.textContent=orig;}
+    b.addEventListener('click',function(){
+      if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Wirklich? Nochmal tippen';timer=setTimeout(reset,4000);return;}
+      reset();
+      if(b.dataset.scope==='alle'){seiten.forEach(clearEl);}else{clearEl(document.querySelector('.seite.on')||seiten[0]);}
+    });
+  });
+  document.addEventListener('input',function(e){
+    var t=e.target;
+    if(!t.classList||!t.classList.contains('f')||t.value.indexOf('*')<0)return;
+    var pos=t.selectionStart;
+    t.value=t.value.replace(/\*/g,'\u00b7');
+    try{t.setSelectionRange(pos,pos);}catch(x){}
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Enter')return;
+    var t=e.target;
+    if(!t.classList||!t.classList.contains('f'))return;
+    var all=[].slice.call(t.closest('.seite').querySelectorAll('.f'));
+    var i=all.indexOf(t);
+    if(all[i+1]){all[i+1].focus();e.preventDefault();}
+  });
+  refresh();
+  show(location.hash.slice(1)||'z1');
+})();
+</script><script id="video-controller">
+(function(){
+'use strict';
+const scripts={
+z1:[
+['Die drei Größen: Das Ganze heißt Grundwert, abgekürzt G. Es entspricht immer hundert Prozent.',0,[['Grundwert','100']]],
+['Der Anteil des Ganzen heißt Prozentwert. Wir kürzen ihn mit W ab.',0,[[2,'Prozentwert']]],
+['Die Zahl mit dem Prozentzeichen heißt Prozentsatz. Dafür schreiben wir p Prozent.',0,[[3,'Prozentsatz']]],
+['Hinter dem Wort von steht in Prozentaufgaben meistens der Grundwert.',0,[[4,'von']]],
+['Die Verhältnisgleichung: Grundwert durch hundert Prozent ist gleich Prozentwert durch Prozentsatz.',1,[[0,'G'],[1,'100'],[2,'W'],[3,'p']]],
+['Wir setzen nur Zahlen ein, keine Einheiten. Die gesuchte Größe bezeichnen wir mit x.',1,[[4,'Zahlen'],[5,'Einheiten'],[6,'x']]],
+['Beim Rechnen über Kreuz multiplizieren wir die zwei bekannten Zahlen und teilen durch die dritte bekannte Zahl.',1,[[7,'Kreuz'],[8,'dritte']]],
+['Das Kreuz verdeutlicht die beiden Diagonalen.',1,[], 'cross1'],
+['Musterbeispiel: Berechne fünfzehn Prozent von zweihundertvierzig. Der Grundwert ist zweihundertvierzig, der Prozentwert ist gesucht und der Prozentsatz ist fünfzehn.',2,[[0,'240'],[1,'x'],[2,'15']]],
+['Wir tragen die Zahlen in die Verhältnisgleichung ein: zweihundertvierzig durch hundert ist gleich x durch fünfzehn.',2,[[3,'240'],[4,'100'],[5,'x'],[6,'15']]],
+['Über Kreuz ergibt sich x gleich zweihundertvierzig mal fünfzehn geteilt durch hundert.',2,[[7,'240 · 15 : 100']]],
+['Das ergibt sechsunddreißig.',2,[[8,'36'],[9,'36']]],
+['Jetzt ihr: Berechnet zehn Prozent von vierhundertfünfzig. Zuerst die drei Größen.',3,[[0,'450'],[1,'x'],[2,'10']]],
+['Die Verhältnisgleichung lautet vierhundertfünfzig durch hundert gleich x durch zehn.',3,[[3,'450'],[4,'100'],[5,'x'],[6,'10']]],
+['Über Kreuz: vierhundertfünfzig mal zehn geteilt durch hundert.',3,[[7,'450 · 10 : 100']]],
+['Das Ergebnis ist fünfundvierzig.',3,[[8,'45'],[9,'45']]]
+],
+z2:[
+['Zwei: Mit dem Taschenrechner rechnen. Wir wandeln zunächst Prozentsätze in Dezimalzahlen um.',0,[]],
+['Fünfzehn Prozent sind null Komma fünfzehn.',0,[[0,'0,15']]],
+['Fünf Prozent sind null Komma null fünf.',0,[[1,'0,05']]],
+['Zwei Prozent sind null Komma null zwei.',0,[[2,'0,02']]],
+['Zwei Komma fünf Prozent sind null Komma null zwei fünf.',0,[[3,'0,025']]],
+['Hundertfünfzig Prozent sind eins Komma fünf.',0,[[4,'1,5']]],
+['Dazu teilen wir den Prozentsatz durch hundert. Das Komma wandert zwei Stellen nach links.',0,[[5,'100'],[6,'2'],[7,'links']]],
+['Achtung, Falle: Zwei Prozent sind null Komma null zwei, nicht null Komma zwei.',0,[[8,'0,02']]],
+['Merke: Den Prozentwert berechnen wir, indem wir den Prozentsatz als Dezimalzahl mit dem Grundwert multiplizieren.',1,[[0,'Dezimalzahl'],[1,'G']]],
+['Erstes Beispiel: Fünfzehn Prozent von zweihundertvierzig. Null Komma fünfzehn mal zweihundertvierzig ergibt sechsunddreißig.',2,[[0,'15'],[1,'240'],[2,'36']]],
+['Zweites Beispiel: Zwei Prozent von vierhundert. Null Komma null zwei mal vierhundert ergibt acht.',2,[[3,'02'],[4,'400'],[5,'8']]],
+['Drittes Beispiel: Hundertfünfzig Prozent von sechzig. Eins Komma fünf mal sechzig ergibt neunzig.',2,[[6,'1,5'],[7,'60'],[8,'90']]],
+['Neunzig ist größer als sechzig. Bei hundertfünfzig Prozent ist der Prozentwert größer als der Grundwert.',2,[], 'greater'],
+['Probe mit Kopfrechnen: Zehn Prozent von zweihundertvierzig sind vierundzwanzig.',3,[[0,'24']]],
+['Fünfzehn Prozent liegen zwischen zehn und zwanzig Prozent. Also liegt das Ergebnis zwischen vierundzwanzig und achtundvierzig.',3,[[1,'24'],[2,'48']]]
+],
+z3:[
+['Drei: Sachaufgaben zum Prozentwert. Wir arbeiten in vier Schritten.',0,[]],
+['Erstens: Grundwert, Prozentwert und Prozentsatz erkennen. Was ist das Ganze?',0,[[0,'erkennen'],[1,'Ganze']]],
+['Zweitens: Die Verhältnisgleichung aufstellen.',0,[[2,'Verhältnisgleichung']]],
+['Drittens: Ausrechnen. Das Ergebnis schreiben wir mit Einheit, außer bei reinen Anzahlen.',0,[[3,'Einheit']]],
+['Viertens: Einen Antwortsatz mit Ergebnis und Einheit schreiben.',0,[[4,'Antwortsatz']]],
+['Beispiel Fahrrad: Ein Fahrrad kostet zweihundertfünfzig Euro. Es gibt zwanzig Prozent Rabatt. Wie viel Euro spart man?',1,[]],
+['Der Grundwert ist zweihundertfünfzig Euro. Hundert Prozent entsprechen zweihundertfünfzig Euro. Gesucht ist x, bei zwanzig Prozent.',1,[[0,'250'],[1,'100'],[2,'x'],[3,'20']]],
+['Wir rechnen x gleich zweihundertfünfzig mal zwanzig geteilt durch hundert.',1,[[4,'250 · 20 : 100']]],
+['Das ergibt fünfzig. Der Prozentwert beträgt fünfzig Euro.',1,[[5,'50'],[6,'50'],[7,'€']]],
+['Antwortsatz: Man spart fünfzig Euro.',1,[[8,'Man spart 50 €.']]],
+['Beispiel Bus: Eine Klasse hat zwanzig Schülerinnen und Schüler. Vierzig Prozent fahren mit dem Bus.',2,[]],
+['Der Grundwert ist zwanzig. Hundert Prozent entsprechen zwanzig. Gesucht ist x bei vierzig Prozent.',2,[[0,'20'],[1,'100'],[2,'x'],[3,'40']]],
+['Wir rechnen x gleich zwanzig mal vierzig geteilt durch hundert.',2,[[4,'20 · 40 : 100']]],
+['Das ergibt acht. Acht Schülerinnen und Schüler fahren mit dem Bus.',2,[[5,'8'],[6,'8']]],
+['Antwortsatz: Acht Schülerinnen und Schüler fahren mit dem Bus.',2,[[7,'8 Schülerinnen und Schüler fahren mit dem Bus.']]]
+]};
+let chapter='z1',index=0,running=false,paused=false,utter=null,session=0,active=null;
+const hasSpeech=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
+function sections(){return [...document.querySelectorAll('#'+chapter+' section.k')]}
+function input(section,i){return sections()[section]?.querySelectorAll('input.f')[i]}
+function status(msg){const el=document.querySelector('#'+chapter+' .video-status');if(el)el.textContent=msg}
+function buttons(){document.querySelectorAll('.video-bar').forEach(bar=>{const here=bar.closest('article').id===chapter;bar.querySelector('[data-video=pause]').disabled=!here||!running;bar.querySelector('[data-video=stop]').disabled=!here||(!running&&index===0);bar.querySelector('[data-video=start]').textContent=here&&paused?'▶ Weiter':'▶ Start';})}
+function cancel(){session++;if(hasSpeech){try{speechSynthesis.cancel()}catch(e){}}utter=null;running=false;paused=false;if(active)active.classList.remove('video-active');active=null;buttons()}
+function reset(id){const root=document.getElementById(id);root.querySelectorAll('input.f').forEach(e=>e.value='');root.querySelectorAll('.eq.on').forEach(e=>e.classList.remove('on'));root.querySelectorAll('.cyc').forEach(e=>e.textContent='?');root.querySelectorAll('.tok').forEach(e=>e.classList.remove('cG','cW','cp'));}
+function select(id){if(chapter!==id){cancel();chapter=id;index=0;}buttons();}
+function reveal(step){const sec=sections()[step[1]];if(active)active.classList.remove('video-active');active=sec;sec?.classList.add('video-active');for(const [i,value] of step[2]){const e=input(step[1],i);if(e){e.value=value;e.dispatchEvent(new Event('input',{bubbles:true}))}}if(step[3]==='cross1')document.getElementById('cross1').classList.add('on');if(step[3]==='greater'){const e=sec.querySelector('.cyc');if(e)e.textContent='>';}}
+function next(){if(!running||paused)return;const my=session;const arr=scripts[chapter];if(index>=arr.length){running=false;paused=false;status('Kapitel beendet');buttons();return;}const step=arr[index++];reveal(step);status('Schritt '+index+' von '+arr.length);buttons();if(!hasSpeech){running=false;status('Keine Sprachausgabe verfügbar');buttons();return;}utter=new SpeechSynthesisUtterance(step[0]);utter.lang='de-DE';utter.rate=.9;utter.pitch=1;const voices=speechSynthesis.getVoices();const german=voices.filter(v=>v.lang.toLowerCase().startsWith('de'));utter.voice=german.find(v=>/google.*deutsch|google.*german/i.test(v.name))||german.find(v=>/google/i.test(v.name))||german[0]||null;utter.onend=()=>{if(my===session&&running&&!paused)next()};utter.onerror=(ev)=>{if(my!==session||!running)return;if(ev.error==='interrupted'||ev.error==='canceled')return;running=false;status('Sprachausgabe unterbrochen – Start zum Wiederholen');index=Math.max(0,index-1);buttons()};try{speechSynthesis.speak(utter)}catch(e){running=false;status('Sprachausgabe nicht verfügbar');buttons()}}
+function start(id){if(chapter!==id)select(id);if(paused){paused=false;running=true;try{speechSynthesis.resume()}catch(e){}status('Wiedergabe läuft');buttons();return;}if(running)return;cancel();if(index>=scripts[chapter].length)index=0;if(index===0)reset(chapter);running=true;status('Wiedergabe läuft');buttons();next()}
+function pause(id){if(chapter!==id||!running)return;paused=!paused;if(paused){try{speechSynthesis.pause()}catch(e){}status('Pausiert')}else{try{speechSynthesis.resume()}catch(e){}status('Wiedergabe läuft')}buttons()}
+function stop(id){if(chapter!==id)return;cancel();index=0;status('Gestoppt');}
+for(const a of document.querySelectorAll('article.seite')){const bar=document.createElement('div');bar.className='video-bar noprint';bar.innerHTML='<span class="video-status" aria-live="polite">Bereit</span><button type="button" data-video="start">▶ Start</button><button type="button" data-video="pause">⏸ Pause</button><button type="button" data-video="stop">■ Stopp</button>';a.insertBefore(bar,a.querySelector('.titel'));bar.addEventListener('click',e=>{const b=e.target.closest('button[data-video]');if(!b)return;const action=b.dataset.video;if(action==='start')start(a.id);if(action==='pause')pause(a.id);if(action==='stop')stop(a.id)});}
+for(const tab of document.querySelectorAll('button.tab'))tab.addEventListener('click',()=>select(tab.dataset.t));window.addEventListener('hashchange',()=>select(location.hash.slice(1)||'z1'));document.addEventListener('visibilitychange',()=>{if(document.hidden&&running&&!paused)pause(chapter)});if(hasSpeech)speechSynthesis.getVoices();chapter=location.hash.slice(1) in scripts?location.hash.slice(1):'z1';buttons();
+})();
+</script><script>
+(function(){
+  function still(){try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}}
+  document.getElementById('ll-zurueck').addEventListener('click',still);
+  window.addEventListener('pagehide',still);
+})();
+</script>
+</body></html>

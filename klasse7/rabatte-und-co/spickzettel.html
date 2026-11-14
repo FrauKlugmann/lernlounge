@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spickzettel · Prozentrechnung – Rabatt, Diagramme & Zinsen</title>
+<style>
+  :root { --red:#B3261E; --redhell:#FBE3E1; --falle:#fff8f7;
+          --G:#1565C0; --W:#C2410C; --p:#2e7d32; --grau:#F2F2F2; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#fff; color:#000; font-family: Arial, Helvetica, sans-serif; font-size:17px; }
+  .blatt { max-width:1000px; margin:0 auto; padding:16px; }
+  .titel { background:var(--red); color:#fff; text-align:center; padding:14px 12px 16px; border-radius:4px; }
+  .titel .klein { font-size:13px; letter-spacing:3px; text-transform:uppercase; }
+  .titel .gross { font-size:28px; font-weight:bold; margin-top:4px; }
+  .raster { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+  .kasten { border:2px solid var(--red); border-radius:4px; overflow:hidden; }
+  .kopf { background:var(--redhell); font-weight:bold; padding:7px 10px; }
+  .inhalt { padding:10px 12px; }
+  .inhalt p { margin:6px 0; }
+  .karte { border-radius:6px; padding:6px 10px; margin:6px 0; color:#fff; font-weight:bold; }
+  .G { background:var(--G); } .W { background:var(--W); } .p { background:var(--p); }
+  .formel { background:var(--grau); border-radius:4px; padding:6px 10px; margin:6px 0; font-family: "Courier New", monospace; font-size:16px; }
+  .merk { border:2px dashed var(--red); border-radius:4px; padding:6px 10px; margin:8px 0 2px; font-weight:bold; }
+  .schema { display:flex; flex-direction:column; align-items:center; gap:4px; margin:6px 0; }
+  .pille { border:2px solid #000; border-radius:999px; padding:4px 12px; font-weight:bold; background:#fff; text-align:center; }
+  .aeste { display:flex; gap:6px; width:100%; justify-content:space-around; }
+  .ast { flex:1; text-align:center; font-size:15px; }
+  .ergebnis { border-radius:999px; padding:4px 8px; color:#fff; font-weight:bold; font-size:15px; }
+  table { border-collapse:collapse; width:100%; margin:6px 0; font-size:15px; }
+  th, td { border:1px solid #000; padding:4px 6px; text-align:left; }
+  th { background:var(--grau); }
+  td.r, th.r { text-align:right; }
+  .falle { margin-top:14px; border:2px dashed var(--red); background:var(--falle); border-radius:4px; padding:10px 12px; }
+  .falle b { color:var(--red); }
+  .bruch { display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; font-size:15px; line-height:1.2; margin:0 3px; }
+  .bruch span:first-child { border-bottom:1.5px solid #000; padding:0 4px; }
+  .formel.flex { display:flex; align-items:center; justify-content:space-between; gap:10px; font-family:Arial,Helvetica,sans-serif; }
+  .bruch.gross { font-size:22px; font-weight:bold; }
+  .loesen { font-size:15px; text-align:right; max-width:42%; }
+  .fuss { text-align:right; font-style:italic; color:#555; font-size:14px; margin-top:12px; }
+  svg { display:block; margin:6px auto; max-width:100%; }
+  @media (max-width:700px) { .raster { grid-template-columns:1fr; } .titel .gross { font-size:22px; } }
+  @media print { .blatt { padding:0; } .kasten { break-inside:avoid; } }
+</style>
+</head>
+<body>
+<div class="blatt">
+
+  <div class="titel">
+    <div class="klein">Spickzettel · Prozentrechnung</div>
+    <div class="gross">Rabatt, Diagramme &amp; Zinsen</div>
+  </div>
+
+  <div class="raster">
+
+    <!-- Grundlage -->
+    <div class="kasten">
+      <div class="kopf">Grundlage: Verhältnisgleichung</div>
+      <div class="inhalt">
+        <div class="karte G">G ≙ 100 % (Grundwert)</div>
+        <div class="karte W">W (Prozentwert)</div>
+        <div class="karte p">p % (Prozentsatz)</div>
+        <div class="formel flex"><div><span class="bruch gross"><span>G</span><span>100 %</span></span> = <span class="bruch gross"><span>W</span><span>p %</span></span></div><div class="loesen">Lösen: über Kreuz multiplizieren</div></div>
+        <p>Brüche auf Hundertstel erweitern: 35 % = <span class="bruch"><span>35</span><span>100</span></span></p>
+        <div class="merk">Merksatz: Das Ganze (G) ist immer 100 %.</div>
+      </div>
+    </div>
+
+    <!-- Z1 -->
+    <div class="kasten">
+      <div class="kopf">Z1 · Rabatt, Skonto, Mehrwertsteuer</div>
+      <div class="inhalt">
+        <table>
+          <tr><th>Thema</th><th>Rechnung</th></tr>
+          <tr><td>Rabatt: Sneaker 80 €, 25 %</td><td>x = 80 · 25 : 100 = 20 € → neu 60 €</td></tr>
+          <tr><td>★ Kurzweg: 100 % − 25 % = 75 %</td><td>x = 80 · 75 : 100 = 60 €</td></tr>
+          <tr><td>Skonto: 150 €, 2 %</td><td>x = 150 · 2 : 100 = 3 € → zahlen 147 €</td></tr>
+          <tr><td>Netto 250 € → brutto (19 %)</td><td>x = 250 · 119 : 100 = 297,50 €</td></tr>
+          <tr><td>Brutto 499 € → MwSt.</td><td>x = 499 · 19 : 119 ≈ 79,67 €</td></tr>
+        </table>
+        <div class="karte G">Netto ≙ 100 %</div>
+        <div class="karte W">Brutto ≙ 119 % (ermäßigt 107 %)</div>
+        <div class="merk">Merksatz: An der Kasse zahlst du immer den Bruttopreis.</div>
+      </div>
+    </div>
+
+    <!-- Z2 -->
+    <div class="kasten">
+      <div class="kopf">Z2 · Streifen und Kreis zeichnen</div>
+      <div class="inhalt">
+        <p>Streifen immer 10 cm lang: <b>Länge = p : 10</b> (35 % → 3,5 cm)</p>
+        <p>Kreis: 100 % ≙ 360°, also 1 % ≙ 3,6°.<br><b>Winkel = p · 3,6</b> (35 % → 126°), auf ganze Grad runden.</p>
+        <svg viewBox="0 0 320 60" width="300" height="56" role="img" aria-label="Streifen 10 cm, 35 % grün">
+          <rect x="0" y="10" width="112" height="40" fill="#2e7d32"/>
+          <rect x="112" y="10" width="208" height="40" fill="#F2F2F2" stroke="#000"/>
+          <rect x="0" y="10" width="320" height="40" fill="none" stroke="#000" stroke-width="1.5"/>
+          <text x="56" y="35" font-family="Arial" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">35 %</text>
+        </svg>
+        <svg viewBox="0 0 100 100" width="130" height="130" role="img" aria-label="Kreis mit 35 % als 126 Grad Ausschnitt">
+          <circle cx="50" cy="50" r="45" fill="#F2F2F2" stroke="#000" stroke-width="1.5"/>
+          <path d="M50,50 L50,5 A45,45 0 0 1 86.4,76.5 Z" fill="#2e7d32" stroke="#000" stroke-width="1"/>
+          <text x="66" y="40" font-family="Arial" font-size="9" font-weight="bold" fill="#fff">35 %</text>
+          <text x="66" y="50" font-family="Arial" font-size="7" fill="#fff">126°</text>
+        </svg>
+        <div class="merk">Merksatz: 1 % ≙ 3,6° und 1 % ≙ 0,1 cm im 10-cm-Streifen.</div>
+      </div>
+    </div>
+
+    <!-- Z3 -->
+    <div class="kasten">
+      <div class="kopf">Z3 · Diagramme ablesen und prüfen</div>
+      <div class="inhalt">
+        <p>Streifen: <b>p = Länge in cm · 10</b></p>
+        <p>Kreis: <b>p = Winkel : 3,6</b></p>
+        <table>
+          <tr><th>Verkehrsmittel</th><th class="r">Winkel</th><th class="r">Prozent</th></tr>
+          <tr><td>Bus</td><td class="r">180°</td><td class="r">50 %</td></tr>
+          <tr><td>Fahrrad</td><td class="r">90°</td><td class="r">25 %</td></tr>
+          <tr><td>zu Fuß</td><td class="r">54°</td><td class="r">15 %</td></tr>
+          <tr><td>Auto</td><td class="r">36°</td><td class="r">10 %</td></tr>
+        </table>
+        <p>Halbkreis = 180° = 50 %, Viertelkreis = 90° = 25 %.</p>
+        <div class="merk">Stimmt das? Alle Teile zusammen ergeben immer 100 %.</div>
+      </div>
+    </div>
+
+    <!-- Z4 -->
+    <div class="kasten">
+      <div class="kopf">Z4 · Zinsen (ein Jahr)</div>
+      <div class="inhalt">
+        <p>Kapital K ↔ G · Zinsen Z ↔ W · Zinssatz p % ↔ p %</p>
+        <div class="formel flex"><div><span class="bruch gross"><span>Kapital</span><span>100 %</span></span> = <span class="bruch gross"><span>Zinsen</span><span>Zinssatz</span></span></div><div class="loesen">Lösen: über Kreuz multiplizieren</div></div>
+        <table>
+          <tr><th>Beispiel</th><th class="r">Ergebnis</th></tr>
+          <tr><td>400 € zu 3 %</td><td class="r">12 € Zinsen</td></tr>
+          <tr><td>800 € bringen 20 €</td><td class="r">2,5 %</td></tr>
+          <tr><td>15 € Zinsen bei 3 %</td><td class="r">500 € Kapital</td></tr>
+        </table>
+        <p>Ratenzahlung: 400 € bar oder 12 · 36 € = 432 € → 32 € teurer → 8 %.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="falle">
+    <b>Achtung, Falle:</b> 19 % von 499 € = 94,81 € ist falsch. Der Preis 499 € ist schon 119 %
+    (brutto). Richtig: MwSt. = 499 · 19 : 119 = 79,67 €.
+  </div>
+
+  <div class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Prozentrechnung Woche 4 – Interaktive Übungen</title>
+<script>
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  AUFGABENBLOCK – NUR AB HIER ÄNDERN                              ║
+   ║  Alles unterhalb von „ENDE AUFGABENBLOCK“ ist der feste Motor.   ║
+   ╚══════════════════════════════════════════════════════════════════╝
+   Kurzschrift in Texten:
+     [30]          Eingabefeld, Lösung 30 (Komma/Punkt egal)
+     [0,5|,5]      mehrere richtige Antworten mit |
+     {3/10}        Bruch;  {[30]/100}  Bruch mit Feld im Zähler
+     [=7/100]      Bruch frei eingeben (jeder gleichwertige Bruch zählt)
+     ((A|*B|C))    Auswahlknöpfe, * = richtig
+     [G:40] [W:10] [P:25 %]   Zahl zum Markieren (nur Art "markieren")
+     **fett**   <blau>…</blau>  <orange>…</orange>  <gruen>…</gruen>
+   Aufgabenarten: luecke, erweitern, hunderterfeld, faerben, tabelle,
+     vergleichen, auswahl, markieren, streifen, verhaeltnis, zuordnen,
+     richtigfalsch, sortieren, streifenbau, kreisbau   (jede kann zusätzlich bild:"<svg…>" haben)
+*/
+/* ─── Diagramm-Helfer (Teil des Motors, auch für feste Bilder in Aufgaben nutzbar) ─── */
+const DFARBEN=["#F4B6B0","#B7DFB9","#FFE08A","#CDBBE8","#A9DDE6"];
+const dEsc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const dZ=x=>String(Math.round(x*10)/10).replace(".",",");
+/* streifenSvg(namen, cm, {live, bis, texte}) – bis = Länge der Skala (Standard 10), texte = eigene Beschriftung je Teil */
+function streifenSvg(namen,cm,opt){
+  opt=opt||{};const x0=10,y0=22,h=40,pc=50,bis=opt.bis||10;const B=565+(bis-10)*pc;
+  let s='<svg viewBox="0 0 '+B+' 100" role="img" aria-label="Streifendiagramm" style="width:'+B+'px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  let x=0;
+  cm.forEach((c,i)=>{c=Math.max(0,c);const w=Math.max(0,Math.min(c,bis-x))*pc;
+    if(w>0){s+='<rect x="'+(x0+x*pc)+'" y="'+y0+'" width="'+w+'" height="'+h+'" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';
+      const n=(opt.texte?opt.texte[i]:namen[i])||"";if(n&&w>=n.length*7+8)s+='<text x="'+(x0+x*pc+w/2)+'" y="'+(y0+h/2+5)+'" text-anchor="middle" font-size="13">'+dEsc(n)+'</text>';}
+    x=Math.min(bis,x+c);});
+  s+='<rect x="'+x0+'" y="'+y0+'" width="'+10*pc+'" height="'+h+'" fill="none" stroke="#000" stroke-width="2"/>';
+  for(let k=0;k<=bis;k++)s+='<line x1="'+(x0+k*pc)+'" y1="'+(y0+h)+'" x2="'+(x0+k*pc)+'" y2="'+(y0+h+8)+'" stroke="#000" stroke-width="1.5"/><text x="'+(x0+k*pc)+'" y="'+(y0+h+23)+'" text-anchor="middle" font-size="13">'+k+'</text>';
+  s+='<text x="'+(x0+bis*pc+20)+'" y="'+(y0+h+23)+'" font-size="13">cm</text>';
+  const sum=cm.reduce((a,b)=>a+Math.max(0,b),0);
+  if(opt.live&&sum>10.0001)s+='<text x="10" y="12" font-size="13" fill="#C62828" font-weight="700">Zu lang! Der Streifen ist nur 10 cm lang.</text>';
+  return s+'</svg>';
+}
+/* kreisSvg(namen, grad, {winkel:false, texte}) – texte = eigene Beschriftung je Teil */
+function kreisSvg(namen,grad,opt){
+  opt=opt||{};const cx=225,cy=125,r=100;const P=a=>[cx+r*Math.sin(a*Math.PI/180),cy-r*Math.cos(a*Math.PI/180)];
+  let s='<svg viewBox="0 0 450 250" role="img" aria-label="Kreisdiagramm" style="width:450px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#fff" stroke="#000" stroke-width="2"/>';
+  let a=0;const lab=[];
+  grad.forEach((g,i)=>{g=Math.max(0,g);const b=Math.min(360,a+g);
+    if(b-a>0.0001){
+      if(b-a>=359.999)s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';
+      else{const p1=P(a),p2=P(b);s+='<path d="M'+cx+' '+cy+' L'+p1[0].toFixed(2)+' '+p1[1].toFixed(2)+' A'+r+' '+r+' 0 '+((b-a)>180?1:0)+' 1 '+p2[0].toFixed(2)+' '+p2[1].toFixed(2)+' Z" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';}
+      lab.push([i,(a+b)/2,b-a]);}
+    a=b;});
+  lab.forEach(([i,m,w])=>{const sn=Math.sin(m*Math.PI/180),cs=Math.cos(m*Math.PI/180);const px=cx+(r+10)*sn,py=cy-(r+10)*cs;
+    const an=sn>0.15?"start":sn<-0.15?"end":"middle";const dy=cs>0.9?-3:cs<-0.9?14:4;
+    const t=opt.texte?opt.texte[i]:(namen[i]||"")+(opt.winkel===false?"":" · "+dZ(grad[i])+"°");
+    s+='<text x="'+px.toFixed(1)+'" y="'+(py+dy).toFixed(1)+'" text-anchor="'+an+'" font-size="13">'+dEsc(t)+'</text>';});
+  return s+'</svg>';
+}
+
+const BLATT = {
+  thema: "Rabatte & Co.",
+  erstellt: "November 2026",
+  uebungen: [
+    { reiter: "Z1 Rabatt & Skonto", titel: "Rabatt und Skonto", aufgaben: [
+      { art: "zuordnen", name: "Begriffe", paare: [["alter Preis","G (100 %)"],["Rabatt in €","W"],["Rabatt in %","p %"],["Preisnachlass bei schneller Zahlung","Skonto"]] },
+      { art: "luecke", name: "Rabatt im Kopf", auftrag: "Rechne im Kopf und trage den Rabatt in Euro ein.", spalten: 2,
+        items: ["Kappe 40 €, 50 % Rabatt → [20] € Rabatt","Buch 70 €, 10 % Rabatt → [7] € Rabatt","Jacke 120 €, 25 % Rabatt → [30] € Rabatt",
+                "Spiel 90 €, 50 % Rabatt → [45] € Rabatt","Rucksack 150 €, 10 % Rabatt → [15] € Rabatt","Schal 60 €, 25 % Rabatt → [15] € Rabatt"] },
+      { art: "verhaeltnis", name: "Rabatt in Euro",
+        items: [ { s: "Eine Jeans kostet 90 €. Es gibt 20 % Rabatt. Wie viel Euro beträgt der Rabatt?", W: 18, G: 90, p: 20, x: "W", einheit: "€", antwort: true, id: "rab1" },
+                 { s: "Kopfhörer kosten 120 €. Im Angebot gibt es 15 % Rabatt. Wie viel Euro beträgt der Rabatt?", W: 18, G: 120, p: 15, x: "W", einheit: "€", antwort: true, id: "rab2" },
+                 { s: "Eine Gaming-Maus kostet 45 €. Es gibt 20 % Rabatt. Wie viel Euro beträgt der Rabatt?", W: 9, G: 45, p: 20, x: "W", einheit: "€", antwort: true, id: "rab3" },
+                 { s: "Ein Rucksack kostet 65 €. Es gibt 40 % Rabatt. Wie viel Euro beträgt der Rabatt?", W: 26, G: 65, p: 40, x: "W", einheit: "€", antwort: true, id: "rab4" } ] },
+      { art: "luecke", name: "Neuer Preis", auftrag: "Berechne den neuen Preis. Den Rabatt, den du in Aufgabe 3 eingetragen hast, siehst du hier wieder.", spalten: 1,
+        items: ["Jeans: alter Preis 90 €, Rabatt [@rab1] € → neuer Preis [72] €","Kopfhörer: alter Preis 120 €, Rabatt [@rab2] € → neuer Preis [102] €",
+                "Gaming-Maus: alter Preis 45 €, Rabatt [@rab3] € → neuer Preis [36] €","Rucksack: alter Preis 65 €, Rabatt [@rab4] € → neuer Preis [39] €"] },
+      { art: "verhaeltnis", name: "Neuer Preis in einem Schritt", stern: true, auftrag: "Berechne den neuen Preis direkt in einem Schritt: Stelle nur eine Verhältnisgleichung auf. Trage das Ergebnis ein und schreibe einen Antwortsatz.",
+        items: [ { s: "Ein Hoodie kostet 60 €. Es gibt 30 % Rabatt. Wie viel Euro kostet er jetzt?", W: 42, G: 60, p: 70, x: "W", einheit: "€", antwort: true },
+                 { s: "Eine Jacke kostet 120 €. Es gibt 15 % Rabatt. Wie viel Euro kostet sie jetzt?", W: 102, G: 120, p: 85, x: "W", einheit: "€", antwort: true },
+                 { s: "Ein Spiel kostet 50 €. Es gibt 40 % Rabatt. Wie viel Euro kostet es jetzt?", W: 30, G: 50, p: 60, x: "W", einheit: "€", antwort: true },
+                 { s: "Eine Kopfhörer-Box kostet 90 €. Es gibt 10 % Rabatt. Wie viel Euro kostet sie jetzt?", W: 81, G: 90, p: 90, x: "W", einheit: "€", antwort: true } ] },
+      { art: "verhaeltnis", name: "Skonto",
+        items: [ { s: "Die Rechnung für einen Schulbus-Ausflug beträgt 800 €. Bei Zahlung innerhalb von 7 Tagen gibt es 2 % Skonto. Wie viel Euro Skonto sind das?", W: 16, G: 800, p: 2, x: "W", einheit: "€", antwort: true, id: "sk1" },
+                 { s: "Die Werkstatt schreibt eine Rechnung über 200 € für dein E-Bike. Du zahlst schnell und bekommst 3 % Skonto. Wie viel Euro Skonto sind das?", W: 6, G: 200, p: 3, x: "W", einheit: "€", antwort: true, id: "sk2" },
+                 { s: "Die Pizzeria liefert Essen für die Klassenfeier: Rechnung 250 €, 2 % Skonto. Wie viel Euro Skonto sind das?", W: 5, G: 250, p: 2, x: "W", einheit: "€", antwort: true, id: "sk3" },
+                 { s: "Die Rechnung für die Schulbücher beträgt 340 €. Bei schneller Zahlung gibt es 2 % Skonto. Wie viel Euro Skonto sind das?", W: 6.8, G: 340, p: 2, x: "W", einheit: "€", antwort: true, id: "sk4" } ] },
+      { art: "luecke", name: "Zahlbetrag", auftrag: "Berechne den Zahlbetrag. Das Skonto, das du in Aufgabe 6 eingetragen hast, siehst du hier wieder.", spalten: 1,
+        items: ["Bus-Ausflug: Rechnung 800 €, Skonto [@sk1] € → Zahlbetrag [784] €","E-Bike: Rechnung 200 €, Skonto [@sk2] € → Zahlbetrag [194] €",
+                "Pizzeria: Rechnung 250 €, Skonto [@sk3] € → Zahlbetrag [245] €","Schulbücher: Rechnung 340 €, Skonto [@sk4] € → Zahlbetrag [333,2|333,20] €"] },
+      { art: "verhaeltnis", name: "Angebote vergleichen", stern: true, auftrag: "Zwei Shops verkaufen dasselbe Tablet. Rechne für jeden Shop in einem Schritt (nur eine Verhältnisgleichung) und vergleiche dann.",
+        items: [ { s: "**Shop A** verkauft das Tablet für 300 €, dazu 10 % Rabatt. Wie viel Euro kostet es?", W: 270, G: 300, p: 90, x: "W", einheit: "€" },
+                 { s: "**Shop B** verkauft das Tablet für 280 €. Bei Zahlung innerhalb von 7 Tagen gibt es 5 % Skonto. Wie viel Euro zahlt man?", W: 266, G: 280, p: 95, x: "W", einheit: "€" } ],
+        nach: "<p>Günstiger ist ((Shop A|*Shop B)). Der Unterschied beträgt [4] €.</p>" }
+    ]},
+    { reiter: "Z1 Mehrwertsteuer", titel: "Mehrwertsteuer (MwSt.)", aufgaben: [
+      { art: "auswahl", name: "Netto und brutto", auftrag: "Tippe die richtige Antwort an.", optionen: ["100 %","107 %","119 %"],
+        items: [["Der **Nettopreis** (ohne MwSt.) entspricht","100 %"],["Der **Bruttopreis** mit 19 % MwSt. entspricht","119 %"],["Der **Bruttopreis** mit 7 % MwSt. entspricht","107 %"],
+                ["An der Kasse zahlst du immer","den Bruttopreis",["den Nettopreis","den Bruttopreis"]]] },
+      { art: "verhaeltnis", name: "MwSt. berechnen (19 %)",
+        items: [ { s: "Ein Gaming-Headset kostet netto 100 €. Die MwSt. beträgt 19 %. Wie viel Euro MwSt. kommen dazu?", W: 19, G: 100, p: 19, x: "W", einheit: "€", antwort: true },
+                 { s: "Ein Laptop kostet netto 800 €. Die MwSt. beträgt 19 %. Wie viel Euro MwSt. kommen dazu?", W: 152, G: 800, p: 19, x: "W", einheit: "€", antwort: true },
+                 { s: "Ein Computerspiel kostet netto 40 €. Die MwSt. beträgt 19 %. Wie viel Euro MwSt. kommen dazu?", W: 7.6, G: 40, p: 19, x: "W", einheit: "€", antwort: true },
+                 { s: "Ein Fahrrad kostet netto 420 €. Die MwSt. beträgt 19 %. Wie viel Euro MwSt. kommen dazu?", W: 79.8, G: 420, p: 19, x: "W", einheit: "€", antwort: true } ] },
+      { art: "verhaeltnis", name: "Preis an der Kasse in einem Schritt", stern: true, auftrag: "Berechne den Preis an der Kasse direkt in einem Schritt: Stelle nur eine Verhältnisgleichung auf. Trage das Ergebnis ein und schreibe einen Antwortsatz.",
+        items: [ { s: "Ein Monitor kostet netto 200 €. Die MwSt. beträgt 19 %. Wie viel Euro zahlt man an der Kasse?", W: 238, G: 200, p: 119, x: "W", einheit: "€", antwort: true },
+                 { s: "Ein Hoodie kostet netto 60 €. Die MwSt. beträgt 19 %. Wie viel Euro zahlt man an der Kasse?", W: 71.4, G: 60, p: 119, x: "W", einheit: "€", antwort: true },
+                 { s: "Ein Tablet kostet netto 350 €. Die MwSt. beträgt 19 %. Wie viel Euro zahlt man an der Kasse?", W: 416.5, G: 350, p: 119, x: "W", einheit: "€", antwort: true },
+                 { s: "Ein Gaming-PC kostet netto 1000 €. Die MwSt. beträgt 19 %. Wie viel Euro zahlt man an der Kasse?", W: 1190, G: 1000, p: 119, x: "W", einheit: "€", antwort: true } ] },
+      { art: "verhaeltnis", name: "Ermäßigter Satz: 7 %", auftrag: "Berechne den Preis an der Kasse direkt in einem Schritt: Stelle nur eine Verhältnisgleichung auf. Trage das Ergebnis ein und schreibe einen Antwortsatz.",
+        items: [ { s: "Ein Buch kostet netto 20 €. Die MwSt. beträgt 7 %. Wie viel Euro zahlt man an der Kasse?", W: 21.4, G: 20, p: 107, x: "W", einheit: "€", antwort: true },
+                 { s: "Ein Paket Müsli kostet netto 50 €. Die MwSt. beträgt 7 %. Wie viel Euro zahlt man an der Kasse?", W: 53.5, G: 50, p: 107, x: "W", einheit: "€", antwort: true },
+                 { s: "Ein Schulbuch kostet netto 30 €. Die MwSt. beträgt 7 %. Wie viel Euro zahlt man an der Kasse?", W: 32.1, G: 30, p: 107, x: "W", einheit: "€", antwort: true },
+                 { s: "Ein Comic kostet netto 12 €. Die MwSt. beträgt 7 %. Wie viel Euro zahlt man an der Kasse?", W: 12.84, G: 12, p: 107, x: "W", einheit: "€", antwort: true } ] },
+      { art: "verhaeltnis", name: "MwSt. aus dem Bruttopreis",
+        items: [ { s: "Kopfhörer kosten an der Kasse 119 €. Die MwSt. beträgt 19 %. Wie viel Euro MwSt. stecken im Preis?", W: 19, G: 119, bas: 119, p: 19, x: "W", einheit: "€", antwort: true, id: "mw1" },
+                 { s: "Eine Spielekonsole kostet an der Kasse 238 €. Die MwSt. beträgt 19 %. Wie viel Euro MwSt. stecken im Preis?", W: 38, G: 238, bas: 119, p: 19, x: "W", einheit: "€", antwort: true, id: "mw2" },
+                 { s: "Ein Fernseher kostet an der Kasse 595 €. Die MwSt. beträgt 19 %. Wie viel Euro MwSt. stecken im Preis?", W: 95, G: 595, bas: 119, p: 19, x: "W", einheit: "€", antwort: true, id: "mw3" },
+                 { s: "Ein E-Scooter kostet an der Kasse 833 €. Die MwSt. beträgt 19 %. Wie viel Euro MwSt. stecken im Preis?", W: 133, G: 833, bas: 119, p: 19, x: "W", einheit: "€", antwort: true, id: "mw4" } ] },
+      { art: "luecke", name: "Nettopreis", auftrag: "Berechne den Nettopreis. Die MwSt., die du in Aufgabe 5 eingetragen hast, siehst du hier wieder.", spalten: 1,
+        items: ["Kopfhörer: Bruttopreis 119 €, MwSt. [@mw1] € → Nettopreis [100] €","Spielekonsole: Bruttopreis 238 €, MwSt. [@mw2] € → Nettopreis [200] €",
+                "Fernseher: Bruttopreis 595 €, MwSt. [@mw3] € → Nettopreis [500] €","E-Scooter: Bruttopreis 833 €, MwSt. [@mw4] € → Nettopreis [700] €"] },
+      { art: "richtigfalsch", name: "Stimmt das? Die Falle", stern: true, auftrag: "Richtig oder falsch? Tippe an.",
+        items: [["Ein Smartphone kostet an der Kasse 499 €. Die MwSt. berechne ich mit 19 % von 499 €.", false],
+                ["Im Bruttopreis 499 € stecken 79,67 € MwSt.", true],
+                ["Der Bruttopreis ist immer größer als der Nettopreis.", true],
+                ["Bei einem Buch gilt: brutto ≙ 119 %.", false]] }
+    ]},
+    { reiter: "Z2 Diagramme zeichnen", titel: "Streifen- und Kreisdiagramm zeichnen", aufgaben: [
+      { art: "luecke", name: "Streifen: Länge ausrechnen", auftrag: "Der Streifen ist immer 10 cm lang. Trage die Länge in cm ein.", spalten: 2,
+        items: ["20 % → [2] cm","45 % → [4,5] cm","5 % → [0,5] cm","60 % → [6] cm","12 % → [1,2] cm","8 % → [0,8] cm"] },
+      { art: "streifenbau", name: "Streifendiagramm: Taschengeld", auftrag: "So gibst du dein Taschengeld aus. Rechne die Länge aus und trage sie ein. Dein Streifen wächst unter der Tabelle.",
+        daten: [["Snacks",40],["Handy",30],["Kino",20],["Sonstiges",10]] },
+      { art: "streifenbau", name: "Streifendiagramm: Training", auftrag: "So verteilt sich die Zeit beim Fußballtraining. Rechne die Länge aus und trage sie ein.",
+        daten: [["Passen",35],["Spiel",30],["Schießen",25],["Dehnen",10]] },
+      { art: "luecke", name: "Winkel ausrechnen", auftrag: "Ein ganzer Kreis hat 360°. Berechne den Winkel. Wähle selbst, wie du rechnest.", spalten: 2,
+        items: ["10 % → [36]°","25 % → [90]°","40 % → [144]°","30 % → [108]°","5 % → [18]°","15 % → [54]°","45 % → [162]°","60 % → [216]°"] },
+      { art: "luecke", name: "Auf ganze Grad runden", auftrag: "Berechne den Winkel und runde auf ganze Grad.", spalten: 2,
+        items: ["12 % → [43]°","7 % → [25]°","33 % → [119]°","18 % → [65]°"] },
+      { art: "kreisbau", name: "Kreisdiagramm: Lieblingssport", auftrag: "Rechne den Winkel aus (ganze Grad) und trage ihn ein. Dein Kreis wächst unter der Tabelle.",
+        daten: [["Fußball",45],["Schwimmen",25],["Tanzen",20],["Sonstige",10]] },
+      { art: "tabelle", name: "Erst rechnen, dann zeichnen", stern: true, nummern: false,
+        auftrag: "25 Schüler haben nach ihrem Lieblingsessen abgestimmt. Berechne zuerst den Prozentsatz, dann die Länge im Streifen und den Winkel im Kreis (auf ganze Grad).",
+        kopf: ["Lieblingsessen","Stimmen","p %","Streifen","Kreis"],
+        zeilen: [["Pizza","10","[40] %","[4] cm","[144]°"],["Burger","8","[32] %","[3,2] cm","[115]°"],["Döner","5","[20] %","[2] cm","[72]°"],["Salat","2","[8] %","[0,8] cm","[29]°"]] }
+    ]},
+    { reiter: "Z3 Diagramme ablesen", titel: "Diagramme ablesen", aufgaben: [
+      { art: "luecke", name: "Halbkreis und Viertelkreis", auftrag: "Trage Winkel und Prozentsatz ein.", spalten: 2,
+        items: ["Halbkreis: [180]° = [50] %","Viertelkreis: [90]° = [25] %","Dreiviertelkreis: [270]° = [75] %","Ganzer Kreis: [360]° = [100] %"] },
+      { art: "tabelle", name: "Streifen ablesen: Lieblings-App", nummern: false, bild: streifenSvg(["WhatsApp","YouTube","TikTok","Sonstige"],[4,3,2,1]),
+        auftrag: "Lies die Länge der Teile an der Skala ab und gib den Prozentsatz an.",
+        kopf: ["App","Länge","p %"], zeilen: [["WhatsApp","[4] cm","[40] %"],["YouTube","[3] cm","[30] %"],["TikTok","[2] cm","[20] %"],["Sonstige","[1] cm","[10] %"]] },
+      { art: "tabelle", name: "Streifen mit Komma: Lieblingsfach", nummern: false, bild: streifenSvg(["Sport","Kunst","Musik","Mathe"],[3.5,2.5,2,2]),
+        auftrag: "Lies die Länge der Teile an der Skala ab (auch halbe Zentimeter) und gib den Prozentsatz an.",
+        kopf: ["Fach","Länge","p %"], zeilen: [["Sport","[3,5] cm","[35] %"],["Kunst","[2,5] cm","[25] %"],["Musik","[2] cm","[20] %"],["Mathe","[2] cm","[20] %"]] },
+      { art: "tabelle", name: "Kreis ablesen: Sport-AG", nummern: false, bild: kreisSvg(["Fußball","Tanzen","Schwimmen","Judo"],[162,90,72,36]),
+        auftrag: "Lies die Winkel ab und gib den Prozentsatz an.",
+        kopf: ["Sport","p %"], zeilen: [["Fußball","[45#lk1] %"],["Tanzen","[25#lk2] %"],["Schwimmen","[20#lk3] %"],["Judo","[10#lk4] %"]] },
+      { art: "verhaeltnis", name: "Anzahl berechnen", auftrag: "In der Sport-AG sind 40 Schüler. Den Prozentsatz, den du in Aufgabe 4 eingetragen hast, siehst du hier wieder. Stelle die Verhältnisgleichung auf, trage das Ergebnis ein und schreibe einen Antwortsatz.",
+        items: [ { s: "Fußball wählen [@lk1] % der 40 Schüler. Wie viele Schüler sind das?", W: 18, G: 40, p: 45, x: "W", antwort: true },
+                 { s: "Tanzen wählen [@lk2] % der 40 Schüler. Wie viele Schüler sind das?", W: 10, G: 40, p: 25, x: "W", antwort: true },
+                 { s: "Schwimmen wählen [@lk3] % der 40 Schüler. Wie viele Schüler sind das?", W: 8, G: 40, p: 20, x: "W", antwort: true },
+                 { s: "Judo wählen [@lk4] % der 40 Schüler. Wie viele Schüler sind das?", W: 4, G: 40, p: 10, x: "W", antwort: true } ] },
+      { art: "richtigfalsch", name: "Stimmt das?", stern: true, nummern: false, auftrag: "Prüfe jedes Diagramm. Stimmt es? Tippe an.",
+        bildoben: true,
+        bild: '<div class="dgm">'+
+              '<div><p><b>Diagramm a)</b></p>'+streifenSvg(["Pizza","Burger","Nudeln"],[4,3.5,3],{bis:11,texte:["Pizza 40 %","Burger 35 %","Nudeln 30 %"]})+'</div>'+
+              '<div><p><b>Diagramm b)</b></p>'+kreisSvg(["Fußball","Handball","Tennis","Rest"],[180,90,54,36],{texte:["Fußball 50 %","Handball 25 %","Tennis 15 %","Rest 10 %"]})+'</div>'+
+              '<div><p><b>Diagramm c)</b></p>'+kreisSvg(["Fußball","Tanzen","Schwimmen","Judo"],[162,90,72,36],{texte:["Fußball 45 %","Tanzen 25 %","Schwimmen 20 %","Judo 15 %"]})+'</div>'+
+              '<div><p><b>Diagramm d)</b></p>'+streifenSvg(["Snacks","Handy","Kino","Rest"],[4,3,2,1],{texte:["Snacks 40 %","Handy 30 %","Kino 20 %","10 %"]})+'</div></div>',
+        items: [["Diagramm a) stimmt.", false],["Diagramm b) stimmt.", true],["Diagramm c) stimmt.", false],["Diagramm d) stimmt.", true]] }
+    ]},
+    { reiter: "Z4 Zinsen", titel: "Zinsen (Jahreszinsen)", aufgaben: [
+      { art: "zuordnen", name: "Begriffe", paare: [["Kapital K","Grundwert G"],["Zinsen Z","Prozentwert W"],["Zinssatz","Prozentsatz p %"]] },
+      { art: "verhaeltnis", name: "Zinsen berechnen",
+        items: [ { s: "Lena legt 500 € zu 2 % an. Wie viel Euro Zinsen bekommt sie in einem Jahr?", W: 10, G: 500, p: 2, x: "W", einheit: "€", antwort: true },
+                 { s: "Tim spart 800 € zu 1,5 %. Wie viel Euro Zinsen bekommt er in einem Jahr?", W: 12, G: 800, p: 1.5, x: "W", einheit: "€", antwort: true },
+                 { s: "Mia hat 250 € zu 4 % angelegt. Wie viel Euro Zinsen bekommt sie in einem Jahr?", W: 10, G: 250, p: 4, x: "W", einheit: "€", antwort: true },
+                 { s: "Familie Kaya legt 1200 € zu 2,5 % an. Wie viel Euro Zinsen bekommt sie in einem Jahr?", W: 30, G: 1200, p: 2.5, x: "W", einheit: "€", antwort: true } ] },
+      { art: "verhaeltnis", name: "Zinssatz gesucht",
+        items: [ { s: "1000 € bringen in einem Jahr 15 € Zinsen. Wie hoch ist der Zinssatz?", W: 15, G: 1000, p: 1.5, x: "p", antwort: true },
+                 { s: "250 € bringen in einem Jahr 10 € Zinsen. Wie hoch ist der Zinssatz?", W: 10, G: 250, p: 4, x: "p", antwort: true },
+                 { s: "600 € bringen in einem Jahr 9 € Zinsen. Wie hoch ist der Zinssatz?", W: 9, G: 600, p: 1.5, x: "p", antwort: true },
+                 { s: "800 € bringen in einem Jahr 40 € Zinsen. Wie hoch ist der Zinssatz?", W: 40, G: 800, p: 5, x: "p", antwort: true } ] },
+      { art: "verhaeltnis", name: "Kapital gesucht",
+        items: [ { s: "Bei 2 % Zinssatz gibt es 20 € Zinsen im Jahr. Wie viel Euro Kapital sind angelegt?", W: 20, G: 1000, p: 2, x: "G", einheit: "€", antwort: true },
+                 { s: "Bei 4 % Zinssatz gibt es 36 € Zinsen im Jahr. Wie viel Euro Kapital sind angelegt?", W: 36, G: 900, p: 4, x: "G", einheit: "€", antwort: true },
+                 { s: "Bei 2 % Zinssatz gibt es 14 € Zinsen im Jahr. Wie viel Euro Kapital sind angelegt?", W: 14, G: 700, p: 2, x: "G", einheit: "€", antwort: true },
+                 { s: "Bei 3 % Zinssatz gibt es 45 € Zinsen im Jahr. Wie viel Euro Kapital sind angelegt?", W: 45, G: 1500, p: 3, x: "G", einheit: "€", antwort: true } ] },
+      { art: "luecke", name: "Ratenzahlung: Aufpreis", stern: true, auftrag: "Wie viel Euro kosten die Raten zusammen und wie viel Euro mehr ist das als der Barpreis?",
+        items: [ { s: "Laptop: bar 250 € oder 10 Raten à 28 €.", z: "Raten zusammen: [280] € · Aufpreis: [30#au1] €" },
+                 { s: "Kopfhörer: bar 120 € oder 6 Raten à 21 €.", z: "Raten zusammen: [126] € · Aufpreis: [6#au2] €" },
+                 { s: "Gaming-Stuhl: bar 300 € oder 12 Raten à 27 €.", z: "Raten zusammen: [324] € · Aufpreis: [24#au3] €" } ] },
+      { art: "verhaeltnis", name: "Ratenzahlung: Wie viel Prozent teurer?", stern: true,
+        items: [ { s: "Der Laptop kostet in Raten [@au1] € mehr als bar (250 €). Wie viel Prozent teurer ist die Ratenzahlung?", W: 30, G: 250, p: 12, x: "p", antwort: true },
+                 { s: "Die Kopfhörer kosten in Raten [@au2] € mehr als bar (120 €). Wie viel Prozent teurer ist die Ratenzahlung?", W: 6, G: 120, p: 5, x: "p", antwort: true },
+                 { s: "Der Gaming-Stuhl kostet in Raten [@au3] € mehr als bar (300 €). Wie viel Prozent teurer ist die Ratenzahlung?", W: 24, G: 300, p: 8, x: "p", antwort: true } ] },
+      { art: "verhaeltnis", name: "Sparangebote vergleichen", stern: true, auftrag: "Zwei Banken bieten Zinsen an. Berechne die Zinsen für ein Jahr und vergleiche.",
+        items: [ { s: "**Bank A:** 800 € zu 2 %. Wie viel Euro Zinsen gibt es im Jahr?", W: 16, G: 800, p: 2, x: "W", einheit: "€" },
+                 { s: "**Bank B:** 600 € zu 3 %. Wie viel Euro Zinsen gibt es im Jahr?", W: 18, G: 600, p: 3, x: "W", einheit: "€" } ],
+        nach: "<p>Mehr Zinsen bringt ((Bank A|*Bank B)). Der Unterschied beträgt [2] €.</p>" }
+    ]}
+  ]
+};
+
+/* ═════════════════════════ ENDE AUFGABENBLOCK ═════════════════════════ */
+</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+/* ─── Motor: Aussehen (Arbeitsblattvorlage) ─── */
+:root{color-scheme:light}*{box-sizing:border-box}html{background:#fff}
+body{margin:0;background:#fff;color:#000;font-family:Arial,"Liberation Sans",Helvetica,sans-serif;font-size:18px;line-height:1.4;
+  padding-block:16px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+[hidden]{display:none!important}
+.wrap{max-width:980px;margin:0 auto}
+.oben{color:#6F6F6F;font-size:.8em;margin:0 0 .3em}
+.titel{background:#00805F;color:#fff;font-weight:700;text-align:center;padding:.35em .5em;margin:0;font-size:1.4em}
+.fortschritt{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5em;margin:0 0 .4em;font-size:.9em}
+.kasten{border:2px solid #00805F;margin-top:.9em}
+.kasten>h2{margin:0;font-size:1em;background:#D3F2E5;border-bottom:2px solid #00805F;padding:.3em .7em}
+.kasten.fertig>h2::after{content:"  ✓";color:#00805F}
+.innen{padding:.5em .8em .7em}
+.innen p{margin:.35em 0}
+.auftrag{font-weight:700}
+.gross{font-size:1.1em}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .15em;line-height:1.15}
+.frac .fz{border-bottom:2px solid currentColor;padding:0 .15em .1em}.frac .fn{padding-top:.1em}
+.ein{font:inherit;height:1.7em;text-align:center;border:1.5px solid #000;border-radius:0;background:#fff;color:inherit;padding:0;vertical-align:middle}
+.ein.echo{background:#fff;color:#000}
+.ein:focus{outline:none;background:#FFF3B0}
+.ein.antw{width:100%;max-width:44em;text-align:left;padding:0 .5em;box-sizing:border-box}
+.antw-z{margin:.4em 0 1em}
+.ok{border-color:#2e7d32!important;background:#E5F4E6!important;border-width:2.5px!important}
+.falsch{border-color:#C62828!important;background:#FDE7E7!important;border-width:2.5px!important}
+.raster1,.raster2,.raster3,.raster4{display:grid;gap:.7em 1.4em}
+.raster1{grid-template-columns:1fr}
+.raster2{grid-template-columns:repeat(2,minmax(0,1fr))}.raster3{grid-template-columns:repeat(3,minmax(0,1fr))}.raster4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.erw{display:flex;align-items:center;gap:.2em;font-size:1.05em}
+.erwm{display:flex;flex-direction:column;align-items:center;margin:0 .2em}.erwm .lab{font-size:.8em;white-space:nowrap}
+.fig{display:flex;flex-direction:column;align-items:center;gap:.4em}.fig>b{align-self:flex-start}
+.zeile{white-space:nowrap}
+.g100{display:grid;grid-template-columns:repeat(10,1fr);width:9em;aspect-ratio:1;max-width:100%;border:1.5px solid #000}
+.g100 i{border:.5px solid #666;display:block}.g100 i.an{background:#7fb89a}
+.malen{width:13em;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+.malbox{display:flex;flex-wrap:wrap;gap:1em;align-items:center}
+.scroll{overflow-x:auto}
+.tab{border-collapse:collapse;font-size:inherit}
+.tab th,.tab td{border:1.5px solid #000;padding:.3em .8em;text-align:center;min-width:6.5em}
+.tab th{background:#F2F2F2}.tab td.nr{min-width:0;border:0;font-weight:700}.tab th.nr{background:none;border:0;min-width:0}
+.vgl{display:flex;align-items:center;gap:.5em;font-size:1.1em}
+.wahl,.auswahl{display:inline-flex;flex-wrap:wrap;gap:.3em;vertical-align:middle}
+.wahl button,.auswahl button{font:inherit;min-width:2.2em;height:1.9em;border:1.5px solid #000;background:#fff;color:#000;border-radius:0;cursor:pointer;padding:0 .4em}
+.auswahl button{font-size:.9em}
+.wahl button.an,.auswahl button.an{background:#FFE873}
+.wahl.ok button.an,.auswahl.ok button.an{background:#E5F4E6;border-color:#2e7d32;border-width:2.5px}
+.wahl.falsch button.an,.auswahl.falsch button.an{background:#FDE7E7;border-color:#C62828;border-width:2.5px}
+.sit{line-height:1.9}
+.mk{font-weight:700;padding:.05em .3em;border:1.5px dashed #999;cursor:pointer;user-select:none;-webkit-user-select:none}
+.mk[data-r="G"]{color:#1565C0;border:2px solid #1565C0;background:#E3EEFB}
+.mk[data-r="W"]{color:#C2410C;border:2px solid #C2410C;background:#FBEADF}
+.mk[data-r="P"]{color:#2e7d32;border:2px solid #2e7d32;background:#E5F4E6}
+.mk.falsch{outline:3px solid #C62828;outline-offset:1px}
+.Gt{color:#1565C0}.Wt{color:#C2410C}.Pt{color:#2e7d32}
+.gw{display:flex;flex-wrap:wrap;gap:.6em 1.6em}
+.wegz{display:flex;flex-wrap:wrap;align-items:center;gap:.5em;margin:.4em 0}.wegz>b{min-width:3em}
+.km{white-space:nowrap}
+.bildbox{display:flex;flex-wrap:wrap;gap:1em 1.6em;align-items:flex-start}.bildbox>.bild{flex:0 0 auto;max-width:100%}.bildbox>.rest{flex:1 1 16em;min-width:0}
+.bild svg{max-width:100%;height:auto;display:block}
+/* Prozentstreifen */
+.streifen{margin:.5em 0 1em;max-width:30em}
+.str-oben,.str-mitte{position:relative;min-height:2.2em}
+.str-oben>span,.str-mitte>span{position:absolute;left:0;bottom:.15em;white-space:nowrap}
+.str-mitte>span{top:.2em;bottom:auto}
+.str-bar{display:flex;height:1.7em;border:2px solid #1565C0;background:#9FC2EC}
+.str-w{background:#F2A672;border-right:2px solid #C2410C}
+.str-klammer{display:block;width:100%;height:14px}
+.str-g{text-align:center}
+/* Verhältnisgleichung */
+.vgl-gl{display:flex;flex-wrap:wrap;align-items:center;gap:.4em 1em;font-size:1.1em;margin:.3em 0}
+.vgl-gl .pfeil{color:#6F6F6F}
+.vgl-gl .frac .fz{border-bottom-color:#000}
+.Gt .ein{color:#1565C0}.Wt .ein{color:#C2410C}.Pt .ein{color:#2e7d32}
+.dgm{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:.3em 1.5em;margin-bottom:.6em}.dgm p{margin:.3em 0}
+.sw{display:inline-block;width:1em;height:1em;border:1.5px solid #000;vertical-align:-.15em}
+.live svg{max-width:100%;height:auto;display:block;margin:.5em 0}.summe{margin:.2em 0}
+/* Zuordnen */
+.zuo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.5em 2.5em;max-width:34em}
+.zuo .sp{display:flex;flex-direction:column;gap:.5em}
+.zuo button,.sort button{font:inherit;min-height:2.2em;border:1.5px solid #000;background:#fff;color:#000;border-radius:0;cursor:pointer;padding:.2em .6em;position:relative}
+.zuo button.wahl1{background:#FFE873}
+.zuo button[data-p]::before{content:attr(data-nr);position:absolute;left:-.1em;top:-.65em;font-size:.65em;font-weight:700;background:#000;color:#fff;border-radius:1em;min-width:1.5em;line-height:1.5em;text-align:center}
+.zuo button[data-p="0"]{background:#DDEBFA}.zuo button[data-p="1"]{background:#FCE3D3}.zuo button[data-p="2"]{background:#E0F2E1}
+.zuo button[data-p="3"]{background:#F1E4F7}.zuo button[data-p="4"]{background:#FFF1C4}.zuo button[data-p="5"]{background:#DDF3F3}
+.zuo button[data-p="6"]{background:#EDEDED}.zuo button[data-p="7"]{background:#F9DDE6}
+/* Sortieren */
+.sort{display:flex;flex-wrap:wrap;gap:.5em}
+.sort button[data-nr]::before{content:attr(data-nr);position:absolute;left:-.1em;top:-.65em;font-size:.65em;font-weight:700;background:#00805F;color:#fff;border-radius:1em;min-width:1.5em;line-height:1.5em;text-align:center}
+.sort button[data-nr]{background:#D3F2E5}
+.sortreihe{color:#444;min-height:1.4em}
+.pruefleiste{display:flex;flex-wrap:wrap;align-items:center;gap:.8em;margin-top:.7em}
+button.pruefen,button.knopf{font:inherit;font-size:.9em;background:#fff;color:#000;border:1.5px solid #00805F;padding:.3em 1em;cursor:pointer;border-radius:0;font-weight:700}
+button.pruefen:hover,button.knopf:hover{background:#D3F2E5}
+button.knopf.warnung{background:#00805F;color:#fff}
+button:focus-visible{outline:3px solid #00805F;outline-offset:2px}
+.ergebnis{font-weight:700}.ergebnis.gut{color:#2e7d32}.ergebnis.noch{color:#C62828}
+.fuss{text-align:right;font-style:italic;color:#6F6F6F;font-size:.7em;margin:1.2em 0 0}
+nav.reiter{display:flex;flex-wrap:wrap;gap:.4em;margin:0 0 .7em}
+nav.reiter button{font:inherit;font-size:.85em;border:2px solid #00805F;background:#fff;color:#000;padding:.35em .8em;cursor:pointer;border-radius:0}
+nav.reiter button b{margin-right:.35em}
+nav.reiter button[aria-selected="true"]{background:#00805F;color:#fff}
+@media (max-width:820px){.raster4{grid-template-columns:repeat(2,minmax(0,1fr))}.raster3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.raster2,.raster3{grid-template-columns:1fr}.zuo{gap:.5em 1.2em}}
+</style>
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a><button type="button" class="ll-spick" id="ll-spick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3 h9 l4 4 v14 h-13z M14 3 v5 h5 M9 12 h7 M9 16 h5"/></svg>Spickzettel</button></div>
+<p class="oben" id="oben"></p>
+<nav class="reiter" role="tablist" aria-label="Übungen" id="reiter"></nav>
+<div class="fortschritt"><span id="stand"></span><button type="button" class="knopf" id="neu">Neu beginnen</button></div>
+<div id="blaetter"></div>
+<p class="fuss" id="fuss"></p>
+</div>
+<script>
+/* ─── Motor: Technik (nicht ändern) ─── */
+(function(){
+"use strict";
+const ABC="abcdefghijklmnopqrstuvwxyz";
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+const deZahl=x=>{const r=Math.round(x*1e9)/1e9;return String(r).replace(".",",");};
+const wert=s=>{s=String(s).trim().replace(/\s/g,"");if(s.includes("/")){const[a,b]=s.split("/");return num(a)/num(b);}return num(s);};
+const num=s=>{const t=String(s).replace(/\s+/g,"").replace(",",".");return t!==""&&!isNaN(t)?parseFloat(t):NaN;};
+const norm=s=>String(s).replace(/\s+/g,"").replace(/\./g,",").replace(/%$/,"").toLowerCase();
+const mischen=a=>{const b=a.slice();if(b.length<2)return b;let n=0;do{for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}n++;}while(n<20&&b.every((x,i)=>x===a[i]));return b;};
+
+/* Kurzschrift → HTML */
+function feld(antw,label){
+  let fid="";antw=antw.replace(/#(\w+)\s*$/,(m,s)=>{fid=s;return "";});
+  const alle=antw.split("|").map(x=>x.trim());
+  const lang=Math.max(...alle.map(x=>x.length));
+  const zahl=alle.every(x=>/^[\d\s,.%+\-]*$/.test(x));
+  const w=zahl||lang<=2?Math.max(2.6,lang*.55+1.5).toFixed(1):Math.max(5,Math.min(9,lang*.5+1.5)).toFixed(1);
+  return '<input class="ein" data-a="'+esc(alle.join("|"))+'"'+(fid?' data-id="'+fid+'"':'')+' style="width:'+w+'em"'+(zahl?' inputmode="decimal"':'')+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+(label||"Antwort")+'">';
+}
+function inl(t){
+  t=String(t);const lager=[];const pack=h=>"\u0001"+(lager.push(h)-1)+"\u0002";
+  t=t.replace(/\(\((.*?)\)\)/g,(m,inh)=>{
+    const opt=inh.split("|").map(x=>x.trim());let soll="";
+    const kn=opt.map(o=>{let z=o;if(z.startsWith("*")){z=z.slice(1).trim();soll=z;}return z;});
+    const kl="auswahl";
+    return pack('<span class="'+kl+'" data-soll="'+esc(soll)+'">'+kn.map(z=>'<button type="button" data-z="'+esc(z)+'">'+inl(z)+'</button>').join("")+'</span>');
+  });
+  t=t.replace(/\[([GWP]):([^\]]*)\]/g,(m,r,z)=>pack('<span class="mk" data-r="" data-soll="'+r+'">'+z+'</span>'));
+  t=t.replace(/\[=([^\]]*)\]/g,(m,v)=>pack('<span class="frac fin" data-v="'+wert(v)+'"><span class="fz"><input class="ein" style="width:2.8em" inputmode="numeric" autocomplete="off" aria-label="Zähler"></span><span class="fn"><input class="ein" style="width:2.8em" inputmode="numeric" autocomplete="off" aria-label="Nenner"></span></span>'));
+  t=t.replace(/\[@(\w+)\]/g,(m,id)=>pack('<input class="ein echo" readonly tabindex="-1" data-echo="'+id+'" style="width:4.8em" aria-label="Dein Wert von vorhin">'));
+  t=t.replace(/\[([^\[\]]*)\]/g,(m,a)=>pack(feld(a)));
+  t=t.replace(/\{([^{}]*)\}/g,(m,inh)=>{const i=inh.indexOf("/");if(i<0)return m;
+    return '<span class="frac"><span class="fz">'+inh.slice(0,i).trim()+'</span><span class="fn">'+inh.slice(i+1).trim()+'</span></span>';});
+  t=t.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+  t=t.replace(/<blau>/g,'<span class="Gt">').replace(/<orange>/g,'<span class="Wt">').replace(/<gruen>/g,'<span class="Pt">').replace(/<\/(blau|orange|gruen)>/g,"</span>");
+  for(let k=0;k<3;k++)t=t.replace(/\u0001(\d+)\u0002/g,(m,i)=>lager[+i]);
+  return t;
+}
+const nr=(i,a)=>a.nummern===false?"":"<b>"+ABC[i]+")</b> ";
+const raster=(a,std)=>"raster"+(a.spalten||std||1);
+
+/* Aufgabenarten */
+const ARTEN={
+  luecke(a){
+    if(a.items.some(x=>typeof x==="object"))
+      return a.items.map((it,i)=>{if(typeof it==="string")return '<p>'+nr(i,a)+inl(it)+'</p>';
+        let h=it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':"";
+        const z=it.z==null?[]:it.z;
+        if(Array.isArray(z))h+='<p class="gw">'+z.map(x=>'<span>'+inl(x)+'</span>').join("")+'</p>';else h+='<p>'+inl(z)+'</p>';
+        return h;}).join("");
+    const sp=a.spalten||1;
+    return '<div class="'+raster(a)+(a.gross?" gross":"")+'">'+a.items.map((x,i)=>'<div'+(sp>1?' class="km"':'')+'>'+nr(i,a)+inl(x)+'</div>').join("")+'</div>';
+  },
+  erweitern(a){
+    const ziel=a.ziel||100;
+    return '<div class="'+raster(a,4)+'">'+a.items.map((b,i)=>{const[z,n]=String(b).split("/").map(Number);const f=ziel/n;
+      return '<div class="erw">'+nr(i,a)+inl("{"+z+"/"+n+"}")+'<span class="erwm"><span class="lab">· '+feld(deZahl(f),"Faktor")+'</span><span>=</span></span>'+inl("{["+deZahl(z*f)+"]/"+ziel+"}")+'</div>';}).join("")+'</div>';
+  },
+  hunderterfeld(a){
+    return '<div class="'+raster(a,3)+'">'+a.items.map((it,i)=>{const n=typeof it==="object"?it.an:it;
+      const z=typeof it==="object"&&it.z?it.z:"{["+n+"]/100} = ["+deZahl(n/100)+"] = ["+n+"] %";
+      let g='<div class="g100">';for(let k=0;k<100;k++)g+='<i'+(k<n?' class="an"':'')+'></i>';g+='</div>';
+      return '<div class="fig">'+(a.nummern===false?"":"<b>"+ABC[i]+")</b>")+g+'<div class="zeile">'+inl(z)+'</div></div>';}).join("")+'</div>';
+  },
+  faerben(a){
+    let g='<div class="g100 malen" data-soll="'+a.soll+'">';for(let k=0;k<100;k++)g+='<i></i>';
+    return '<div class="malbox">'+g+'</div><p class="zaehler">Gefärbt: <b>0</b> Kästchen</p></div>';
+  },
+  tabelle(a){
+    const n=a.nummern!==false;
+    let h='<div class="scroll"><table class="tab"><tr>'+(n?'<th class="nr"></th>':'')+a.kopf.map(k=>'<th>'+inl(k)+'</th>').join("")+'</tr>';
+    a.zeilen.forEach((z,i)=>{h+='<tr>'+(n?'<td class="nr">'+ABC[i]+')</td>':'')+z.map(c=>'<td>'+inl(c)+'</td>').join("")+'</tr>';});
+    return h+'</table></div>';
+  },
+  vergleichen(a){
+    return '<div class="'+raster(a,2)+'">'+a.items.map(([l,s,r])=>'<div class="vgl"><span>'+inl(l)+'</span><span class="wahl" data-soll="'+esc(s)+'"><button type="button" data-z="<">&lt;</button><button type="button" data-z="=">=</button><button type="button" data-z=">">&gt;</button></span><span>'+inl(r)+'</span></div>').join("")+'</div>';
+  },
+  auswahl(a){
+    return a.items.map(([t,r,opt])=>{const o=opt||a.optionen;
+      return '<div class="wegz">'+inl(t)+inl("(("+o.map(x=>(x===r?"*":"")+x).join("|")+"))")+'</div>';}).join("");
+  },
+  markieren(a){
+    return a.items.map((t,i)=>'<p class="sit">'+nr(i,a)+inl(t)+'</p>').join("");
+  },
+  streifen(a){
+    return a.items.map((it,i)=>{const p=Math.max(0,Math.min(100,it.anteil));
+      return (it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':(a.items.length>1&&a.nummern!==false?'<p>'+nr(i,a)+'</p>':''))+
+      '<div class="streifen"><div class="str-oben"><span class="Wt">W = '+inl(it.W)+'</span></div>'+
+      '<div class="str-bar"><div class="str-w" style="width:'+p+'%"></div></div>'+
+      '<div class="str-mitte"><span class="Pt">p % = '+inl(it.p)+'</span></div>'+
+      '<svg class="str-klammer" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path d="M1 1 Q1 7 8 7 L44 7 Q50 7 50 13 Q50 7 56 7 L92 7 Q99 7 99 1" fill="none" stroke="#1565C0" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>'+
+      '<div class="str-g Gt">G = '+inl(it.G)+' ≙ 100 %</div></div>';}).join("");
+  },
+  verhaeltnis(a){
+    return a.items.map((it,i)=>{
+      const x=it.x||"W";const ans=it.ansatz!==false;
+      const teil=k=>{const v=deZahl(it[k]);if(k===x)return ans?"[x]":"x";return ans?"["+v+"]":v;};
+      const fr=(o,u)=>'<span class="frac"><span class="fz">'+o+'</span><span class="fn">'+u+'</span></span>';
+      const bs=deZahl(it.bas||100);
+      const gi=k=>'<input class="ein gl" data-pos="'+k+'" style="width:3.6em" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Feld der Verhältnisgleichung">';
+      const tok=k=>k===x?"x":deZahl(it[k]);
+      const sol=JSON.stringify([tok("G"),bs,tok("W"),tok("p")]);
+      const glei=ans?fr(gi(0),gi(1)+" %")+" = "+fr(gi(2),gi(3)+" %"):fr(inl(teil("G")),bs+" %")+" = "+fr(inl(teil("W")),inl(teil("p"))+" %");
+      const ein=it.einheit?" "+it.einheit:"";
+      const id=it.id?"#"+it.id:"";
+      const erg='x = '+inl("["+deZahl(it[x])+(ein?"|"+deZahl(it[x])+ein:"")+id+"]")+(x==="p"?"":ein);
+      return (it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':'<p>'+nr(i,a)+'</p>')+
+        '<div class="vgl-gl"'+(ans?' data-gl="1" data-sol="'+esc(sol)+'"':'')+'><span>'+glei+'</span></div>'+
+        '<p>'+erg+'</p>'+(it.antwort?'<p class="antw-z"><b>Antwortsatz:</b> <input type="text" class="ein antw" autocomplete="off" aria-label="Antwortsatz" data-w="'+deZahl(it[x])+'" data-e="'+(it.einheit||"")+'"></p>':'');}).join("")+(a.nach?"":"");
+  },
+  streifenbau(a){
+    const rows=a.daten.map((d,i)=>'<tr data-n="'+esc(d[0])+'"><td style="text-align:left"><i class="sw" style="background:'+DFARBEN[i%5]+'"></i> '+esc(d[0])+'</td><td>'+deZahl(d[1])+' %</td><td>'+feld(deZahl(d[1]/10),"Länge")+' cm</td></tr>').join("");
+    return '<div class="scroll"><table class="tab"><tr><th>Bereich</th><th>p %</th><th>Länge</th></tr>'+rows+'</table></div><div class="live" data-typ="streifen"></div>';
+  },
+  kreisbau(a){
+    const rows=a.daten.map((d,i)=>'<tr data-n="'+esc(d[0])+'"><td style="text-align:left"><i class="sw" style="background:'+DFARBEN[i%5]+'"></i> '+esc(d[0])+'</td><td>'+deZahl(d[1])+' %</td><td>'+feld(String(Math.round(d[1]*3.6)),"Winkel")+'°</td></tr>').join("");
+    return '<div class="scroll"><table class="tab"><tr><th>Bereich</th><th>p %</th><th>Winkel</th></tr>'+rows+'</table></div><div class="live" data-typ="kreis"></div>';
+  },
+  zuordnen(a){
+    const re=mischen(a.paare.map((p,i)=>i));
+    return '<div class="zuo">'+a.paare.map((p,i)=>'<button type="button" data-s="l" data-i="'+i+'">'+inl(p[0])+'</button>'+
+      '<button type="button" data-s="r" data-i="'+re[i]+'">'+inl(a.paare[re[i]][1])+'</button>').join("")+'</div>';
+  },
+  richtigfalsch(a){
+    return a.items.map(([t,r],i)=>'<div class="wegz"><span>'+nr(i,a)+inl(t)+'</span>'+inl(r?"((*richtig|falsch))":"((richtig|*falsch))")+'</div>').join("");
+  },
+  sortieren(a){
+    const m=mischen(a.items.map((x,i)=>i));
+    return '<div class="sort" data-n="'+a.items.length+'">'+m.map(i=>'<button type="button" data-i="'+i+'">'+inl(a.items[i])+'</button>').join("")+'</div><p class="sortreihe"></p>';
+  }
+};
+const AUFTRAG={streifenbau:"Rechne die Länge aus und trage sie ein. Dein Streifen wächst unter der Tabelle.",
+  kreisbau:"Rechne den Winkel aus (ganze Grad) und trage ihn ein. Dein Kreis wächst unter der Tabelle.",
+  vergleichen:"Tippe auf &lt;, = oder &gt;.",
+  markieren:'Tippe jede fett gedruckte Zahl an: 1× <b class="Gt">blau = G</b>, 2× <b class="Wt">orange = W</b>, 3× <b class="Pt">grün = p %</b>.',
+  zuordnen:"Was gehört zusammen? Tippe links und dann rechts an.",
+  richtigfalsch:"Richtig oder falsch? Tippe an.",
+  sortieren:"Tippe die Zahlen der Größe nach an. Beginne mit der kleinsten.",
+  verhaeltnis:"Stelle die Verhältnisgleichung auf. Schreibe x für die gesuchte Größe. Trage dann das Ergebnis ein.",
+  faerben:"Tippe Kästchen an oder wische darüber."};
+
+function baueAufgabe(a,n){
+  let inh=ARTEN[a.art]?ARTEN[a.art](a):'<p style="color:#C62828">Unbekannte Aufgabenart: '+esc(a.art)+'</p>';
+  if(a.bild)inh=a.bildoben?'<div class="bild">'+a.bild+'</div>'+inh:'<div class="bildbox"><div class="bild">'+a.bild+'</div><div class="rest">'+inh+'</div></div>';
+  const auf=a.auftrag!=null?inl(a.auftrag):(AUFTRAG[a.art]||"");
+  return '<section class="kasten" data-aufgabe><h2>Aufgabe '+n+(a.name?' · '+esc(a.name):'')+(a.stern?' ★':'')+'</h2><div class="innen">'+
+    (auf?'<p class="auftrag">'+auf+'</p>':'')+inh+(a.nach?inl(a.nach):'')+
+    '<div class="pruefleiste"><button type="button" class="pruefen">Prüfen</button><span class="ergebnis" aria-live="polite"></span></div></div></section>';
+}
+function baueBlatt(u,i){
+  const s=document.createElement("section");s.className="blatt";s.id="uebung"+(i+1);s.hidden=true;
+  s.innerHTML='<div class="titel">'+esc(u.titel)+'</div>'+u.aufgaben.map((a,k)=>baueAufgabe(a,k+1)).join("");
+  binde(s);return s;
+}
+
+/* Bedienung */
+function binde(B){
+  B.querySelectorAll(".wahl,.auswahl").forEach(g=>g.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    g.querySelectorAll("button").forEach(x=>x.classList.toggle("an",x===b));g.classList.remove("ok","falsch");})));
+  B.querySelectorAll(".mk").forEach(m=>m.addEventListener("click",()=>{const o=["","G","W","P"];m.dataset.r=o[(o.indexOf(m.dataset.r)+1)%4];m.classList.remove("falsch");}));
+  B.querySelectorAll(".g100.malen").forEach(g=>{
+    let modus=null;const z=g.closest(".innen").querySelector(".zaehler b");
+    const upd=()=>{if(z)z.textContent=g.querySelectorAll("i.an").length;g.classList.remove("ok","falsch");};
+    const zelle=e=>{const el=document.elementFromPoint(e.clientX,e.clientY);return el&&el.parentNode===g?el:null;};
+    g.addEventListener("pointerdown",e=>{const c=zelle(e);if(!c)return;modus=!c.classList.contains("an");c.classList.toggle("an",modus);g.setPointerCapture(e.pointerId);e.preventDefault();upd();});
+    g.addEventListener("pointermove",e=>{if(modus===null)return;const c=zelle(e);if(c&&c.classList.contains("an")!==modus){c.classList.toggle("an",modus);upd();}});
+    ["pointerup","pointercancel"].forEach(n=>g.addEventListener(n,()=>modus=null));
+  });
+  B.querySelectorAll(".zuo").forEach(Z=>{
+    let gew=null;
+    const farbe=()=>{const L=[...Z.querySelectorAll('[data-s="l"]')];let k=0;
+      Z.querySelectorAll("button").forEach(b=>{delete b.dataset.p;delete b.dataset.nr;b.classList.remove("ok","falsch");});
+      L.forEach(l=>{if(l.dataset.mit!=null&&l.dataset.mit!==""){const r=Z.querySelector('[data-s="r"][data-i="'+l.dataset.mit+'"]');
+        l.dataset.p=r.dataset.p=k%8;l.dataset.nr=r.dataset.nr=++k;}});};
+    Z.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+      const seite=b.dataset.s;
+      // schon verbunden → lösen
+      if(seite==="l"&&b.dataset.mit){b.dataset.mit="";gew=null;Z.querySelectorAll(".wahl1").forEach(x=>x.classList.remove("wahl1"));farbe();return;}
+      if(seite==="r"){const l=Z.querySelector('[data-s="l"][data-mit="'+b.dataset.i+'"]');if(l&&!(gew&&gew.dataset.s==="l")){l.dataset.mit="";farbe();return;}}
+      if(!gew||gew.dataset.s===seite){Z.querySelectorAll(".wahl1").forEach(x=>x.classList.remove("wahl1"));gew=b;b.classList.add("wahl1");return;}
+      const l=seite==="l"?b:gew,r=seite==="r"?b:gew;
+      Z.querySelectorAll('[data-s="l"]').forEach(x=>{if(x.dataset.mit===r.dataset.i)x.dataset.mit="";});
+      l.dataset.mit=r.dataset.i;gew.classList.remove("wahl1");gew=null;farbe();
+    }));
+  });
+  B.querySelectorAll(".sort").forEach(S=>{
+    const reihe=[];const txt=S.nextElementSibling;
+    const zeig=()=>{S.querySelectorAll("button").forEach(b=>{const p=reihe.indexOf(b);b.classList.remove("ok","falsch");if(p<0)delete b.dataset.nr;else b.dataset.nr=p+1;});
+      txt.innerHTML=reihe.length?"Deine Reihenfolge: "+reihe.map(b=>b.innerHTML).join(" &lt; "):"";};
+    S._reihe=reihe;
+    S.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const p=reihe.indexOf(b);if(p<0)reihe.push(b);else reihe.splice(p,1);zeig();}));
+  });
+  B.querySelectorAll(".live").forEach(L=>{const T=L.closest(".innen");
+    const upd=()=>{const R=[...T.querySelectorAll("tr[data-n]")];const namen=R.map(r=>r.dataset.n);
+      const v=R.map(r=>{const x=num(r.querySelector("input").value);return isNaN(x)||x<0?0:x;});
+      if(L.dataset.typ==="streifen")L.innerHTML=streifenSvg(namen,v,{live:true});
+      else{const s=v.reduce((p,q)=>p+q,0);L.innerHTML=kreisSvg(namen,v)+'<p class="summe">Summe der Winkel: <b>'+dZ(s)+'</b>° '+(Math.abs(s-360)<1e-9?"✓":"(soll 360° sein)")+'</p>';}};
+    T.addEventListener("input",upd);upd();});
+  B.querySelectorAll("[data-aufgabe]").forEach(k=>k.querySelector(".pruefen").addEventListener("click",()=>pruefe(k)));
+}
+document.addEventListener("input",e=>{if(e.target.tagName==="INPUT")e.target.classList.remove("ok","falsch");});
+document.addEventListener("input",e=>{const id=e.target.dataset&&e.target.dataset.id;if(!id)return;const B=e.target.closest(".blatt");if(B)B.querySelectorAll('.echo[data-echo="'+id+'"]').forEach(el=>el.value=e.target.value);});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("ein")){e.preventDefault();const k=e.target.closest("[data-aufgabe]");if(k)pruefe(k);}});
+
+function pruefe(k){
+  let r=0,n=0;const setz=(el,ok)=>{el.classList.toggle("ok",ok);el.classList.toggle("falsch",!ok);if(ok)r++;};
+  k.querySelectorAll("input[data-a]").forEach(i=>{n++;const ok=i.dataset.a.split("|").some(a=>{const x=num(i.value),y=num(a);
+    return (!isNaN(x)&&!isNaN(y)&&Math.abs(x-y)<1e-9)||(i.value.trim()!==""&&norm(i.value)===norm(a));});setz(i,ok);});
+  k.querySelectorAll("input.antw").forEach(i=>{n++;const t=i.value.trim(),w=parseFloat(i.dataset.w.replace(",","."));
+    const zs=(t.replace(/(\d)\s(?=\d{3}\b)/g,"$1").match(/\d+(?:[.,]\d+)?/g)||[]).map(z=>parseFloat(z.replace(",",".")));
+    const E={"€":/€|euro/i,"g":/(^|[\d\s])g(\b|$)|gramm/i,"km":/km|kilometer/i}[i.dataset.e];
+    const ok=t.split(/\s+/).length>=3&&zs.some(z=>Math.abs(z-w)<1e-9)&&(!i.dataset.e||(E?E.test(t):t.toLowerCase().includes(i.dataset.e.toLowerCase())));setz(i,ok);});
+  k.querySelectorAll(".fin").forEach(f=>{n++;const[a,b]=f.querySelectorAll("input");const x=num(a.value),y=num(b.value);
+    const ok=!isNaN(x)&&!isNaN(y)&&y!==0&&Math.abs(x/y-parseFloat(f.dataset.v))<1e-9;[a,b].forEach(i=>{i.classList.toggle("ok",ok);i.classList.toggle("falsch",!ok);});if(ok)r++;});
+  k.querySelectorAll(".wahl,.auswahl").forEach(g=>{n++;const an=g.querySelector("button.an");setz(g,!!an&&an.dataset.z===g.dataset.soll);});
+  k.querySelectorAll(".mk").forEach(m=>{n++;const ok=m.dataset.r===m.dataset.soll;m.classList.toggle("falsch",!ok);if(ok)r++;});
+  k.querySelectorAll(".g100.malen").forEach(g=>{n++;setz(g,g.querySelectorAll("i.an").length===+g.dataset.soll);});
+  k.querySelectorAll(".zuo").forEach(Z=>Z.querySelectorAll('[data-s="l"]').forEach(l=>{n++;const ok=l.dataset.mit===l.dataset.i;
+    const rr=l.dataset.mit?Z.querySelector('[data-s="r"][data-i="'+l.dataset.mit+'"]'):null;
+    l.classList.toggle("ok",ok);l.classList.toggle("falsch",!ok);if(rr){rr.classList.toggle("ok",ok);rr.classList.toggle("falsch",!ok);}if(ok)r++;}));
+  k.querySelectorAll(".sort").forEach(S=>{const R=S._reihe;S.querySelectorAll("button").forEach(b=>{n++;const p=R.indexOf(b);setz(b,p>=0&&+b.dataset.i===p);});});
+  /* Verhältnisgleichung: jede richtig aufgestellte Gleichung zählt (Seiten tauschen, Brüche umdrehen, über Kreuz) */
+  k.querySelectorAll(".vgl-gl[data-gl]").forEach(E=>{n++;const [G,B,W,P]=JSON.parse(E.dataset.sol);
+    const AR=[[G,B,W,P],[W,P,G,B],[B,G,P,W],[P,W,B,G],[G,W,B,P],[B,P,G,W],[W,G,P,B],[P,B,W,G]];
+    const f=[...E.querySelectorAll("input.gl")].map(i=>i.value.trim().replace(/%/g,"").replace(/\s+/g,"").toLowerCase());
+    const gl=(a,b)=>{if(a==="x"||b==="x")return a===b;const u=num(a),v=num(b);return !isNaN(u)&&!isNaN(v)&&Math.abs(u-v)<1e-9;};
+    const ok=AR.some(r=>r.every((v,i)=>gl(f[i],String(v).toLowerCase())));
+    E.querySelectorAll("input.gl").forEach(i=>{i.classList.toggle("ok",ok);i.classList.toggle("falsch",!ok);});if(ok)r++;});
+  const e=k.querySelector(".ergebnis");
+  if(r===n){e.textContent="Super, alles richtig! ("+r+" von "+n+")";e.className="ergebnis gut";k.classList.add("fertig");}
+  else{e.textContent=r+" von "+n+" richtig. Verbessere die rot markierten Stellen.";e.className="ergebnis noch";k.classList.remove("fertig");}
+  stand();
+}
+function stand(){const B=document.querySelector(".blatt:not([hidden])");if(!B)return;const alle=B.querySelectorAll("[data-aufgabe]").length,f=B.querySelectorAll("[data-aufgabe].fertig").length;
+  document.getElementById("stand").textContent=f+" von "+alle+" Aufgaben geschafft"+(f===alle?" – klasse!":"");}
+
+/* Aufbau der Seite */
+document.title="Übungen "+BLATT.thema.replace(/\s*–\s*/," ");
+document.getElementById("oben").textContent="Interaktive Arbeitsblätter · "+BLATT.thema;
+document.getElementById("fuss").textContent="Erstellt von Marion Klugmann ("+BLATT.erstellt+") mit freundlicher Unterstützung von Claude.";
+const nav=document.getElementById("reiter"),box=document.getElementById("blaetter");
+BLATT.uebungen.forEach((u,i)=>{
+  const t=document.createElement("button");t.type="button";t.setAttribute("role","tab");t.dataset.b="uebung"+(i+1);
+  t.innerHTML="<b>Übung "+(i+1)+"</b>"+esc(u.reiter||"");nav.appendChild(t);box.appendChild(baueBlatt(u,i));
+});
+const tabs=[...nav.querySelectorAll("button")];
+let aktiv="uebung1";
+function zeige(id){if(!document.getElementById(id))id="uebung1";aktiv=id;tabs.forEach(t=>t.setAttribute("aria-selected",t.dataset.b===id));
+  document.querySelectorAll(".blatt").forEach(b=>b.hidden=b.id!==id);stand();}
+tabs.forEach(t=>t.addEventListener("click",()=>{if(location.hash!=="#"+t.dataset.b)location.hash=t.dataset.b;else zeige(t.dataset.b);window.scrollTo({top:0});}));
+window.addEventListener("hashchange",()=>zeige(location.hash.slice(1)));
+const btn=document.getElementById("neu");let tm=null;
+btn.addEventListener("click",()=>{
+  if(!btn.classList.contains("warnung")){btn.classList.add("warnung");btn.textContent="Wirklich?";tm=setTimeout(()=>{btn.classList.remove("warnung");btn.textContent="Neu beginnen";},3000);return;}
+  clearTimeout(tm);btn.classList.remove("warnung");btn.textContent="Neu beginnen";
+  const alt=document.getElementById(aktiv),i=+aktiv.slice(6)-1,neu=baueBlatt(BLATT.uebungen[i],i);neu.hidden=false;alt.replaceWith(neu);
+  stand();window.scrollTo({top:0,behavior:"smooth"});
+});
+zeige(location.hash.slice(1));
+})();
+</script>
+<div class="ll-fenster" id="ll-fenster" hidden><div class="ll-box" role="dialog" aria-modal="true" aria-label="Spickzettel"><button type="button" class="ll-zu" id="ll-zu" aria-label="Spickzettel schließen">✕ Schließen</button><iframe id="ll-frame" title="Spickzettel"></iframe></div></div><script>
+(function(){
+  var o=document.getElementById('ll-fenster'),f=document.getElementById('ll-frame'),b=document.getElementById('ll-spick');
+  function zu(){o.hidden=true;document.body.style.overflow='';b.focus();}
+  b.addEventListener('click',function(){if(!f.getAttribute('src'))f.src='spickzettel.html';o.hidden=false;document.body.style.overflow='hidden';document.getElementById('ll-zu').focus();});
+  document.getElementById('ll-zu').addEventListener('click',zu);
+  o.addEventListener('click',function(e){if(e.target===o)zu();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!o.hidden)zu();});
+  var z=document.getElementById('ll-zurueck'),t=null;
+  function eingetragen(){return Array.prototype.some.call(document.querySelectorAll('input,textarea'),function(i){return i.id!=='date'&&i.type!=='hidden'&&i.value.trim()!=='';});}
+  z.addEventListener('click',function(e){
+    if(z.classList.contains('ll-warn')||!eingetragen())return;
+    e.preventDefault();z.classList.add('ll-warn');z.textContent='Wirklich? Deine Eingaben gehen verloren.';
+    clearTimeout(t);t=setTimeout(function(){z.classList.remove('ll-warn');z.textContent='← Lern-Lounge';},4000);
+  });
+})();
+</script>
+</body>
+</html>

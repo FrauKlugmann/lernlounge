@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Grundwert – Interaktive Übungen</title>
+<script>
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  AUFGABENBLOCK – NUR AB HIER ÄNDERN                              ║
+   ║  Alles unterhalb von „ENDE AUFGABENBLOCK“ ist der feste Motor.   ║
+   ╚══════════════════════════════════════════════════════════════════╝
+   Kurzschrift in Texten:
+     [30]          Eingabefeld, Lösung 30 (Komma/Punkt egal)
+     [0,5|,5]      mehrere richtige Antworten mit |
+     {3/10}        Bruch;  {[30]/100}  Bruch mit Feld im Zähler
+     [=7/100]      Bruch frei eingeben (jeder gleichwertige Bruch zählt)
+     ((A|*B|C))    Auswahlknöpfe, * = richtig
+     [G:40] [W:10] [P:25 %]   Zahl zum Markieren (nur Art "markieren")
+     **fett**   <blau>…</blau>  <orange>…</orange>  <gruen>…</gruen>
+   Aufgabenarten: luecke, erweitern, hunderterfeld, faerben, tabelle,
+     vergleichen, auswahl, markieren, streifen, verhaeltnis, zuordnen,
+     richtigfalsch, sortieren, streifenbau, kreisbau   (jede kann zusätzlich bild:"<svg…>" haben)
+*/
+/* ─── Diagramm-Helfer (Teil des Motors, auch für feste Bilder in Aufgaben nutzbar) ─── */
+const DFARBEN=["#F4B6B0","#B7DFB9","#FFE08A","#CDBBE8","#A9DDE6"];
+const dEsc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const dZ=x=>String(Math.round(x*10)/10).replace(".",",");
+/* streifenSvg(namen, cm, {live, bis, texte}) – bis = Länge der Skala (Standard 10), texte = eigene Beschriftung je Teil */
+function streifenSvg(namen,cm,opt){
+  opt=opt||{};const x0=10,y0=22,h=40,pc=50,bis=opt.bis||10;const B=565+(bis-10)*pc;
+  let s='<svg viewBox="0 0 '+B+' 100" role="img" aria-label="Streifendiagramm" style="width:'+B+'px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  let x=0;
+  cm.forEach((c,i)=>{c=Math.max(0,c);const w=Math.max(0,Math.min(c,bis-x))*pc;
+    if(w>0){s+='<rect x="'+(x0+x*pc)+'" y="'+y0+'" width="'+w+'" height="'+h+'" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';
+      const n=(opt.texte?opt.texte[i]:namen[i])||"";if(n&&w>=n.length*7+8)s+='<text x="'+(x0+x*pc+w/2)+'" y="'+(y0+h/2+5)+'" text-anchor="middle" font-size="13">'+dEsc(n)+'</text>';}
+    x=Math.min(bis,x+c);});
+  s+='<rect x="'+x0+'" y="'+y0+'" width="'+10*pc+'" height="'+h+'" fill="none" stroke="#000" stroke-width="2"/>';
+  for(let k=0;k<=bis;k++)s+='<line x1="'+(x0+k*pc)+'" y1="'+(y0+h)+'" x2="'+(x0+k*pc)+'" y2="'+(y0+h+8)+'" stroke="#000" stroke-width="1.5"/><text x="'+(x0+k*pc)+'" y="'+(y0+h+23)+'" text-anchor="middle" font-size="13">'+k+'</text>';
+  s+='<text x="'+(x0+bis*pc+20)+'" y="'+(y0+h+23)+'" font-size="13">cm</text>';
+  const sum=cm.reduce((a,b)=>a+Math.max(0,b),0);
+  if(opt.live&&sum>10.0001)s+='<text x="10" y="12" font-size="13" fill="#C62828" font-weight="700">Zu lang! Der Streifen ist nur 10 cm lang.</text>';
+  return s+'</svg>';
+}
+/* kreisSvg(namen, grad, {winkel:false, texte}) – texte = eigene Beschriftung je Teil */
+function kreisSvg(namen,grad,opt){
+  opt=opt||{};const cx=225,cy=125,r=100;const P=a=>[cx+r*Math.sin(a*Math.PI/180),cy-r*Math.cos(a*Math.PI/180)];
+  let s='<svg viewBox="0 0 450 250" role="img" aria-label="Kreisdiagramm" style="width:450px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#fff" stroke="#000" stroke-width="2"/>';
+  let a=0;const lab=[];
+  grad.forEach((g,i)=>{g=Math.max(0,g);const b=Math.min(360,a+g);
+    if(b-a>0.0001){
+      if(b-a>=359.999)s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';
+      else{const p1=P(a),p2=P(b);s+='<path d="M'+cx+' '+cy+' L'+p1[0].toFixed(2)+' '+p1[1].toFixed(2)+' A'+r+' '+r+' 0 '+((b-a)>180?1:0)+' 1 '+p2[0].toFixed(2)+' '+p2[1].toFixed(2)+' Z" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';}
+      lab.push([i,(a+b)/2,b-a]);}
+    a=b;});
+  lab.forEach(([i,m,w])=>{const sn=Math.sin(m*Math.PI/180),cs=Math.cos(m*Math.PI/180);const px=cx+(r+10)*sn,py=cy-(r+10)*cs;
+    const an=sn>0.15?"start":sn<-0.15?"end":"middle";const dy=cs>0.9?-3:cs<-0.9?14:4;
+    const t=opt.texte?opt.texte[i]:(namen[i]||"")+(opt.winkel===false?"":" · "+dZ(grad[i])+"°");
+    s+='<text x="'+px.toFixed(1)+'" y="'+(py+dy).toFixed(1)+'" text-anchor="'+an+'" font-size="13">'+dEsc(t)+'</text>';});
+  return s+'</svg>';
+}
+
+const BLATT = {
+  thema: "Grundwert",
+  erstellt: "November 2026",
+  uebungen: [
+    { reiter: "Z1 Grundwert berechnen", titel: "Grundwert mit der Verhältnisgleichung berechnen", aufgaben: [
+      { art: "verhaeltnis", name: "Stufe 1", auftrag: "Stelle die Verhältnisgleichung auf (x für den gesuchten Grundwert). Trage dann das Ergebnis ein.",
+        items: [ { s: "geg.: W = 45, p % = 10 % &nbsp; ges.: G", W: 45, G: 450, p: 10, x: "G" },
+                 { s: "geg.: W = 4, p % = 5 % &nbsp; ges.: G",   W: 4,  G: 80,  p: 5,  x: "G" },
+                 { s: "geg.: W = 15, p % = 25 % &nbsp; ges.: G", W: 15, G: 60,  p: 25, x: "G" },
+                 { s: "geg.: W = 30, p % = 20 % &nbsp; ges.: G", W: 30, G: 150, p: 20, x: "G" } ] },
+      { art: "verhaeltnis", name: "Stufe 2", auftrag: "Stelle die Verhältnisgleichung auf (x für den gesuchten Grundwert). Rechne mit dem Taschenrechner und trage das Ergebnis ein.",
+        items: [ { s: "geg.: W = 30, p % = 12 % &nbsp; ges.: G",   W: 30,  G: 250, p: 12,  x: "G" },
+                 { s: "geg.: W = 210, p % = 35 % &nbsp; ges.: G",  W: 210, G: 600, p: 35,  x: "G" },
+                 { s: "geg.: W = 52, p % = 8 % &nbsp; ges.: G",    W: 52,  G: 650, p: 8,   x: "G" },
+                 { s: "geg.: W = 18, p % = 7,5 % &nbsp; ges.: G",  W: 18,  G: 240, p: 7.5, x: "G" } ] },
+      { art: "verhaeltnis", name: "Stufe 3", stern: true, auftrag: "Stelle die Verhältnisgleichung auf (x für den gesuchten Grundwert) und trage das Ergebnis ein. Es kommen auch Kommazahlen und Prozentsätze über 100 % vor.",
+        items: [ { s: "geg.: W = 100, p % = 12,5 % &nbsp; ges.: G", W: 100, G: 800,  p: 12.5, x: "G" },
+                 { s: "geg.: W = 10, p % = 0,5 % &nbsp; ges.: G",   W: 10,  G: 2000, p: 0.5,  x: "G" },
+                 { s: "geg.: W = 90, p % = 150 % &nbsp; ges.: G",   W: 90,  G: 60,   p: 150,  x: "G" },
+                 { s: "geg.: W = 600, p % = 125 % &nbsp; ges.: G",  W: 600, G: 480,  p: 125,  x: "G" } ] },
+      { art: "richtigfalsch", name: "Probe: Kann das stimmen?", stern: true, auftrag: "Prüfe, ohne die Aufgabe ganz zu rechnen. Richtig oder falsch? Tippe an.",
+        items: [ ["W = 36 und p % = 15 %. Dann ist G = 240.", true],
+                 ["W = 36 und p % = 15 %. Dann ist G = 5,4.", false],
+                 ["Bei p % = 40 % ist G größer als W.", true],
+                 ["Bei p % = 150 % ist G größer als W.", false] ] }
+    ]},
+    { reiter: "Z2 Sachaufgaben", titel: "Sachaufgaben – Grundwert gesucht", aufgaben: [
+      { art: "markieren", name: "Was ist gegeben?",
+        items: [ "[W:8] Schüler fahren mit dem Bus. Das sind [P:40 %] der Klasse. Wie viele Schüler hat die Klasse?",
+                 "Ben spart beim Fahrrad [W:50] € Rabatt. Das sind [P:20 %] des Preises. Wie viel kostet das Fahrrad?",
+                 "Eine Tafel Schokolade enthält [W:60] g Zucker. Das sind [P:30 %] ihres Gewichts. Wie schwer ist die Tafel?",
+                 "[P:65 %] der Wanderung sind geschafft. Das sind [W:11,7] km. Wie lang ist die ganze Wanderung?" ] },
+      { art: "verhaeltnis", name: "Kurze Sachaufgaben", auftrag: "Stelle die Verhältnisgleichung auf (x für die gesuchte Größe), trage das Ergebnis ein und schreibe einen Antwortsatz.",
+        items: [ { s: "8 Schüler fahren mit dem Bus. Das sind 40 % der Klasse. Wie viele Schüler hat die Klasse?", W: 8, G: 20, p: 40, x: "G", antwort: true },
+                 { s: "Ben spart beim Fahrrad 50 € Rabatt. Das sind 20 % des Preises. Wie viel kostet das Fahrrad?", W: 50, G: 250, p: 20, x: "G", einheit: "€", antwort: true },
+                 { s: "Eine Tafel Schokolade enthält 60 g Zucker. Das sind 30 % ihres Gewichts. Wie schwer ist die Tafel?", W: 60, G: 200, p: 30, x: "G", einheit: "g", antwort: true },
+                 { s: "Lea zahlt für ihr Smartphone 72 € an. Das sind 15 % des Preises. Wie viel kostet das Smartphone?", W: 72, G: 480, p: 15, x: "G", einheit: "€", antwort: true } ] },
+      { art: "verhaeltnis", name: "Sachaufgaben", auftrag: "Stelle die Verhältnisgleichung auf (x für die gesuchte Größe), trage das Ergebnis ein und schreibe einen Antwortsatz.",
+        items: [ { s: "Bei der Tombola gibt es 28 Gewinnlose. Das sind 8 % aller Lose. Wie viele Lose gibt es insgesamt?", W: 28, G: 350, p: 8, x: "G", antwort: true },
+                 { s: "Bis zur Mittagspause ist die Klasse 11,7 km gewandert. Das sind 65 % der ganzen Strecke. Wie lang ist die Wanderung?", W: 11.7, G: 18, p: 65, x: "G", einheit: "km", antwort: true },
+                 { s: "Mia hat diese Woche 45 neue Follower bekommen. Das sind 9 % ihrer bisherigen Follower. Wie viele Follower hatte sie vorher?", W: 45, G: 500, p: 9, x: "G", antwort: true } ] },
+      { art: "luecke", name: "Wie viel Prozent ist der neue Preis?", stern: true, auftrag: "Wie viel Prozent vom alten Preis ist der neue Preis?",
+        items: [ { s: "Sneaker: Rabatt 15 %", z: "neuer Preis ≙ [85#vm1] %" },
+                 { s: "Jacke: Rabatt 30 %", z: "neuer Preis ≙ [70#vm2] %" },
+                 { s: "Streaming-Abo: Erhöhung um 20 %", z: "neuer Preis ≙ [120#vm3] %" },
+                 { s: "Follower: Zuwachs um 15 %", z: "jetzt ≙ [115#vm4] %" } ] },
+      { art: "verhaeltnis", name: "Alter Preis gesucht", stern: true, auftrag: "Den Prozentsatz, den du in Aufgabe 4 eingetragen hast, siehst du hier wieder. Stelle die Verhältnisgleichung auf (x für die gesuchte Größe), trage das Ergebnis ein und schreibe einen Antwortsatz.",
+        items: [ { s: "Nach dem Rabatt kosten die Sneaker 68 €. Das sind [@vm1] % vom alten Preis. Wie viel kosteten sie vorher?", W: 68, G: 80, p: 85, x: "G", einheit: "€", antwort: true },
+                 { s: "Nach dem Rabatt kostet die Jacke 63 €. Das sind [@vm2] % vom alten Preis. Wie viel kostete sie vorher?", W: 63, G: 90, p: 70, x: "G", einheit: "€", antwort: true },
+                 { s: "Nach der Erhöhung kostet das Streaming-Abo 10,80 € im Monat. Das sind [@vm3] % vom alten Preis. Wie viel kostete es vorher?", W: 10.8, G: 9, p: 120, x: "G", einheit: "€", antwort: true },
+                 { s: "Nach dem Zuwachs hat der Kanal 1150 Follower. Das sind [@vm4] % von vorher. Wie viele Follower hatte er vorher?", W: 1150, G: 1000, p: 115, x: "G", antwort: true } ] },
+      { art: "richtigfalsch", name: "Achtung, Falle!", stern: true, auftrag: "Nach 25 % Rabatt kostet ein Hoodie 60 €. Richtig oder falsch? Tippe an.",
+        items: [ ["60 € entsprechen 100 %.", false],
+                 ["60 € entsprechen 75 %.", true],
+                 ["Der Hoodie kostete vorher 75 €, denn 25 % von 60 € sind 15 €.", false],
+                 ["Der Hoodie kostete vorher 80 €.", true] ] }
+    ]},
+    { reiter: "Z3 Grundwert im Kopf", titel: "Grundwert im Kopf bestimmen", aufgaben: [
+      { art: "streifen", name: "Das Ganze entdecken", auftrag: "Der orange Teil ist W. Wie groß ist der ganze Streifen G? Trage G ein.",
+        items: [ { s: "Sophie ist 30 km gewandert. Das sind 50 % der ganzen Strecke.", W: "30 km", p: "50 %", G: "[60] km", anteil: 50 },
+                 { s: "Tim hat 15 € gespart. Das sind 25 % vom Preis seines Spiels.", W: "15 €", p: "25 %", G: "[60] €", anteil: 25 },
+                 { s: "Das Update hat schon 6 GB geladen. Das sind 10 % der ganzen Datei.", W: "6 GB", p: "10 %", G: "[60] GB", anteil: 10 } ] },
+      { art: "tabelle", name: "Wie oft passt W in G?", nummern: false, auftrag: "Trage den Anteil als Bruch ein und womit du W multiplizierst, um G zu bekommen.",
+        kopf: ["W ist … von G", "Anteil", "G = W · …"],
+        zeilen: [ ["1 %", "[=1/100]", "[100]"], ["10 %", "[=1/10]", "[10]"], ["20 %", "[=1/5]", "[5]"], ["25 %", "[=1/4]", "[4]"], ["50 %", "[=1/2]", "[2]"], ["100 %", "[=1/1]", "[1]"] ] },
+      { art: "luecke", name: "Grundwert im Kopf", auftrag: "Rechne im Kopf.", nummern: true,
+        items: [ { s: "16 Kinder der Klasse fahren mit dem Rad. Das sind 20 % aller Kinder.", z: ["G ist [5]-mal so groß wie W.", "G = [80] Kinder"] },
+                 { s: "Lukas zahlt 3 € Gebühr. Das sind 1 % vom Preis seines Laptops.", z: ["G ist [100]-mal so groß wie W.", "G = [300] €"] },
+                 { s: "12 GB vom Handy-Speicher sind belegt. Das sind 25 % des Speichers.", z: ["G ist [4]-mal so groß wie W.", "G = [48] GB"] },
+                 { s: "Ein Video hat 9 Likes. Das sind 10 % aller Aufrufe.", z: ["G ist [10]-mal so groß wie W.", "G = [90] Aufrufe"] } ] },
+      { art: "luecke", name: "75 % und 200 %", stern: true, auftrag: "Rechne im Kopf. Tipp: Bestimme zuerst 25 % bzw. 100 %.", nummern: true,
+        items: [ { s: "45 € sind 75 % von G.", z: ["25 % sind [15] €.", "G = [60] €"] },
+                 { s: "18 Spieler sind 75 % des Vereins.", z: ["25 % sind [6] Spieler.", "G = [24] Spieler"] },
+                 { s: "Ein Spiel ist mit Update 120 GB groß. Das sind 200 % der alten Größe.", z: ["100 % sind [60] GB.", "G = [60] GB"] } ] },
+      { art: "auswahl", name: "Schnell erkannt", stern: true, auftrag: "Wähle den richtigen Grundwert.",
+        items: [ ["24 € sind 10 % von G. G =", "240 €", ["2,40 €", "24 €", "240 €", "2400 €"]],
+                 ["7 Kinder sind 50 % von G. G =", "14 Kinder", ["3,5 Kinder", "14 Kinder", "57 Kinder", "70 Kinder"]],
+                 ["5 km sind 1 % von G. G =", "500 km", ["0,05 km", "5 km", "50 km", "500 km"]],
+                 ["30 GB sind 20 % von G. G =", "150 GB", ["6 GB", "60 GB", "150 GB", "300 GB"]] ] }
+    ]}
+  ]
+};
+
+/* ═════════════════════════ ENDE AUFGABENBLOCK ═════════════════════════ */
+</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+/* ─── Motor: Aussehen (Arbeitsblattvorlage) ─── */
+:root{color-scheme:light}*{box-sizing:border-box}html{background:#fff}
+body{margin:0;background:#fff;color:#000;font-family:Arial,"Liberation Sans",Helvetica,sans-serif;font-size:18px;line-height:1.4;
+  padding-block:16px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+[hidden]{display:none!important}
+.wrap{max-width:980px;margin:0 auto}
+.oben{color:#6F6F6F;font-size:.8em;margin:0 0 .3em}
+.titel{background:#00805F;color:#fff;font-weight:700;text-align:center;padding:.35em .5em;margin:0;font-size:1.4em}
+.fortschritt{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5em;margin:0 0 .4em;font-size:.9em}
+.kasten{border:2px solid #00805F;margin-top:.9em}
+.kasten>h2{margin:0;font-size:1em;background:#D3F2E5;border-bottom:2px solid #00805F;padding:.3em .7em}
+.kasten.fertig>h2::after{content:"  ✓";color:#00805F}
+.innen{padding:.5em .8em .7em}
+.innen p{margin:.35em 0}
+.auftrag{font-weight:700}
+.gross{font-size:1.1em}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .15em;line-height:1.15}
+.frac .fz{border-bottom:2px solid currentColor;padding:0 .15em .1em}.frac .fn{padding-top:.1em}
+.ein{font:inherit;height:1.7em;text-align:center;border:1.5px solid #000;border-radius:0;background:#fff;color:inherit;padding:0;vertical-align:middle}
+.ein.echo{background:#fff;color:#000}
+.ein:focus{outline:none;background:#FFF3B0}
+.ein.antw{width:100%;max-width:44em;text-align:left;padding:0 .5em;box-sizing:border-box}
+.antw-z{margin:.4em 0 1em}
+.ok{border-color:#2e7d32!important;background:#E5F4E6!important;border-width:2.5px!important}
+.falsch{border-color:#C62828!important;background:#FDE7E7!important;border-width:2.5px!important}
+.raster1,.raster2,.raster3,.raster4{display:grid;gap:.7em 1.4em}
+.raster1{grid-template-columns:1fr}
+.raster2{grid-template-columns:repeat(2,minmax(0,1fr))}.raster3{grid-template-columns:repeat(3,minmax(0,1fr))}.raster4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.erw{display:flex;align-items:center;gap:.2em;font-size:1.05em}
+.erwm{display:flex;flex-direction:column;align-items:center;margin:0 .2em}.erwm .lab{font-size:.8em;white-space:nowrap}
+.fig{display:flex;flex-direction:column;align-items:center;gap:.4em}.fig>b{align-self:flex-start}
+.zeile{white-space:nowrap}
+.g100{display:grid;grid-template-columns:repeat(10,1fr);width:9em;aspect-ratio:1;max-width:100%;border:1.5px solid #000}
+.g100 i{border:.5px solid #666;display:block}.g100 i.an{background:#7fb89a}
+.malen{width:13em;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+.malbox{display:flex;flex-wrap:wrap;gap:1em;align-items:center}
+.scroll{overflow-x:auto}
+.tab{border-collapse:collapse;font-size:inherit}
+.tab th,.tab td{border:1.5px solid #000;padding:.3em .8em;text-align:center;min-width:6.5em}
+.tab th{background:#F2F2F2}.tab td.nr{min-width:0;border:0;font-weight:700}.tab th.nr{background:none;border:0;min-width:0}
+.vgl{display:flex;align-items:center;gap:.5em;font-size:1.1em}
+.wahl,.auswahl{display:inline-flex;flex-wrap:wrap;gap:.3em;vertical-align:middle}
+.wahl button,.auswahl button{font:inherit;min-width:2.2em;height:1.9em;border:1.5px solid #000;background:#fff;color:#000;border-radius:0;cursor:pointer;padding:0 .4em}
+.auswahl button{font-size:.9em}
+.wahl button.an,.auswahl button.an{background:#FFE873}
+.wahl.ok button.an,.auswahl.ok button.an{background:#E5F4E6;border-color:#2e7d32;border-width:2.5px}
+.wahl.falsch button.an,.auswahl.falsch button.an{background:#FDE7E7;border-color:#C62828;border-width:2.5px}
+.sit{line-height:1.9}
+.mk{font-weight:700;padding:.05em .3em;border:1.5px dashed #999;cursor:pointer;user-select:none;-webkit-user-select:none}
+.mk[data-r="G"]{color:#1565C0;border:2px solid #1565C0;background:#E3EEFB}
+.mk[data-r="W"]{color:#C2410C;border:2px solid #C2410C;background:#FBEADF}
+.mk[data-r="P"]{color:#2e7d32;border:2px solid #2e7d32;background:#E5F4E6}
+.mk.falsch{outline:3px solid #C62828;outline-offset:1px}
+.Gt{color:#1565C0}.Wt{color:#C2410C}.Pt{color:#2e7d32}
+.gw{display:flex;flex-wrap:wrap;gap:.6em 1.6em}
+.wegz{display:flex;flex-wrap:wrap;align-items:center;gap:.5em;margin:.4em 0}.wegz>b{min-width:3em}
+.km{white-space:nowrap}
+.bildbox{display:flex;flex-wrap:wrap;gap:1em 1.6em;align-items:flex-start}.bildbox>.bild{flex:0 0 auto;max-width:100%}.bildbox>.rest{flex:1 1 16em;min-width:0}
+.bild svg{max-width:100%;height:auto;display:block}
+/* Prozentstreifen */
+.streifen{margin:.5em 0 1em;max-width:30em}
+.str-oben,.str-mitte{position:relative;min-height:2.2em}
+.str-oben>span,.str-mitte>span{position:absolute;left:0;bottom:.15em;white-space:nowrap}
+.str-mitte>span{top:.2em;bottom:auto}
+.str-bar{display:flex;height:1.7em;border:2px solid #1565C0;background:#9FC2EC}
+.str-w{background:#F2A672;border-right:2px solid #C2410C}
+.str-klammer{display:block;width:100%;height:14px}
+.str-g{text-align:center}
+/* Verhältnisgleichung */
+.vgl-gl{display:flex;flex-wrap:wrap;align-items:center;gap:.4em 1em;font-size:1.1em;margin:.3em 0}
+.vgl-gl .pfeil{color:#6F6F6F}
+.vgl-gl .frac .fz{border-bottom-color:#000}
+.Gt .ein{color:#1565C0}.Wt .ein{color:#C2410C}.Pt .ein{color:#2e7d32}
+.dgm{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:.3em 1.5em;margin-bottom:.6em}.dgm p{margin:.3em 0}
+.sw{display:inline-block;width:1em;height:1em;border:1.5px solid #000;vertical-align:-.15em}
+.live svg{max-width:100%;height:auto;display:block;margin:.5em 0}.summe{margin:.2em 0}
+/* Zuordnen */
+.zuo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.5em 2.5em;max-width:34em}
+.zuo .sp{display:flex;flex-direction:column;gap:.5em}
+.zuo button,.sort button{font:inherit;min-height:2.2em;border:1.5px solid #000;background:#fff;color:#000;border-radius:0;cursor:pointer;padding:.2em .6em;position:relative}
+.zuo button.wahl1{background:#FFE873}
+.zuo button[data-p]::before{content:attr(data-nr);position:absolute;left:-.1em;top:-.65em;font-size:.65em;font-weight:700;background:#000;color:#fff;border-radius:1em;min-width:1.5em;line-height:1.5em;text-align:center}
+.zuo button[data-p="0"]{background:#DDEBFA}.zuo button[data-p="1"]{background:#FCE3D3}.zuo button[data-p="2"]{background:#E0F2E1}
+.zuo button[data-p="3"]{background:#F1E4F7}.zuo button[data-p="4"]{background:#FFF1C4}.zuo button[data-p="5"]{background:#DDF3F3}
+.zuo button[data-p="6"]{background:#EDEDED}.zuo button[data-p="7"]{background:#F9DDE6}
+/* Sortieren */
+.sort{display:flex;flex-wrap:wrap;gap:.5em}
+.sort button[data-nr]::before{content:attr(data-nr);position:absolute;left:-.1em;top:-.65em;font-size:.65em;font-weight:700;background:#00805F;color:#fff;border-radius:1em;min-width:1.5em;line-height:1.5em;text-align:center}
+.sort button[data-nr]{background:#D3F2E5}
+.sortreihe{color:#444;min-height:1.4em}
+.pruefleiste{display:flex;flex-wrap:wrap;align-items:center;gap:.8em;margin-top:.7em}
+button.pruefen,button.knopf{font:inherit;font-size:.9em;background:#fff;color:#000;border:1.5px solid #00805F;padding:.3em 1em;cursor:pointer;border-radius:0;font-weight:700}
+button.pruefen:hover,button.knopf:hover{background:#D3F2E5}
+button.knopf.warnung{background:#00805F;color:#fff}
+button:focus-visible{outline:3px solid #00805F;outline-offset:2px}
+.ergebnis{font-weight:700}.ergebnis.gut{color:#2e7d32}.ergebnis.noch{color:#C62828}
+.fuss{text-align:right;font-style:italic;color:#6F6F6F;font-size:.7em;margin:1.2em 0 0}
+nav.reiter{display:flex;flex-wrap:wrap;gap:.4em;margin:0 0 .7em}
+nav.reiter button{font:inherit;font-size:.85em;border:2px solid #00805F;background:#fff;color:#000;padding:.35em .8em;cursor:pointer;border-radius:0}
+nav.reiter button b{margin-right:.35em}
+nav.reiter button[aria-selected="true"]{background:#00805F;color:#fff}
+@media (max-width:820px){.raster4{grid-template-columns:repeat(2,minmax(0,1fr))}.raster3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.raster2,.raster3{grid-template-columns:1fr}.zuo{gap:.5em 1.2em}}
+</style>
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a><button type="button" class="ll-spick" id="ll-spick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3 h9 l4 4 v14 h-13z M14 3 v5 h5 M9 12 h7 M9 16 h5"/></svg>Spickzettel</button></div>
+<p class="oben" id="oben"></p>
+<nav class="reiter" role="tablist" aria-label="Übungen" id="reiter"></nav>
+<div class="fortschritt"><span id="stand"></span><button type="button" class="knopf" id="neu">Neu beginnen</button></div>
+<div id="blaetter"></div>
+<p class="fuss" id="fuss"></p>
+</div>
+<script>
+/* ─── Motor: Technik (nicht ändern) ─── */
+(function(){
+"use strict";
+const ABC="abcdefghijklmnopqrstuvwxyz";
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+const deZahl=x=>{const r=Math.round(x*1e9)/1e9;return String(r).replace(".",",");};
+const wert=s=>{s=String(s).trim().replace(/\s/g,"");if(s.includes("/")){const[a,b]=s.split("/");return num(a)/num(b);}return num(s);};
+const num=s=>{const t=String(s).replace(/\s+/g,"").replace(",",".");return t!==""&&!isNaN(t)?parseFloat(t):NaN;};
+const norm=s=>String(s).replace(/\s+/g,"").replace(/\./g,",").replace(/%$/,"").toLowerCase();
+const mischen=a=>{const b=a.slice();if(b.length<2)return b;let n=0;do{for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}n++;}while(n<20&&b.every((x,i)=>x===a[i]));return b;};
+
+/* Kurzschrift → HTML */
+function feld(antw,label){
+  let fid="";antw=antw.replace(/#(\w+)\s*$/,(m,s)=>{fid=s;return "";});
+  const alle=antw.split("|").map(x=>x.trim());
+  const lang=Math.max(...alle.map(x=>x.length));
+  const zahl=alle.every(x=>/^[\d\s,.%+\-]*$/.test(x));
+  const w=zahl||lang<=2?Math.max(2.6,lang*.55+1.5).toFixed(1):Math.max(5,Math.min(9,lang*.5+1.5)).toFixed(1);
+  return '<input class="ein" data-a="'+esc(alle.join("|"))+'"'+(fid?' data-id="'+fid+'"':'')+' style="width:'+w+'em"'+(zahl?' inputmode="decimal"':'')+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+(label||"Antwort")+'">';
+}
+function inl(t){
+  t=String(t);const lager=[];const pack=h=>"\u0001"+(lager.push(h)-1)+"\u0002";
+  t=t.replace(/\(\((.*?)\)\)/g,(m,inh)=>{
+    const opt=inh.split("|").map(x=>x.trim());let soll="";
+    const kn=opt.map(o=>{let z=o;if(z.startsWith("*")){z=z.slice(1).trim();soll=z;}return z;});
+    const kl="auswahl";
+    return pack('<span class="'+kl+'" data-soll="'+esc(soll)+'">'+kn.map(z=>'<button type="button" data-z="'+esc(z)+'">'+inl(z)+'</button>').join("")+'</span>');
+  });
+  t=t.replace(/\[([GWP]):([^\]]*)\]/g,(m,r,z)=>pack('<span class="mk" data-r="" data-soll="'+r+'">'+z+'</span>'));
+  t=t.replace(/\[=([^\]]*)\]/g,(m,v)=>pack('<span class="frac fin" data-v="'+wert(v)+'"><span class="fz"><input class="ein" style="width:2.8em" inputmode="numeric" autocomplete="off" aria-label="Zähler"></span><span class="fn"><input class="ein" style="width:2.8em" inputmode="numeric" autocomplete="off" aria-label="Nenner"></span></span>'));
+  t=t.replace(/\[@(\w+)\]/g,(m,id)=>pack('<input class="ein echo" readonly tabindex="-1" data-echo="'+id+'" style="width:4.8em" aria-label="Dein Wert von vorhin">'));
+  t=t.replace(/\[([^\[\]]*)\]/g,(m,a)=>pack(feld(a)));
+  t=t.replace(/\{([^{}]*)\}/g,(m,inh)=>{const i=inh.indexOf("/");if(i<0)return m;
+    return '<span class="frac"><span class="fz">'+inh.slice(0,i).trim()+'</span><span class="fn">'+inh.slice(i+1).trim()+'</span></span>';});
+  t=t.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+  t=t.replace(/<blau>/g,'<span class="Gt">').replace(/<orange>/g,'<span class="Wt">').replace(/<gruen>/g,'<span class="Pt">').replace(/<\/(blau|orange|gruen)>/g,"</span>");
+  for(let k=0;k<3;k++)t=t.replace(/\u0001(\d+)\u0002/g,(m,i)=>lager[+i]);
+  return t;
+}
+const nr=(i,a)=>a.nummern===false?"":"<b>"+ABC[i]+")</b> ";
+const raster=(a,std)=>"raster"+(a.spalten||std||1);
+
+/* Aufgabenarten */
+const ARTEN={
+  luecke(a){
+    if(a.items.some(x=>typeof x==="object"))
+      return a.items.map((it,i)=>{if(typeof it==="string")return '<p>'+nr(i,a)+inl(it)+'</p>';
+        let h=it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':"";
+        const z=it.z==null?[]:it.z;
+        if(Array.isArray(z))h+='<p class="gw">'+z.map(x=>'<span>'+inl(x)+'</span>').join("")+'</p>';else h+='<p>'+inl(z)+'</p>';
+        return h;}).join("");
+    const sp=a.spalten||1;
+    return '<div class="'+raster(a)+(a.gross?" gross":"")+'">'+a.items.map((x,i)=>'<div'+(sp>1?' class="km"':'')+'>'+nr(i,a)+inl(x)+'</div>').join("")+'</div>';
+  },
+  erweitern(a){
+    const ziel=a.ziel||100;
+    return '<div class="'+raster(a,4)+'">'+a.items.map((b,i)=>{const[z,n]=String(b).split("/").map(Number);const f=ziel/n;
+      return '<div class="erw">'+nr(i,a)+inl("{"+z+"/"+n+"}")+'<span class="erwm"><span class="lab">· '+feld(deZahl(f),"Faktor")+'</span><span>=</span></span>'+inl("{["+deZahl(z*f)+"]/"+ziel+"}")+'</div>';}).join("")+'</div>';
+  },
+  hunderterfeld(a){
+    return '<div class="'+raster(a,3)+'">'+a.items.map((it,i)=>{const n=typeof it==="object"?it.an:it;
+      const z=typeof it==="object"&&it.z?it.z:"{["+n+"]/100} = ["+deZahl(n/100)+"] = ["+n+"] %";
+      let g='<div class="g100">';for(let k=0;k<100;k++)g+='<i'+(k<n?' class="an"':'')+'></i>';g+='</div>';
+      return '<div class="fig">'+(a.nummern===false?"":"<b>"+ABC[i]+")</b>")+g+'<div class="zeile">'+inl(z)+'</div></div>';}).join("")+'</div>';
+  },
+  faerben(a){
+    let g='<div class="g100 malen" data-soll="'+a.soll+'">';for(let k=0;k<100;k++)g+='<i></i>';
+    return '<div class="malbox">'+g+'</div><p class="zaehler">Gefärbt: <b>0</b> Kästchen</p></div>';
+  },
+  tabelle(a){
+    const n=a.nummern!==false;
+    let h='<div class="scroll"><table class="tab"><tr>'+(n?'<th class="nr"></th>':'')+a.kopf.map(k=>'<th>'+inl(k)+'</th>').join("")+'</tr>';
+    a.zeilen.forEach((z,i)=>{h+='<tr>'+(n?'<td class="nr">'+ABC[i]+')</td>':'')+z.map(c=>'<td>'+inl(c)+'</td>').join("")+'</tr>';});
+    return h+'</table></div>';
+  },
+  vergleichen(a){
+    return '<div class="'+raster(a,2)+'">'+a.items.map(([l,s,r])=>'<div class="vgl"><span>'+inl(l)+'</span><span class="wahl" data-soll="'+esc(s)+'"><button type="button" data-z="<">&lt;</button><button type="button" data-z="=">=</button><button type="button" data-z=">">&gt;</button></span><span>'+inl(r)+'</span></div>').join("")+'</div>';
+  },
+  auswahl(a){
+    return a.items.map(([t,r,opt])=>{const o=opt||a.optionen;
+      return '<div class="wegz">'+inl(t)+inl("(("+o.map(x=>(x===r?"*":"")+x).join("|")+"))")+'</div>';}).join("");
+  },
+  markieren(a){
+    return a.items.map((t,i)=>'<p class="sit">'+nr(i,a)+inl(t)+'</p>').join("");
+  },
+  streifen(a){
+    return a.items.map((it,i)=>{const p=Math.max(0,Math.min(100,it.anteil));
+      return (it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':(a.items.length>1&&a.nummern!==false?'<p>'+nr(i,a)+'</p>':''))+
+      '<div class="streifen"><div class="str-oben"><span class="Wt">W = '+inl(it.W)+'</span></div>'+
+      '<div class="str-bar"><div class="str-w" style="width:'+p+'%"></div></div>'+
+      '<div class="str-mitte"><span class="Pt">p % = '+inl(it.p)+'</span></div>'+
+      '<svg class="str-klammer" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path d="M1 1 Q1 7 8 7 L44 7 Q50 7 50 13 Q50 7 56 7 L92 7 Q99 7 99 1" fill="none" stroke="#1565C0" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>'+
+      '<div class="str-g Gt">G = '+inl(it.G)+' ≙ 100 %</div></div>';}).join("");
+  },
+  verhaeltnis(a){
+    return a.items.map((it,i)=>{
+      const x=it.x||"W";const ans=it.ansatz!==false;
+      const teil=k=>{const v=deZahl(it[k]);if(k===x)return ans?"[x]":"x";return ans?"["+v+"]":v;};
+      const fr=(o,u)=>'<span class="frac"><span class="fz">'+o+'</span><span class="fn">'+u+'</span></span>';
+      const bs=deZahl(it.bas||100);
+      const gi=k=>'<input class="ein gl" data-pos="'+k+'" style="width:3.6em" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Feld der Verhältnisgleichung">';
+      const tok=k=>k===x?"x":deZahl(it[k]);
+      const sol=JSON.stringify([tok("G"),bs,tok("W"),tok("p")]);
+      const glei=ans?fr(gi(0),gi(1)+" %")+" = "+fr(gi(2),gi(3)+" %"):fr(inl(teil("G")),bs+" %")+" = "+fr(inl(teil("W")),inl(teil("p"))+" %");
+      const ein=it.einheit?" "+it.einheit:"";
+      const id=it.id?"#"+it.id:"";
+      const erg='x = '+inl("["+deZahl(it[x])+(ein?"|"+deZahl(it[x])+ein:"")+id+"]")+(x==="p"?"":ein);
+      return (it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':'<p>'+nr(i,a)+'</p>')+
+        '<div class="vgl-gl"'+(ans?' data-gl="1" data-sol="'+esc(sol)+'"':'')+'><span>'+glei+'</span></div>'+
+        '<p>'+erg+'</p>'+(it.antwort?'<p class="antw-z"><b>Antwortsatz:</b> <input type="text" class="ein antw" autocomplete="off" aria-label="Antwortsatz" data-w="'+deZahl(it[x])+'" data-e="'+(it.einheit||"")+'"></p>':'');}).join("")+(a.nach?"":"");
+  },
+  streifenbau(a){
+    const rows=a.daten.map((d,i)=>'<tr data-n="'+esc(d[0])+'"><td style="text-align:left"><i class="sw" style="background:'+DFARBEN[i%5]+'"></i> '+esc(d[0])+'</td><td>'+deZahl(d[1])+' %</td><td>'+feld(deZahl(d[1]/10),"Länge")+' cm</td></tr>').join("");
+    return '<div class="scroll"><table class="tab"><tr><th>Bereich</th><th>p %</th><th>Länge</th></tr>'+rows+'</table></div><div class="live" data-typ="streifen"></div>';
+  },
+  kreisbau(a){
+    const rows=a.daten.map((d,i)=>'<tr data-n="'+esc(d[0])+'"><td style="text-align:left"><i class="sw" style="background:'+DFARBEN[i%5]+'"></i> '+esc(d[0])+'</td><td>'+deZahl(d[1])+' %</td><td>'+feld(String(Math.round(d[1]*3.6)),"Winkel")+'°</td></tr>').join("");
+    return '<div class="scroll"><table class="tab"><tr><th>Bereich</th><th>p %</th><th>Winkel</th></tr>'+rows+'</table></div><div class="live" data-typ="kreis"></div>';
+  },
+  zuordnen(a){
+    const re=mischen(a.paare.map((p,i)=>i));
+    return '<div class="zuo">'+a.paare.map((p,i)=>'<button type="button" data-s="l" data-i="'+i+'">'+inl(p[0])+'</button>'+
+      '<button type="button" data-s="r" data-i="'+re[i]+'">'+inl(a.paare[re[i]][1])+'</button>').join("")+'</div>';
+  },
+  richtigfalsch(a){
+    return a.items.map(([t,r],i)=>'<div class="wegz"><span>'+nr(i,a)+inl(t)+'</span>'+inl(r?"((*richtig|falsch))":"((richtig|*falsch))")+'</div>').join("");
+  },
+  sortieren(a){
+    const m=mischen(a.items.map((x,i)=>i));
+    return '<div class="sort" data-n="'+a.items.length+'">'+m.map(i=>'<button type="button" data-i="'+i+'">'+inl(a.items[i])+'</button>').join("")+'</div><p class="sortreihe"></p>';
+  }
+};
+const AUFTRAG={streifenbau:"Rechne die Länge aus und trage sie ein. Dein Streifen wächst unter der Tabelle.",
+  kreisbau:"Rechne den Winkel aus (ganze Grad) und trage ihn ein. Dein Kreis wächst unter der Tabelle.",
+  vergleichen:"Tippe auf &lt;, = oder &gt;.",
+  markieren:'Tippe jede fett gedruckte Zahl an: 1× <b class="Gt">blau = G</b>, 2× <b class="Wt">orange = W</b>, 3× <b class="Pt">grün = p %</b>.',
+  zuordnen:"Was gehört zusammen? Tippe links und dann rechts an.",
+  richtigfalsch:"Richtig oder falsch? Tippe an.",
+  sortieren:"Tippe die Zahlen der Größe nach an. Beginne mit der kleinsten.",
+  verhaeltnis:"Stelle die Verhältnisgleichung auf. Schreibe x für die gesuchte Größe. Trage dann das Ergebnis ein.",
+  faerben:"Tippe Kästchen an oder wische darüber."};
+
+function baueAufgabe(a,n){
+  let inh=ARTEN[a.art]?ARTEN[a.art](a):'<p style="color:#C62828">Unbekannte Aufgabenart: '+esc(a.art)+'</p>';
+  if(a.bild)inh=a.bildoben?'<div class="bild">'+a.bild+'</div>'+inh:'<div class="bildbox"><div class="bild">'+a.bild+'</div><div class="rest">'+inh+'</div></div>';
+  const auf=a.auftrag!=null?inl(a.auftrag):(AUFTRAG[a.art]||"");
+  return '<section class="kasten" data-aufgabe><h2>Aufgabe '+n+(a.name?' · '+esc(a.name):'')+(a.stern?' ★':'')+'</h2><div class="innen">'+
+    (auf?'<p class="auftrag">'+auf+'</p>':'')+inh+(a.nach?inl(a.nach):'')+
+    '<div class="pruefleiste"><button type="button" class="pruefen">Prüfen</button><span class="ergebnis" aria-live="polite"></span></div></div></section>';
+}
+function baueBlatt(u,i){
+  const s=document.createElement("section");s.className="blatt";s.id="uebung"+(i+1);s.hidden=true;
+  s.innerHTML='<div class="titel">'+esc(u.titel)+'</div>'+u.aufgaben.map((a,k)=>baueAufgabe(a,k+1)).join("");
+  binde(s);return s;
+}
+
+/* Bedienung */
+function binde(B){
+  B.querySelectorAll(".wahl,.auswahl").forEach(g=>g.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    g.querySelectorAll("button").forEach(x=>x.classList.toggle("an",x===b));g.classList.remove("ok","falsch");})));
+  B.querySelectorAll(".mk").forEach(m=>m.addEventListener("click",()=>{const o=["","G","W","P"];m.dataset.r=o[(o.indexOf(m.dataset.r)+1)%4];m.classList.remove("falsch");}));
+  B.querySelectorAll(".g100.malen").forEach(g=>{
+    let modus=null;const z=g.closest(".innen").querySelector(".zaehler b");
+    const upd=()=>{if(z)z.textContent=g.querySelectorAll("i.an").length;g.classList.remove("ok","falsch");};
+    const zelle=e=>{const el=document.elementFromPoint(e.clientX,e.clientY);return el&&el.parentNode===g?el:null;};
+    g.addEventListener("pointerdown",e=>{const c=zelle(e);if(!c)return;modus=!c.classList.contains("an");c.classList.toggle("an",modus);g.setPointerCapture(e.pointerId);e.preventDefault();upd();});
+    g.addEventListener("pointermove",e=>{if(modus===null)return;const c=zelle(e);if(c&&c.classList.contains("an")!==modus){c.classList.toggle("an",modus);upd();}});
+    ["pointerup","pointercancel"].forEach(n=>g.addEventListener(n,()=>modus=null));
+  });
+  B.querySelectorAll(".zuo").forEach(Z=>{
+    let gew=null;
+    const farbe=()=>{const L=[...Z.querySelectorAll('[data-s="l"]')];let k=0;
+      Z.querySelectorAll("button").forEach(b=>{delete b.dataset.p;delete b.dataset.nr;b.classList.remove("ok","falsch");});
+      L.forEach(l=>{if(l.dataset.mit!=null&&l.dataset.mit!==""){const r=Z.querySelector('[data-s="r"][data-i="'+l.dataset.mit+'"]');
+        l.dataset.p=r.dataset.p=k%8;l.dataset.nr=r.dataset.nr=++k;}});};
+    Z.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+      const seite=b.dataset.s;
+      // schon verbunden → lösen
+      if(seite==="l"&&b.dataset.mit){b.dataset.mit="";gew=null;Z.querySelectorAll(".wahl1").forEach(x=>x.classList.remove("wahl1"));farbe();return;}
+      if(seite==="r"){const l=Z.querySelector('[data-s="l"][data-mit="'+b.dataset.i+'"]');if(l&&!(gew&&gew.dataset.s==="l")){l.dataset.mit="";farbe();return;}}
+      if(!gew||gew.dataset.s===seite){Z.querySelectorAll(".wahl1").forEach(x=>x.classList.remove("wahl1"));gew=b;b.classList.add("wahl1");return;}
+      const l=seite==="l"?b:gew,r=seite==="r"?b:gew;
+      Z.querySelectorAll('[data-s="l"]').forEach(x=>{if(x.dataset.mit===r.dataset.i)x.dataset.mit="";});
+      l.dataset.mit=r.dataset.i;gew.classList.remove("wahl1");gew=null;farbe();
+    }));
+  });
+  B.querySelectorAll(".sort").forEach(S=>{
+    const reihe=[];const txt=S.nextElementSibling;
+    const zeig=()=>{S.querySelectorAll("button").forEach(b=>{const p=reihe.indexOf(b);b.classList.remove("ok","falsch");if(p<0)delete b.dataset.nr;else b.dataset.nr=p+1;});
+      txt.innerHTML=reihe.length?"Deine Reihenfolge: "+reihe.map(b=>b.innerHTML).join(" &lt; "):"";};
+    S._reihe=reihe;
+    S.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const p=reihe.indexOf(b);if(p<0)reihe.push(b);else reihe.splice(p,1);zeig();}));
+  });
+  B.querySelectorAll(".live").forEach(L=>{const T=L.closest(".innen");
+    const upd=()=>{const R=[...T.querySelectorAll("tr[data-n]")];const namen=R.map(r=>r.dataset.n);
+      const v=R.map(r=>{const x=num(r.querySelector("input").value);return isNaN(x)||x<0?0:x;});
+      if(L.dataset.typ==="streifen")L.innerHTML=streifenSvg(namen,v,{live:true});
+      else{const s=v.reduce((p,q)=>p+q,0);L.innerHTML=kreisSvg(namen,v)+'<p class="summe">Summe der Winkel: <b>'+dZ(s)+'</b>° '+(Math.abs(s-360)<1e-9?"✓":"(soll 360° sein)")+'</p>';}};
+    T.addEventListener("input",upd);upd();});
+  B.querySelectorAll("[data-aufgabe]").forEach(k=>k.querySelector(".pruefen").addEventListener("click",()=>pruefe(k)));
+}
+document.addEventListener("input",e=>{if(e.target.tagName==="INPUT")e.target.classList.remove("ok","falsch");});
+document.addEventListener("input",e=>{const id=e.target.dataset&&e.target.dataset.id;if(!id)return;const B=e.target.closest(".blatt");if(B)B.querySelectorAll('.echo[data-echo="'+id+'"]').forEach(el=>el.value=e.target.value);});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("ein")){e.preventDefault();const k=e.target.closest("[data-aufgabe]");if(k)pruefe(k);}});
+
+function pruefe(k){
+  let r=0,n=0;const setz=(el,ok)=>{el.classList.toggle("ok",ok);el.classList.toggle("falsch",!ok);if(ok)r++;};
+  k.querySelectorAll("input[data-a]").forEach(i=>{n++;const ok=i.dataset.a.split("|").some(a=>{const x=num(i.value),y=num(a);
+    return (!isNaN(x)&&!isNaN(y)&&Math.abs(x-y)<1e-9)||(i.value.trim()!==""&&norm(i.value)===norm(a));});setz(i,ok);});
+  k.querySelectorAll("input.antw").forEach(i=>{n++;const t=i.value.trim(),w=parseFloat(i.dataset.w.replace(",","."));
+    const zs=(t.replace(/(\d)\s(?=\d{3}\b)/g,"$1").match(/\d+(?:[.,]\d+)?/g)||[]).map(z=>parseFloat(z.replace(",",".")));
+    const E={"€":/€|euro/i,"g":/(^|[\d\s])g(\b|$)|gramm/i,"km":/km|kilometer/i}[i.dataset.e];
+    const ok=t.split(/\s+/).length>=3&&zs.some(z=>Math.abs(z-w)<1e-9)&&(!i.dataset.e||(E?E.test(t):t.toLowerCase().includes(i.dataset.e.toLowerCase())));setz(i,ok);});
+  k.querySelectorAll(".fin").forEach(f=>{n++;const[a,b]=f.querySelectorAll("input");const x=num(a.value),y=num(b.value);
+    const ok=!isNaN(x)&&!isNaN(y)&&y!==0&&Math.abs(x/y-parseFloat(f.dataset.v))<1e-9;[a,b].forEach(i=>{i.classList.toggle("ok",ok);i.classList.toggle("falsch",!ok);});if(ok)r++;});
+  k.querySelectorAll(".wahl,.auswahl").forEach(g=>{n++;const an=g.querySelector("button.an");setz(g,!!an&&an.dataset.z===g.dataset.soll);});
+  k.querySelectorAll(".mk").forEach(m=>{n++;const ok=m.dataset.r===m.dataset.soll;m.classList.toggle("falsch",!ok);if(ok)r++;});
+  k.querySelectorAll(".g100.malen").forEach(g=>{n++;setz(g,g.querySelectorAll("i.an").length===+g.dataset.soll);});
+  k.querySelectorAll(".zuo").forEach(Z=>Z.querySelectorAll('[data-s="l"]').forEach(l=>{n++;const ok=l.dataset.mit===l.dataset.i;
+    const rr=l.dataset.mit?Z.querySelector('[data-s="r"][data-i="'+l.dataset.mit+'"]'):null;
+    l.classList.toggle("ok",ok);l.classList.toggle("falsch",!ok);if(rr){rr.classList.toggle("ok",ok);rr.classList.toggle("falsch",!ok);}if(ok)r++;}));
+  k.querySelectorAll(".sort").forEach(S=>{const R=S._reihe;S.querySelectorAll("button").forEach(b=>{n++;const p=R.indexOf(b);setz(b,p>=0&&+b.dataset.i===p);});});
+  /* Verhältnisgleichung: jede richtig aufgestellte Gleichung zählt (Seiten tauschen, Brüche umdrehen, über Kreuz) */
+  k.querySelectorAll(".vgl-gl[data-gl]").forEach(E=>{n++;const [G,B,W,P]=JSON.parse(E.dataset.sol);
+    const AR=[[G,B,W,P],[W,P,G,B],[B,G,P,W],[P,W,B,G],[G,W,B,P],[B,P,G,W],[W,G,P,B],[P,B,W,G]];
+    const f=[...E.querySelectorAll("input.gl")].map(i=>i.value.trim().replace(/%/g,"").replace(/\s+/g,"").toLowerCase());
+    const gl=(a,b)=>{if(a==="x"||b==="x")return a===b;const u=num(a),v=num(b);return !isNaN(u)&&!isNaN(v)&&Math.abs(u-v)<1e-9;};
+    const ok=AR.some(r=>r.every((v,i)=>gl(f[i],String(v).toLowerCase())));
+    E.querySelectorAll("input.gl").forEach(i=>{i.classList.toggle("ok",ok);i.classList.toggle("falsch",!ok);});if(ok)r++;});
+  const e=k.querySelector(".ergebnis");
+  if(r===n){e.textContent="Super, alles richtig! ("+r+" von "+n+")";e.className="ergebnis gut";k.classList.add("fertig");}
+  else{e.textContent=r+" von "+n+" richtig. Verbessere die rot markierten Stellen.";e.className="ergebnis noch";k.classList.remove("fertig");}
+  stand();
+}
+function stand(){const B=document.querySelector(".blatt:not([hidden])");if(!B)return;const alle=B.querySelectorAll("[data-aufgabe]").length,f=B.querySelectorAll("[data-aufgabe].fertig").length;
+  document.getElementById("stand").textContent=f+" von "+alle+" Aufgaben geschafft"+(f===alle?" – klasse!":"");}
+
+/* Aufbau der Seite */
+document.title="Übungen "+BLATT.thema.replace(/\s*–\s*/," ");
+document.getElementById("oben").textContent="Interaktive Arbeitsblätter · "+BLATT.thema;
+document.getElementById("fuss").textContent="Erstellt von Marion Klugmann ("+BLATT.erstellt+") mit freundlicher Unterstützung von Claude.";
+const nav=document.getElementById("reiter"),box=document.getElementById("blaetter");
+BLATT.uebungen.forEach((u,i)=>{
+  const t=document.createElement("button");t.type="button";t.setAttribute("role","tab");t.dataset.b="uebung"+(i+1);
+  t.innerHTML="<b>Übung "+(i+1)+"</b>"+esc(u.reiter||"");nav.appendChild(t);box.appendChild(baueBlatt(u,i));
+});
+const tabs=[...nav.querySelectorAll("button")];
+let aktiv="uebung1";
+function zeige(id){if(!document.getElementById(id))id="uebung1";aktiv=id;tabs.forEach(t=>t.setAttribute("aria-selected",t.dataset.b===id));
+  document.querySelectorAll(".blatt").forEach(b=>b.hidden=b.id!==id);stand();}
+tabs.forEach(t=>t.addEventListener("click",()=>{if(location.hash!=="#"+t.dataset.b)location.hash=t.dataset.b;else zeige(t.dataset.b);window.scrollTo({top:0});}));
+window.addEventListener("hashchange",()=>zeige(location.hash.slice(1)));
+const btn=document.getElementById("neu");let tm=null;
+btn.addEventListener("click",()=>{
+  if(!btn.classList.contains("warnung")){btn.classList.add("warnung");btn.textContent="Wirklich?";tm=setTimeout(()=>{btn.classList.remove("warnung");btn.textContent="Neu beginnen";},3000);return;}
+  clearTimeout(tm);btn.classList.remove("warnung");btn.textContent="Neu beginnen";
+  const alt=document.getElementById(aktiv),i=+aktiv.slice(6)-1,neu=baueBlatt(BLATT.uebungen[i],i);neu.hidden=false;alt.replaceWith(neu);
+  stand();window.scrollTo({top:0,behavior:"smooth"});
+});
+zeige(location.hash.slice(1));
+})();
+</script>
+<div class="ll-fenster" id="ll-fenster" hidden><div class="ll-box" role="dialog" aria-modal="true" aria-label="Spickzettel"><button type="button" class="ll-zu" id="ll-zu" aria-label="Spickzettel schließen">✕ Schließen</button><iframe id="ll-frame" title="Spickzettel"></iframe></div></div><script>
+(function(){
+  var o=document.getElementById('ll-fenster'),f=document.getElementById('ll-frame'),b=document.getElementById('ll-spick');
+  function zu(){o.hidden=true;document.body.style.overflow='';b.focus();}
+  b.addEventListener('click',function(){if(!f.getAttribute('src'))f.src='spickzettel.html';o.hidden=false;document.body.style.overflow='hidden';document.getElementById('ll-zu').focus();});
+  document.getElementById('ll-zu').addEventListener('click',zu);
+  o.addEventListener('click',function(e){if(e.target===o)zu();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!o.hidden)zu();});
+  var z=document.getElementById('ll-zurueck'),t=null;
+  function eingetragen(){return Array.prototype.some.call(document.querySelectorAll('input,textarea'),function(i){return i.id!=='date'&&i.type!=='hidden'&&i.value.trim()!=='';});}
+  z.addEventListener('click',function(e){
+    if(z.classList.contains('ll-warn')||!eingetragen())return;
+    e.preventDefault();z.classList.add('ll-warn');z.textContent='Wirklich? Deine Eingaben gehen verloren.';
+    clearTimeout(t);t=setTimeout(function(){z.classList.remove('ll-warn');z.textContent='← Lern-Lounge';},4000);
+  });
+})();
+</script>
+</body>
+</html>

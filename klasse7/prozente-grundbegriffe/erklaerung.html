@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>
+.video-controls{grid-column:1/-1;justify-self:end;display:flex;align-items:center;gap:6px;padding:0;margin:-5px 0 -3px;background:transparent;border:0;max-width:100%}
+.video-controls button{font:700 .88rem "Atkinson Hyperlegible",sans-serif;padding:5px 11px;border-radius:7px;border:1.5px solid #1565c0;background:white;color:#124c89;cursor:pointer;min-width:0;white-space:nowrap}
+.video-controls button:first-child{background:#1565c0;color:white}.video-controls button:disabled{opacity:.45;cursor:default}
+.video-status{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:600px){.video-controls{justify-self:start;flex-wrap:wrap;margin:0}.video-controls button{padding:6px 9px}}
+</style>
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+.ll-oben{max-width:1080px;margin:0 auto;padding:10px 16px 0;box-sizing:border-box}
+</style>
+</head>
+<body>
+<title>Prozente – Grundbegriffe</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: Tafelbild auf weißem Grund, Reiter Einstieg + Z1–Z4, je Reiter links die Darstellung, rechts Anzeige und aufdeckbares Merke */
+:root{
+  color-scheme:light;
+  --bg:#ffffff; --ink:#111111; --muted:#555555; --line:#cfcfcf; --mark:#fff1a8; --soft:#f4f4f4;
+  --G:#1565C0; --Gs:#e3eefb; --W:#C2410C; --Ws:#fbeadf; --P:#2e7d32; --Ps:#e3f3e5;
+  --ok:#1b7a3e; --err:#b3261e;
+  --font:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:19px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 28px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:3px solid var(--ink);padding-bottom:8px}
+header h1{margin:0;font-size:clamp(1.6rem,3.2vw,2.3rem);line-height:1.1}
+header .school{color:var(--muted);font-size:.95rem}
+nav{display:flex;flex-wrap:wrap;gap:8px}
+nav button{font:inherit;font-size:1rem;border:2px solid var(--ink);background:var(--bg);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer}
+nav button b{margin-right:6px}
+nav button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+button:focus-visible{outline:3px solid var(--G);outline-offset:2px}
+.panel{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:20px;align-items:start}
+@media (max-width:860px){.panel{grid-template-columns:1fr}}
+.panel h2{grid-column:1/-1;margin:0;font-size:1.35rem}
+.panel h2 span{color:var(--muted);font-weight:400}
+.board{border:2px solid var(--ink);border-radius:10px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.tools button,.side button,.board button{font:inherit;font-size:.95rem;border:1.5px solid var(--ink);background:var(--bg);color:var(--ink);border-radius:7px;padding:6px 12px;cursor:pointer}
+.tools button.on{background:var(--mark)}
+.readout{font-size:1.25rem;font-variant-numeric:tabular-nums;background:var(--soft);border-radius:8px;padding:12px 14px}
+.merke{border:2px solid var(--ink);border-radius:8px;padding:10px 14px}
+.merke h3{margin:0 0 6px;font-size:1rem;letter-spacing:.08em;text-transform:uppercase}
+.merke ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.merke p{margin:0}
+.G{color:var(--G);font-weight:700}.W{color:var(--W);font-weight:700}.P{color:var(--P);font-weight:700}
+.hint{color:var(--muted);font-size:.9rem;margin:0}
+.verdeckt{visibility:hidden}
+.footer{text-align:right;color:var(--muted);font-size:.9rem;font-style:italic;margin-top:8px}
+/* Einstieg */
+.shop{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:16px;align-items:center}
+@media (max-width:640px){.shop{grid-template-columns:1fr}}
+.jacke{text-align:center}
+.jacke svg{width:100%;max-width:240px;height:auto}
+.preis{font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums}
+.schilder{display:flex;flex-direction:column;gap:12px}
+.schild{border:3px solid var(--W);border-radius:12px;padding:10px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;background:#fff}
+.schild .txt{font-size:1.6rem;font-weight:700;color:var(--W)}
+.schild .stimmen{display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.schild .stimmen b{min-width:1.6em;text-align:center;font-size:1.2rem}
+.schild .los{grid-column:1/-1;font-size:1.1rem;font-variant-numeric:tabular-nums}
+.schild .los b{color:var(--ink)}
+.fazit{font-size:1.2rem;border:2px dashed var(--ink);border-radius:8px;padding:10px 14px}
+/* Hundertertafel */
+.grid100{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;width:100%;max-width:440px;margin:0 auto;touch-action:none}
+.cell{aspect-ratio:1;border:1.5px solid #888;background:#fff;position:relative;overflow:hidden;cursor:pointer;border-radius:2px}
+.cell i{position:absolute;left:0;top:0;bottom:0;background:var(--P)}
+.kette{font-size:1.5rem;font-variant-numeric:tabular-nums;text-align:center;line-height:1.6}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .15em;line-height:1.1;font-size:.9em}
+.frac span:first-child{border-bottom:2.5px solid currentColor;padding:0 .2em}
+.slider{display:flex;align-items:center;gap:10px;width:100%;max-width:440px;margin:0 auto}
+.slider input{flex:1;accent-color:var(--P)}
+/* Promille */
+.zwei{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:560px){.zwei{grid-template-columns:1fr}}
+.feld{display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center}
+.feld svg{width:100%;max-width:300px;height:auto;border:1.5px solid #888}
+.vgl{font-size:2.6rem;font-weight:700;text-align:center}
+/* Z3 */
+.sit{font-size:1.45rem;line-height:1.7;border-left:6px solid var(--ink);background:var(--soft);padding:12px 16px;border-radius:6px}
+.sit .zahl{font:inherit;font-size:1.45rem;font-weight:700;border:2.5px dashed var(--ink);background:#fff;color:var(--ink);border-radius:8px;padding:0 8px;cursor:pointer;line-height:1.4}
+.sit .zahl.akt{outline:3px solid var(--mark);background:var(--mark)}
+.sit .zahl.G{border:2.5px solid var(--G);background:var(--Gs);color:var(--G)}
+.sit .zahl.W{border:2.5px solid var(--W);background:var(--Ws);color:var(--W)}
+.sit .zahl.P{border:2.5px solid var(--P);background:var(--Ps);color:var(--P)}
+.zahl .tag{font-size:.7em;margin-left:4px}
+.sit .zahl.falsch{box-shadow:0 0 0 3px var(--err)}
+.rollen{display:flex;flex-wrap:wrap;gap:10px}
+.rolle{font:inherit;font-size:1.1rem!important;font-weight:700;border-radius:10px!important;padding:8px 16px!important;border-width:2.5px!important}
+.rolle.G{border-color:var(--G)!important;color:var(--G)!important;background:var(--Gs)!important}
+.rolle.W{border-color:var(--W)!important;color:var(--W)!important;background:var(--Ws)!important}
+.rolle.P{border-color:var(--P)!important;color:var(--P)!important;background:var(--Ps)!important}
+.fb{font-weight:700;border-radius:8px;padding:8px 12px}
+.fb.ok{background:#e3f5e9;color:var(--ok)}.fb.err{background:#fdecea;color:var(--err)}
+/* Z4 */
+.streifen{position:relative;height:72px;border:3px solid var(--G);border-radius:6px;background:var(--Gs);overflow:hidden}
+.streifen .teil{position:absolute;left:0;top:0;bottom:0;background:var(--W);transition:width .35s}
+.streifen .ticks{position:absolute;inset:0;display:flex}
+.streifen .ticks span{flex:1;border-right:1.5px solid rgba(0,0,0,.25)}
+.streifen .ticks span:last-child{border-right:0}
+.skala{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:1rem}
+.prozknopf button.on{background:var(--Ps);border-color:var(--P);color:var(--P);font-weight:700}
+.rechnung{font-size:1.5rem;font-variant-numeric:tabular-nums;text-align:center;line-height:1.6}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a></div>
+  <header>
+    <h1>Prozente – Grundbegriffe</h1>
+    <span class="school">Emil-Petri-Schule Arnstadt · Mathematik Klasse 7 · Prozentrechnung</span>
+  </header>
+
+  <nav role="tablist" aria-label="Seiten">
+    <button role="tab" aria-selected="true" data-tab="ein"><b>★</b>Einstieg</button>
+    <button role="tab" aria-selected="false" data-tab="z1"><b>Z1</b>Umwandeln</button>
+    <button role="tab" aria-selected="false" data-tab="z2"><b>Z2</b>Prozent und Promille</button>
+    <button role="tab" aria-selected="false" data-tab="z3"><b>Z3</b>G, W und p %</button>
+    <button role="tab" aria-selected="false" data-tab="z4"><b>Z4</b>Kopfrechnen</button>
+  </nav>
+
+  <!-- Einstieg -->
+  <section class="panel" id="ein" role="tabpanel">
+    <h2>Das beste Angebot <span>– Welches Schild bringt am meisten?</span></h2>
+    <div class="board">
+      <div class="shop">
+        <div class="jacke">
+          <svg viewBox="0 0 200 200" aria-label="Jacke">
+            <path d="M70 30 L100 45 L130 30 L170 55 L185 110 L160 118 L152 90 L152 180 L48 180 L48 90 L40 118 L15 110 L30 55 Z" fill="#2f5d8a" stroke="#111" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M100 45 L100 180" stroke="#111" stroke-width="3"/>
+            <path d="M70 30 L100 70 L130 30" fill="none" stroke="#111" stroke-width="3"/>
+            <circle cx="108" cy="95" r="4" fill="#ddd"/><circle cx="108" cy="125" r="4" fill="#ddd"/><circle cx="108" cy="155" r="4" fill="#ddd"/>
+            <path d="M150 40 l24 -14 l10 16 l-24 14 z" fill="#fff" stroke="#111" stroke-width="2.5"/>
+            <text x="166" y="38" font-size="11" font-weight="700" text-anchor="middle" transform="rotate(-30 166 38)" font-family="Arial">80 €</text>
+          </svg>
+          <div class="preis">80 €</div>
+        </div>
+        <div class="schilder" id="schilder"></div>
+      </div>
+      <div class="tools"><button id="einAlle">Alle aufdecken</button><button id="einReset">Neu starten</button></div>
+      <div class="fazit" id="fazit" hidden>Alle drei Schilder sparen <b>16 €</b>! <b>20 %</b> = <b>⅕</b> = <b>0,2</b> – Prozent, Bruch und Dezimalzahl können <b>dasselbe</b> bedeuten.</div>
+    </div>
+    <div class="side">
+      <div class="readout">Stimmt ab: Tippt auf <b>+</b> bei eurem Favoriten.</div>
+      <p class="hint">„Aufdecken“ zeigt, wie viel Euro man jeweils spart. Erst abstimmen, dann aufdecken.</p>
+    </div>
+  </section>
+
+  <!-- Z1 -->
+  <section class="panel" id="z1" role="tabpanel" hidden>
+    <h2>Ich kann Brüche, Dezimalzahlen und Prozente ineinander umwandeln. <span>– Tippe Kästchen an.</span></h2>
+    <div class="board">
+      <div class="grid100" id="g100" aria-label="Hundertertafel"></div>
+      <div class="slider"><span>0</span><input type="range" id="z1r" min="0" max="100" step="1" value="60" aria-label="Anzahl gefärbter Kästchen"><span>100</span></div>
+      <div class="tools">
+        <button data-v="60">3/5</button><button data-v="25">1/4</button><button data-v="50">1/2</button><button data-v="75">3/4</button>
+        <button data-v="10">1/10</button><button data-v="20">1/5</button><button data-v="1">1 %</button><button data-v="1.2">1,2 %</button>
+        <button data-merke="z1m">Merke aufdecken</button>
+      </div>
+    </div>
+    <div class="side">
+      <div class="readout"><span id="z1n"></span></div>
+      <div class="kette" id="z1k"></div>
+      <div class="merke" id="z1m" hidden><h3>Merke</h3><ul>
+        <li><b>Prozent</b> heißt „von Hundert“: 1 % = <span class="frac"><span>1</span><span>100</span></span> = 0,01</li>
+        <li>Bruch → Prozent: so erweitern (oder kürzen), dass 100 im Nenner steht: <span class="frac"><span>3</span><span>5</span></span> = <span class="frac"><span>60</span><span>100</span></span> = 60 %</li>
+        <li>Dezimalzahl → Prozent: Komma <b>zwei Stellen nach rechts</b>: 0,6 = 60 %</li>
+        <li>Prozent → Dezimalzahl: Komma <b>zwei Stellen nach links</b>: 1,2 % = 0,012</li>
+      </ul></div>
+      <button id="z1hide" style="align-self:flex-start">Umwandlung verdecken</button>
+    </div>
+  </section>
+
+  <!-- Z2 -->
+  <section class="panel" id="z2" role="tabpanel" hidden>
+    <h2>Ich kenne die Bedeutung der Begriffe Prozent und Promille.</h2>
+    <div class="board">
+      <div class="zwei">
+        <div class="feld"><b>Hunderterfeld</b><svg id="f100" viewBox="0 0 300 300" aria-label="Hunderterfeld"></svg>
+          <div class="slider"><input type="range" id="z2p" min="0" max="20" step="1" value="1" aria-label="Prozent"></div>
+          <div class="readout" id="z2pt"></div></div>
+        <div class="feld"><b>Tausenderfeld</b><svg id="f1000" viewBox="0 0 300 300" aria-label="Tausenderfeld"></svg>
+          <div class="slider"><input type="range" id="z2m" min="0" max="200" step="1" value="10" aria-label="Promille"></div>
+          <div class="readout" id="z2mt"></div></div>
+      </div>
+      <div class="vgl" id="z2vgl"></div>
+      <div class="tools"><button data-z2="1,10">1 % und 10 ‰</button><button data-z2="5,5">5 % und 5 ‰</button><button data-z2="2,25">2 % und 25 ‰</button><button data-z2="10,100">10 % und 100 ‰</button><button id="z2hide">Vergleich verdecken</button></div>
+    </div>
+    <div class="side">
+      <div class="merke" id="z2merke" hidden><h3>Merke</h3><ul>
+        <li><b>Prozent (%)</b> heißt „von Hundert“: 1 % = <span class="frac"><span>1</span><span>100</span></span> = 0,01</li>
+        <li><b>Promille (‰)</b> heißt „von Tausend“: 1 ‰ = <span class="frac"><span>1</span><span>1000</span></span> = 0,001</li>
+        <li><b>1 % = 10 ‰</b> – ein Promille ist zehnmal kleiner als ein Prozent.</li>
+      </ul></div>
+      <button data-merke="z2merke" style="align-self:flex-start">Merke aufdecken</button>
+      <p class="hint">Die eingefärbten Flächen sind bei gleichem Anteil gleich groß.</p>
+    </div>
+  </section>
+
+  <!-- Z3 -->
+  <section class="panel" id="z3" role="tabpanel" hidden>
+    <h2>Ich kenne die Begriffe Grundwert, Prozentwert und Prozentsatz und kann sie zuordnen.</h2>
+    <div class="board">
+      <div class="sit" id="z3sit"></div>
+      <p class="hint" style="margin:0">Tippe eine Zahl an und dann den passenden Begriff.</p>
+      <div class="rollen">
+        <button class="rolle G" data-r="G">Grundwert G</button>
+        <button class="rolle W" data-r="W">Prozentwert W</button>
+        <button class="rolle P" data-r="P">Prozentsatz p %</button>
+      </div>
+      <div class="tools"><button id="z3check">Prüfen</button><button id="z3loes">Lösung zeigen</button><button id="z3neu">Neue Situation</button></div>
+      <div id="z3fb"></div>
+    </div>
+    <div class="side">
+      <div class="merke" id="z3merke" hidden><h3>Merke</h3><ul>
+        <li><span class="G">Grundwert G</span>: das Ganze, von dem man ausgeht – er entspricht immer <b>100 %</b>.</li>
+        <li><span class="W">Prozentwert W</span>: der Teil vom Grundwert.</li>
+        <li><span class="P">Prozentsatz p %</span>: gibt an, wie viele Hundertstel vom Grundwert betrachtet werden – erkennbar am %-Zeichen.</li>
+        <li>Den Grundwert erkennst du oft an Wörtern wie <i>insgesamt, alle, voll, ganz, vorher</i>.</li>
+      </ul></div>
+      <button data-merke="z3merke" style="align-self:flex-start">Merke aufdecken</button>
+    </div>
+  </section>
+
+  <!-- Z4 -->
+  <section class="panel" id="z4" role="tabpanel" hidden>
+    <h2>Ich kann den Prozentwert zu typischen Prozentsätzen im Kopf berechnen.</h2>
+    <div class="board">
+      <div><b class="G">Grundwert G = <span id="z4G"></span></b> <span class="hint">(der ganze Streifen = 100 %)</span></div>
+      <div class="streifen"><div class="teil" id="z4teil"></div><div class="ticks" id="z4ticks"></div></div>
+      <div class="skala"><span>0 %</span><span>25 %</span><span>50 %</span><span>75 %</span><span>100 %</span></div>
+      <div class="tools prozknopf" id="z4p"></div>
+      <div class="rechnung" id="z4r"></div>
+      <div class="tools"><button id="z4weiter">Nächster Schritt ▶</button><button id="z4zurueck">Von vorn</button><button id="z4neu">Neuer Grundwert</button></div>
+    </div>
+    <div class="side">
+      <div class="merke" id="z4merke" hidden><h3>Merke – so rechnest du im Kopf</h3><ul>
+        <li>50 % = <span class="frac"><span>1</span><span>2</span></span> → durch 2</li>
+        <li>25 % = <span class="frac"><span>1</span><span>4</span></span> → durch 4</li>
+        <li>75 % = <span class="frac"><span>3</span><span>4</span></span> → durch 4, dann mal 3</li>
+        <li>20 % = <span class="frac"><span>1</span><span>5</span></span> → durch 5</li>
+        <li>10 % = <span class="frac"><span>1</span><span>10</span></span> → durch 10</li>
+        <li>1 % = <span class="frac"><span>1</span><span>100</span></span> → durch 100</li>
+      </ul></div>
+      <button data-merke="z4merke" style="align-self:flex-start">Merke aufdecken</button>
+    </div>
+  </section>
+
+  <p class="footer">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude und ChatGPT.</p>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const dez=(x,d=4)=>{let s=(+x.toFixed(d)).toString();return s.replace(".",",");};
+const frac=(z,n)=>`<span class="frac"><span>${z}</span><span>${n}</span></span>`;
+const ggt=(a,b)=>b?ggt(b,a%b):a;
+
+/* Reiter */
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.setAttribute("aria-selected",x===b?"true":"false"));
+  document.querySelectorAll(".panel").forEach(p=>p.hidden=p.id!==b.dataset.tab);
+}));
+document.querySelectorAll("[data-merke]").forEach(b=>b.addEventListener("click",()=>{
+  const m=$(b.dataset.merke);m.hidden=!m.hidden;b.textContent=m.hidden?"Merke aufdecken":"Merke verdecken";
+}));
+function toggleHide(btn,el,on,off){let h=false;btn.addEventListener("click",()=>{h=!h;el.classList.toggle("verdeckt",h);btn.textContent=h?off:on;btn.classList.toggle("on",h);});}
+
+/* ---------- Einstieg ---------- */
+const SCH=[
+ {txt:"20 % Rabatt",rech:"20 % von 80 € = ⅕ von 80 € = 80 € : 5 = <b>16 €</b>"},
+ {txt:"⅕ billiger",rech:"⅕ von 80 € = 80 € : 5 = <b>16 €</b>"},
+ {txt:"16 € sparen",rech:"Man spart <b>16 €</b>."}];
+let votes=[0,0,0],offen=[false,false,false];
+function zeigeSchilder(){
+  $("schilder").innerHTML=SCH.map((s,i)=>`<div class="schild"><div class="txt">${s.txt}</div>
+    <div class="stimmen"><button data-m="${i}" aria-label="Stimme weg">−</button><b>${votes[i]}</b><button data-p="${i}" aria-label="Stimme dazu">+</button></div>
+    <div class="los">${offen[i]?s.rech:`<button data-auf="${i}">Aufdecken</button>`}</div></div>`).join("");
+  $("schilder").querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{votes[+b.dataset.p]++;zeigeSchilder();});
+  $("schilder").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{const k=+b.dataset.m;votes[k]=Math.max(0,votes[k]-1);zeigeSchilder();});
+  $("schilder").querySelectorAll("[data-auf]").forEach(b=>b.onclick=()=>{offen[+b.dataset.auf]=true;zeigeSchilder();});
+  $("fazit").hidden=!offen.every(x=>x);
+}
+$("einAlle").onclick=()=>{offen=[true,true,true];zeigeSchilder();};
+$("einReset").onclick=()=>{votes=[0,0,0];offen=[false,false,false];zeigeSchilder();};
+zeigeSchilder();
+
+/* ---------- Z1 Hundertertafel ---------- */
+let v1=60;
+const g=$("g100");
+for(let k=0;k<100;k++){const c=document.createElement("div");c.className="cell";c.dataset.k=k;c.innerHTML="<i></i>";g.appendChild(c);}
+let malen=false;
+const setzeAus=e=>{const t=document.elementFromPoint(e.clientX,e.clientY);const c=t&&t.closest(".cell");if(c){v1=+c.dataset.k+1;zeigeZ1();}};
+g.addEventListener("pointerdown",e=>{malen=true;g.setPointerCapture(e.pointerId);setzeAus(e);});
+g.addEventListener("pointermove",e=>{if(malen)setzeAus(e);});
+["pointerup","pointercancel"].forEach(ev=>g.addEventListener(ev,()=>malen=false));
+$("z1r").addEventListener("input",e=>{v1=+e.target.value;zeigeZ1();});
+document.querySelectorAll("#z1 [data-v]").forEach(b=>b.onclick=()=>{v1=+b.dataset.v;zeigeZ1();});
+function zeigeZ1(){
+  [...g.children].forEach((c,k)=>c.firstChild.style.width=Math.max(0,Math.min(1,v1-k))*100+"%");
+  $("z1r").value=Math.round(v1);
+  $("z1n").innerHTML=`<b>${dez(v1)}</b> von 100 Kästchen sind gefärbt.`;
+  let k;
+  if(Number.isInteger(v1)){
+    const t=ggt(v1,100), z=v1/t, n=100/t, teile=[];
+    if(v1===0)teile.push("0");
+    else{ if(n!==100)teile.push(frac(z,n)); if(v1%10===0&&n!==10)teile.push(frac(v1/10,10)); teile.push(frac(v1,100)); }
+    k=teile.join(" = ")+` = ${dez(v1/100)} = <b>${dez(v1)} %</b>`;
+  }else{
+    const tz=Math.round(v1*10);
+    k=`${dez(v1)} % = ${frac(dez(v1),100)} = ${frac(tz,1000)} = <b>${dez(v1/100)}</b>`;
+  }
+  $("z1k").innerHTML=k;
+}
+toggleHide($("z1hide"),$("z1k"),"Umwandlung verdecken","Umwandlung zeigen");
+zeigeZ1();
+
+/* ---------- Z2 Prozent / Promille ---------- */
+const NS="http://www.w3.org/2000/svg";
+function feld(svg,cols,rows,n,farbe){
+  svg.innerHTML="";const w=300/cols,h=300/rows;let k=0;
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++,k++){
+    const e=document.createElementNS(NS,"rect");e.setAttribute("x",c*w);e.setAttribute("y",r*h);e.setAttribute("width",w);e.setAttribute("height",h);
+    e.setAttribute("fill",k<n?farbe:"#fff");e.setAttribute("stroke",cols>20?"#ddd":"#999");e.setAttribute("stroke-width",cols>20?.4:1);svg.appendChild(e);}
+}
+function zeigeZ2(){
+  const p=+$("z2p").value,m=+$("z2m").value;
+  feld($("f100"),10,10,p,"#2e7d32");feld($("f1000"),40,25,m,"#7b1fa2");
+  $("z2pt").innerHTML=`<b>${p} %</b> = ${frac(p,100)} = ${dez(p/100)}`;
+  $("z2mt").innerHTML=`<b>${m} ‰</b> = ${frac(m,1000)} = ${dez(m/1000)}`;
+  const a=p*10;$("z2vgl").textContent=`${p} %  ${a===m?"=":a>m?">":"<"}  ${m} ‰`;
+}
+$("z2p").oninput=zeigeZ2;$("z2m").oninput=zeigeZ2;
+document.querySelectorAll("[data-z2]").forEach(b=>b.onclick=()=>{const [p,m]=b.dataset.z2.split(",");$("z2p").value=p;$("z2m").value=m;zeigeZ2();});
+toggleHide($("z2hide"),$("z2vgl"),"Vergleich verdecken","Vergleich zeigen");
+zeigeZ2();
+
+/* ---------- Z3 Begriffe zuordnen ---------- */
+const SIT=[
+ ["In der 7b sind [25|G] Schüler. [5|W] von ihnen kommen mit dem Rad, das sind [20 %|P]."],
+ ["Im Sale spart man bei einer Jacke [16 €|W]. Das sind [20 %|P] vom alten Preis, der [80 €|G] betrug."],
+ ["[50 %|P] der Stimmen bekam Lena bei der Klassensprecherwahl, das sind [15|W] Stimmen. Insgesamt haben [30|G] Schüler abgestimmt."],
+ ["In einem Tank sind gerade [45 Liter|W]. Voll fasst er [60 Liter|G]. Er ist also zu [75 %|P] gefüllt."],
+ ["Tom hat schon [75 %|P] seiner Hausaufgaben geschafft. Insgesamt hatte er [40|G] Aufgaben auf, erledigt sind [30|W]."],
+ ["Das Schwimmbad hat [1000|G] Spinde. [1 %|P] ist kaputt – das sind [10|W] Spinde."],
+ ["Ein Saft hat [20 %|P] Fruchtanteil: [200 ml|W] Frucht stecken in der ganzen Packung mit [1000 ml|G]."],
+ ["[20|W] Lose waren beim Schulfest Gewinne. Verkauft wurden alle [200|G] Lose – die Gewinnchance lag bei [10 %|P]."],
+ ["Ein Buch hat [120|G] Seiten. Mia hat [25 %|P] gelesen, also [30|W] Seiten."]
+];
+let si=0,zuord={},akt=null;
+function zeigeZ3(){
+  zuord={};akt=null;$("z3fb").innerHTML="";
+  let k=0;
+  $("z3sit").innerHTML=SIT[si][0].replace(/\[([^|\]]+)\|(\w+)\]/g,(m,t,r)=>`<button class="zahl" data-i="${k++}" data-r="${r}" data-t="${t}">${t}</button>`);
+  $("z3sit").querySelectorAll(".zahl").forEach(b=>b.onclick=()=>{akt=b;$("z3sit").querySelectorAll(".zahl").forEach(x=>x.classList.toggle("akt",x===b));});
+}
+function setze(b,r){b.classList.remove("G","W","P","falsch","akt");b.classList.add(r);
+  const t=b.dataset.t;b.innerHTML=`${t}<span class="tag">${r==="P"?"p %":r}</span>`;zuord[b.dataset.i]=r;}
+document.querySelectorAll(".rolle").forEach(b=>b.onclick=()=>{if(!akt)return;setze(akt,b.dataset.r);akt=null;});
+$("z3check").onclick=()=>{
+  const z=[...$("z3sit").querySelectorAll(".zahl")];
+  if(z.some(b=>!zuord[b.dataset.i])){$("z3fb").innerHTML='<div class="fb err">Ordne zuerst allen drei Zahlen einen Begriff zu.</div>';return;}
+  let ok=true;z.forEach(b=>{const r=zuord[b.dataset.i]===b.dataset.r;b.classList.toggle("falsch",!r);if(!r)ok=false;});
+  $("z3fb").innerHTML=ok?'<div class="fb ok">Richtig zugeordnet!</div>':'<div class="fb err">Noch nicht ganz – die rot umrandeten Zahlen stimmen nicht.</div>';
+};
+$("z3loes").onclick=()=>{$("z3sit").querySelectorAll(".zahl").forEach(b=>setze(b,b.dataset.r));$("z3fb").innerHTML="";};
+$("z3neu").onclick=()=>{si=(si+1)%SIT.length;zeigeZ3();};
+zeigeZ3();
+
+/* ---------- Z4 Prozentstreifen ---------- */
+const PS=[1,10,20,25,50,75], NENN={1:100,10:10,20:5,25:4,50:2,75:4};
+const GW=[80,40,200,60,120,400,20,100,300,160];
+let gi=0,p4=25;
+$("z4ticks").innerHTML="<span></span>".repeat(4);
+$("z4p").innerHTML=PS.map(p=>`<button data-p4="${p}">${p} %</button>`).join("");
+$("z4p").querySelectorAll("button").forEach(b=>b.onclick=()=>{p4=+b.dataset.p4;schritt=0;zeigeZ4();});
+let schritt=0;
+function zeigeZ4(){
+  const G=GW[gi],W=G*p4/100,n=NENN[p4];
+  $("z4G").textContent=G+" €";
+  $("z4teil").style.width=p4+"%";
+  $("z4p").querySelectorAll("button").forEach(b=>b.classList.toggle("on",+b.dataset.p4===p4));
+  const bruch=p4===75?frac(3,4):frac(1,n);
+  const weg=p4===75?`${G} € : 4 · 3`:`${G} € : ${n}`;
+  const teile=[`<span class="P">${p4} %</span> von <span class="G">${G} €</span> =`, `${bruch} von ${G} € =`, `${weg} =`, `<span class="W">${dez(W,2)} €</span>`];
+  $("z4r").innerHTML=teile.map((t,i)=>`<span${i>schritt?' class="verdeckt"':""}>${t}</span>`).join(" ");
+  $("z4weiter").disabled=schritt>=teile.length-1;
+}
+$("z4weiter").onclick=()=>{schritt++;zeigeZ4();};
+$("z4zurueck").onclick=()=>{schritt=0;zeigeZ4();};
+$("z4neu").onclick=()=>{gi=(gi+1)%GW.length;schritt=0;zeigeZ4();};
+zeigeZ4();
+})();
+</script>
+
+<script>
+/* Eigenständige Erklärvideos je Reiter. Sprachwiedergabe erfolgt lokal im Browser. */
+(function(){
+const $=id=>document.getElementById(id);
+const chapters=['ein','z1','z2','z3','z4'];
+const scripts={
+ ein:[
+ ['Hier siehst du eine Jacke. Sie kostet ursprünglich achtzig Euro. Drei Geschäfte werben mit unterschiedlichen Angeboten. Welches Angebot ist wohl am günstigsten?',null],
+ ['Das erste Geschäft verspricht zwanzig Prozent Rabatt. Zwanzig Prozent sind ein Fünftel. Achtzig Euro geteilt durch fünf sind sechzehn Euro.',()=>document.querySelector('[data-auf="0"]')?.click()],
+ ['Das zweite Geschäft schreibt: ein Fünftel billiger. Auch das bedeutet sechzehn Euro Ersparnis.',()=>document.querySelector('[data-auf="1"]')?.click()],
+ ['Beim dritten Geschäft steht direkt: sechzehn Euro sparen.',()=>document.querySelector('[data-auf="2"]')?.click()],
+ ['Alle drei Angebote sind also gleich gut. Merke: Zwanzig Prozent, ein Fünftel und die Dezimalzahl null Komma zwei bezeichnen denselben Anteil.',null]
+ ],
+ z1:[
+ ['In der Hundertertafel entsprechen alle hundert Kästchen dem Ganzen. Sechzig gefärbte Kästchen sind sechzig von hundert, also sechzig Prozent.',()=>setZ1(60)],
+ ['Drei Fünftel sind genauso viel wie sechzig Hundertstel. Als Dezimalzahl schreiben wir null Komma sechs und als Prozentsatz sechzig Prozent.',()=>setZ1(60)],
+ ['Ein Viertel entspricht fünfundzwanzig von hundert Kästchen. Das sind fünfundzwanzig Prozent oder null Komma zwei fünf.',()=>setZ1(25)],
+ ['Die Hälfte entspricht fünfzig Prozent oder null Komma fünf.',()=>setZ1(50)],
+ ['Ein Prozent ist ein Hundertstel. Als Dezimalzahl ist das null Komma null eins.',()=>setZ1(1)],
+ ['Auch ein Komma zwei Prozent ist möglich. Ein Komma zwei Prozent entspricht null Komma null eins zwei.',()=>setZ1(1.2)],
+ ['Merke: Prozent bedeutet von Hundert. Um eine Dezimalzahl in Prozent umzuwandeln, verschieben wir das Komma zwei Stellen nach rechts. Umgekehrt zwei Stellen nach links.',()=>reveal('z1m')]
+ ],
+ z2:[
+ ['Prozent bedeutet von Hundert. Ein Prozent ist ein Kästchen von hundert.',()=>setZ2(1,10)],
+ ['Promille bedeutet von Tausend. Zehn Promille sind zehn Kästchen von tausend. Die gefärbten Anteile sind gleich groß. Ein Prozent ist also gleich zehn Promille.',()=>setZ2(1,10)],
+ ['Vergleichen wir fünf Prozent mit fünf Promille. Obwohl die Zahl gleich ist, ist der Anteil bei fünf Promille zehnmal kleiner.',()=>setZ2(5,5)],
+ ['Zehn Prozent sind genauso viel wie hundert Promille.',()=>setZ2(10,100)],
+ ['Merke: Ein Promille ist ein Tausendstel. Ein Prozent entspricht zehn Promille.',()=>reveal('z2merke')]
+ ],
+ z3:[
+ ['Bei der Prozentrechnung unterscheiden wir drei Begriffe: Grundwert, Prozentwert und Prozentsatz.',()=>{$('z3neu').click();}],
+ ['Wir betrachten eine Klasse mit fünfundzwanzig Schülerinnen und Schülern. Die gesamte Klasse ist der Grundwert G. Er entspricht hundert Prozent.',()=>{$('z3neu').click(); setSituation(0); assign(0,'G');}],
+ ['Fünf Kinder kommen mit dem Rad. Diese fünf sind der Prozentwert W, also der betrachtete Teil.',()=>assign(1,'W')],
+ ['Zwanzig Prozent ist der Prozentsatz p Prozent. Er beschreibt den Anteil des Prozentwertes am Grundwert.',()=>assign(2,'P')],
+ ['Bei einer Jacke mit achtzig Euro ursprünglichem Preis und sechzehn Euro Ersparnis ist der alte Preis der Grundwert, die Ersparnis der Prozentwert und zwanzig Prozent der Prozentsatz.',()=>{setSituation(1);$('z3loes').click();}],
+ ['Merke: Der Grundwert ist das Ganze. Der Prozentwert ist der Teil. Der Prozentsatz sagt, wie viele Hundertstel dieser Teil ausmacht.',()=>reveal('z3merke')]
+ ],
+ z4:[
+ ['Wir üben, Prozentwerte im Kopf zu berechnen. Der ganze Streifen ist unser Grundwert, also hundert Prozent.',()=>{$('z4zurueck').click();selectP(50);}],
+ ['Fünfzig Prozent sind die Hälfte. Wir teilen den Grundwert durch zwei.',()=>{$('z4zurueck').click();$('z4weiter').click();}],
+ ['Nun zeigen wir den Rechenweg und das Ergebnis.',()=>{$('z4weiter').click();$('z4weiter').click();}],
+ ['Fünfundzwanzig Prozent sind ein Viertel. Wir teilen den Grundwert durch vier.',()=>{selectP(25);$('z4weiter').click();}],
+ ['Das Ergebnis erscheint nach dem nächsten Rechenschritt.',()=>{$('z4weiter').click();$('z4weiter').click();}],
+ ['Zehn Prozent sind ein Zehntel. Wir teilen durch zehn.',()=>{selectP(10);$('z4weiter').click();$('z4weiter').click();$('z4weiter').click();}],
+ ['Fünfundsiebzig Prozent sind drei Viertel. Wir teilen zuerst durch vier und multiplizieren dann mit drei.',()=>{selectP(75);$('z4weiter').click();$('z4weiter').click();$('z4weiter').click();}],
+ ['Merke dir die einfachen Brüche. Mit ihnen kannst du viele Prozentwerte schnell im Kopf berechnen.',()=>reveal('z4merke')]
+ ]
+};
+function setZ1(v){const b=document.querySelector('#z1 [data-v="'+v+'"]');b?.click();}
+function setZ2(p,m){const a=$('z2p'),b=$('z2m');a.value=p;b.value=m;a.dispatchEvent(new Event('input'));}
+function reveal(id){const el=$(id);if(el.hidden){document.querySelector('[data-merke="'+id+'"]')?.click();}}
+function setSituation(index){let n=0;while(n<10 && !$('z3sit').textContent.includes(index===0?'25 Schüler':'Im Sale')){$('z3neu').click();n++;} }
+function assign(i,r){const b=$('z3sit').querySelectorAll('.zahl')[i];b?.click();document.querySelector('.rolle[data-r="'+r+'"]')?.click();}
+function selectP(p){document.querySelector('#z4p [data-p4="'+p+'"]')?.click();}
+let active=null,paused=false,token=0,utterance=null,waitHandle=null,waitResolve=null;
+function status(id,msg){const el=$(id+'-video-status');if(el)el.textContent=msg;}
+function buttons(id,playing,isPaused){const c=$(id+'-video-controls');c.querySelector('[data-action="start"]').disabled=playing;c.querySelector('[data-action="pause"]').disabled=!playing;c.querySelector('[data-action="pause"]').textContent=isPaused?'▶ Weiter':'⏸ Pause';c.querySelector('[data-action="stop"]').disabled=!playing;}
+function voice(){const v=speechSynthesis.getVoices();return v.find(x=>/google deutsch/i.test(x.name))||v.find(x=>/google/i.test(x.name)&&x.lang.toLowerCase().startsWith('de'))||v.find(x=>x.lang.toLowerCase().startsWith('de'))||null;}
+function stop(){token++;clearTimeout(waitHandle);if(waitResolve){waitResolve();waitResolve=null;}speechSynthesis.cancel();if(active){status(active,'Gestoppt. Mit Start beginnt dieses Kapitel von vorn.');buttons(active,false,false);}active=null;paused=false;utterance=null;}
+function speak(t,myToken){return new Promise(resolve=>{if(myToken!==token)return resolve();let done=false;const finish=()=>{if(!done){done=true;resolve();}};const u=new SpeechSynthesisUtterance(t);utterance=u;u.lang='de-DE';u.rate=.9;u.pitch=1;const v=voice();if(v)u.voice=v;u.onend=finish;u.onerror=finish;speechSynthesis.speak(u);});}
+function delay(ms,myToken){return new Promise(resolve=>{if(myToken!==token)return resolve();waitResolve=resolve;waitHandle=setTimeout(()=>{waitResolve=null;resolve();},ms);});}
+async function start(id){stop();active=id;paused=false;const mine=token;buttons(id,true,false);status(id,'Erklärung läuft …');
+ // Jede Kapitel-Erklärung setzt ihre eigene Ausgangsansicht zurück.
+ if(id==='ein')$('einReset').click();
+ if(id==='z1'){$('z1hide').classList.contains('on')&&$('z1hide').click();$('z1m').hidden=true;setZ1(60);}
+ if(id==='z2'){$('z2hide').classList.contains('on')&&$('z2hide').click();$('z2merke').hidden=true;setZ2(1,10);}
+ if(id==='z3'){$('z3merke').hidden=true;setSituation(0);}
+ if(id==='z4'){$('z4merke').hidden=true;$('z4zurueck').click();}
+ for(const [line,action] of scripts[id]){if(mine!==token)return;while(paused&&mine===token)await delay(120,mine);if(mine!==token)return;try{action?.();}catch(e){console.warn('Videoschritt:',e);}await speak(line,mine);if(mine!==token)return;await delay(400,mine);}
+ if(mine===token){status(id,'Kapitel beendet. Zum Wiederholen auf Start drücken.');buttons(id,false,false);active=null;}
+}
+for(const id of chapters){const panel=$(id),heading=panel.querySelector('h2');const c=document.createElement('div');c.className='video-controls';c.id=id+'-video-controls';c.innerHTML='<button data-action="start">▶ Start</button><button data-action="pause" disabled>⏸ Pause</button><button data-action="stop" disabled>■ Stopp</button><div class="video-status" id="'+id+'-video-status">Eigenständige Erklärung für dieses Kapitel – mit Start beginnen.</div>';heading.insertAdjacentElement('afterend',c);c.querySelector('[data-action="start"]').onclick=()=>start(id);c.querySelector('[data-action="pause"]').onclick=()=>{if(active!==id)return;paused=!paused;if(paused){speechSynthesis.pause();status(id,'Pausiert.');}else{speechSynthesis.resume();status(id,'Erklärung läuft …');}buttons(id,true,paused);};c.querySelector('[data-action="stop"]').onclick=stop;}
+document.querySelectorAll('nav [data-tab]').forEach(b=>b.addEventListener('click',()=>{if(active&&active!==b.dataset.tab)stop();}));
+if(!('speechSynthesis' in window)){chapters.forEach(id=>{status(id,'Dieser Browser unterstützt keine Sprachausgabe.');$(id+'-video-controls').querySelector('[data-action="start"]').disabled=true;});}
+})();
+</script>
+<script>
+(function(){
+  function still(){try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}}
+  document.getElementById('ll-zurueck').addEventListener('click',still);
+  window.addEventListener('pagehide',still);
+})();
+</script>
+</body>
+</html>
