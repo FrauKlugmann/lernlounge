@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Sinussatz – Interaktive Übungen</title>
+<script>
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  AUFGABENBLOCK – NUR AB HIER ÄNDERN                              ║
+   ║  Alles unterhalb von „ENDE AUFGABENBLOCK“ ist der feste Motor.   ║
+   ╚══════════════════════════════════════════════════════════════════╝
+   Kurzschrift in Texten:
+     [30]          Eingabefeld, Lösung 30 (Komma/Punkt egal)
+     [0,5|,5]      mehrere richtige Antworten mit |
+     {3/10}        Bruch;  {[30]/100}  Bruch mit Feld im Zähler
+     [=7/100]      Bruch frei eingeben (jeder gleichwertige Bruch zählt)
+     ((A|*B|C))    Auswahlknöpfe, * = richtig
+     [G:40] [W:10] [P:25 %]   Zahl zum Markieren (nur Art "markieren")
+     **fett**   <blau>…</blau>  <orange>…</orange>  <gruen>…</gruen>
+   Aufgabenarten: luecke, erweitern, hunderterfeld, faerben, tabelle,
+     vergleichen, auswahl, markieren, streifen, verhaeltnis, zuordnen,
+     richtigfalsch, sortieren, streifenbau, kreisbau   (jede kann zusätzlich bild:"<svg…>" haben)
+*/
+/* ─── Diagramm-Helfer (Teil des Motors, auch für feste Bilder in Aufgaben nutzbar) ─── */
+const DFARBEN=["#F4B6B0","#B7DFB9","#FFE08A","#CDBBE8","#A9DDE6"];
+const dEsc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const dZ=x=>String(Math.round(x*10)/10).replace(".",",");
+/* streifenSvg(namen, cm, {live, bis, texte}) – bis = Länge der Skala (Standard 10), texte = eigene Beschriftung je Teil */
+function streifenSvg(namen,cm,opt){
+  opt=opt||{};const x0=10,y0=22,h=40,pc=50,bis=opt.bis||10;const B=565+(bis-10)*pc;
+  let s='<svg viewBox="0 0 '+B+' 100" role="img" aria-label="Streifendiagramm" style="width:'+B+'px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  let x=0;
+  cm.forEach((c,i)=>{c=Math.max(0,c);const w=Math.max(0,Math.min(c,bis-x))*pc;
+    if(w>0){s+='<rect x="'+(x0+x*pc)+'" y="'+y0+'" width="'+w+'" height="'+h+'" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';
+      const n=(opt.texte?opt.texte[i]:namen[i])||"";if(n&&w>=n.length*7+8)s+='<text x="'+(x0+x*pc+w/2)+'" y="'+(y0+h/2+5)+'" text-anchor="middle" font-size="13">'+dEsc(n)+'</text>';}
+    x=Math.min(bis,x+c);});
+  s+='<rect x="'+x0+'" y="'+y0+'" width="'+10*pc+'" height="'+h+'" fill="none" stroke="#000" stroke-width="2"/>';
+  for(let k=0;k<=bis;k++)s+='<line x1="'+(x0+k*pc)+'" y1="'+(y0+h)+'" x2="'+(x0+k*pc)+'" y2="'+(y0+h+8)+'" stroke="#000" stroke-width="1.5"/><text x="'+(x0+k*pc)+'" y="'+(y0+h+23)+'" text-anchor="middle" font-size="13">'+k+'</text>';
+  s+='<text x="'+(x0+bis*pc+20)+'" y="'+(y0+h+23)+'" font-size="13">cm</text>';
+  const sum=cm.reduce((a,b)=>a+Math.max(0,b),0);
+  if(opt.live&&sum>10.0001)s+='<text x="10" y="12" font-size="13" fill="#C62828" font-weight="700">Zu lang! Der Streifen ist nur 10 cm lang.</text>';
+  return s+'</svg>';
+}
+/* kreisSvg(namen, grad, {winkel:false, texte}) – texte = eigene Beschriftung je Teil */
+function kreisSvg(namen,grad,opt){
+  opt=opt||{};const cx=225,cy=125,r=100;const P=a=>[cx+r*Math.sin(a*Math.PI/180),cy-r*Math.cos(a*Math.PI/180)];
+  let s='<svg viewBox="0 0 450 250" role="img" aria-label="Kreisdiagramm" style="width:450px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#fff" stroke="#000" stroke-width="2"/>';
+  let a=0;const lab=[];
+  grad.forEach((g,i)=>{g=Math.max(0,g);const b=Math.min(360,a+g);
+    if(b-a>0.0001){
+      if(b-a>=359.999)s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';
+      else{const p1=P(a),p2=P(b);s+='<path d="M'+cx+' '+cy+' L'+p1[0].toFixed(2)+' '+p1[1].toFixed(2)+' A'+r+' '+r+' 0 '+((b-a)>180?1:0)+' 1 '+p2[0].toFixed(2)+' '+p2[1].toFixed(2)+' Z" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';}
+      lab.push([i,(a+b)/2,b-a]);}
+    a=b;});
+  lab.forEach(([i,m,w])=>{const sn=Math.sin(m*Math.PI/180),cs=Math.cos(m*Math.PI/180);const px=cx+(r+10)*sn,py=cy-(r+10)*cs;
+    const an=sn>0.15?"start":sn<-0.15?"end":"middle";const dy=cs>0.9?-3:cs<-0.9?14:4;
+    const t=opt.texte?opt.texte[i]:(namen[i]||"")+(opt.winkel===false?"":" · "+dZ(grad[i])+"°");
+    s+='<text x="'+px.toFixed(1)+'" y="'+(py+dy).toFixed(1)+'" text-anchor="'+an+'" font-size="13">'+dEsc(t)+'</text>';});
+  return s+'</svg>';
+}
+
+/* ─── Geometrie-Helfer „Rechtwinklige Dreiecke“ (Arbeitsblattvorlage: rechter Winkel mit Bogen und Punkt, Ecken gegen den Uhrzeigersinn, Seite gegenüber der gleichnamigen Ecke) ─── */
+const gU=(x,y)=>{const l=Math.hypot(x,y)||1;return[x/l,y/l];};
+const gE=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const gZ=(x,d)=>{const f=Math.pow(10,d==null?1:d);return String(Math.round(x*f)/f).replace(".",",");};
+function gT(x,y,s,o){o=o||{};return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" font-size="'+(o.size||16)+'" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" fill="'+(o.fill||"#000")+'"'+(o.bold?' font-weight="700"':'')+(o.it?' font-style="italic"':'')+'>'+gE(s)+'</text>';}
+/* rtSvg({e:["A","B","C"], r:2, L:[4,3], rot:0, s:{a:"5 cm"}, farbe:{c:"#C62828"}, klick:false, w:260})
+   e = Ecken gegen den Uhrzeigersinn · r = Index der Ecke mit dem rechten Winkel · L = [Länge zur nächsten Ecke, Länge zur übernächsten]
+   rot = Drehung in Grad · s = Seitenbeschriftung (Schlüssel = kleiner Buchstabe; fehlt eine Seite, steht ihr Buchstabe; s:false = keine)
+   fix = feste Pixel je Einheit (dann wächst das Dreieck sichtbar), org = [x,y] Lage des rechten Winkels bei fix */
+function rtSvg(o){
+  o=o||{};const e=o.e||["A","B","C"],r=o.r==null?2:o.r,L=o.L||[4,3],rot=(o.rot||0)*Math.PI/180;
+  const n=(r+1)%3,p=(r+2)%3,raw=[];raw[r]=[0,0];raw[n]=[L[0],0];raw[p]=[0,L[1]];
+  /* Regel: erste Ecke links unten, dann gegen den Uhrzeigersinn → Seite e0e1 waagerecht unten, e0 links; rot erzeugt nur eine leichte Neigung */
+  const phi=Math.atan2(raw[1][1]-raw[0][1],raw[1][0]-raw[0][0]),al=(Math.atan2(raw[2][1]-raw[0][1],raw[2][0]-raw[0][0])-phi)*180/Math.PI;
+  const kw=o.kipp!=null?o.kipp:(o.rot?((Math.round(o.rot)*7)%21+21)%21:0),kipp=Math.min(kw,Math.max(0,90-(((al%360)+360)%360)-3))*Math.PI/180,w0=-phi+kipp;
+  const pts=raw.map(([x,y])=>{x-=raw[0][0];y-=raw[0][1];return[x*Math.cos(w0)-y*Math.sin(w0),x*Math.sin(w0)+y*Math.cos(w0)];});
+  const pad=o.pad||(o.s&&Object.values(o.s).some(x=>String(x).length>2)?60:44),xs=pts.map(q=>q[0]),ys=pts.map(q=>q[1]),W=o.bw||300;
+  const dxs=(Math.max(...xs)-Math.min(...xs))||1,dys=(Math.max(...ys)-Math.min(...ys))||1,H=o.bh||Math.round(Math.max(130,Math.min(240,2*pad+(W-2*pad)*dys/dxs)));
+  let sc,ox,oy;
+  if(o.fix){sc=o.fix;ox=o.org[0];oy=o.org[1];}
+  else{sc=Math.min((W-2*pad)/((Math.max(...xs)-Math.min(...xs))||1),(H-2*pad)/((Math.max(...ys)-Math.min(...ys))||1));
+    ox=(W-sc*(Math.max(...xs)+Math.min(...xs)))/2;oy=(H+sc*(Math.max(...ys)+Math.min(...ys)))/2;}
+  const P=pts.map(([x,y])=>[ox+sc*x,oy-sc*y]),G=[(P[0][0]+P[1][0]+P[2][0])/3,(P[0][1]+P[1][1]+P[2][1])/3];
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Rechtwinkliges Dreieck '+e.join("")+'" style="width:'+(o.w||W)+'px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  const u=gU(P[n][0]-P[r][0],P[n][1]-P[r][1]),v=gU(P[p][0]-P[r][0],P[p][1]-P[r][1]),ra=o.ra||24,cr=u[0]*v[1]-u[1]*v[0],bi=gU(u[0]+v[0],u[1]+v[1]);
+  s+='<path d="M'+P[r][0].toFixed(1)+' '+P[r][1].toFixed(1)+' L'+(P[r][0]+ra*u[0]).toFixed(1)+' '+(P[r][1]+ra*u[1]).toFixed(1)+' A'+ra+' '+ra+' 0 0 '+(cr>0?1:0)+' '+(P[r][0]+ra*v[0]).toFixed(1)+' '+(P[r][1]+ra*v[1]).toFixed(1)+' Z" fill="#e9e9e9" stroke="#000" stroke-width="1.3"/>';
+  s+='<circle cx="'+(P[r][0]+9.5*bi[0]).toFixed(1)+'" cy="'+(P[r][1]+9.5*bi[1]).toFixed(1)+'" r="2.8" fill="#000"/>';
+  const lab=[];
+  for(let k=0;k<3;k++){
+    const i=(k+1)%3,j=(k+2)%3,nm=e[k].toLowerCase(),A=P[i],B=P[j],M=[(A[0]+B[0])/2,(A[1]+B[1])/2],d=gU(B[0]-A[0],B[1]-A[1]);
+    let nn=[-d[1],d[0]];if((M[0]-G[0])*nn[0]+(M[1]-G[1])*nn[1]<0)nn=[-nn[0],-nn[1]];
+    const f=(o.farbe&&o.farbe[nm])||"#000";
+    s+='<line class="seite" data-s="'+nm+'" x1="'+A[0].toFixed(1)+'" y1="'+A[1].toFixed(1)+'" x2="'+B[0].toFixed(1)+'" y2="'+B[1].toFixed(1)+'" stroke="'+f+'" stroke-width="'+(f==="#000"?3:5)+'" stroke-linecap="round"/>';
+    if(o.klick)s+='<line class="hit" data-s="'+nm+'" x1="'+A[0].toFixed(1)+'" y1="'+A[1].toFixed(1)+'" x2="'+B[0].toFixed(1)+'" y2="'+B[1].toFixed(1)+'" stroke="transparent" stroke-width="24" style="cursor:pointer"/>';
+    if(o.s!==false){const t=o.s&&o.s[nm]!=null?o.s[nm]:nm;if(t!==""){const off=13+Math.abs(nn[0])*t.length*4.6+Math.abs(nn[1])*6;
+      lab.push(gT(M[0]+off*nn[0],M[1]+off*nn[1],t,{it:t.length===1,size:o.fs||16,fill:f==="#000"?"#000":f,bold:f!=="#000"}));}}
+  }
+  s+=lab.join("");
+  for(let k=0;k<3;k++){const q=gU(P[k][0]-G[0],P[k][1]-G[1]);s+=gT(P[k][0]+17*q[0],P[k][1]+17*q[1],e[k],{bold:true,size:17});}
+  return s+'</svg>';
+}
+/* qSvg(a,b): rechtwinkliges Dreieck ABC (A links unten, B rechts unten, rechter Winkel bei C oben) mit Quadraten über allen drei Seiten; feste Größe (1 cm = u px) */
+function qSvg(a,b,o){
+  o=o||{};const u=o.u||22,c=Math.hypot(a,b),A=[0,0],B=[c,0],C=[b*b/c,a*b/c];
+  const sqr=(P,Q)=>{const d=[Q[0]-P[0],Q[1]-P[1]],nn=[d[1],-d[0]];return[P,Q,[Q[0]+nn[0],Q[1]+nn[1]],[P[0]+nn[0],P[1]+nn[1]]];};
+  const S={c:sqr(A,B),a:sqr(B,C),b:sqr(C,A)},all=[].concat(S.a,S.b,S.c);
+  const mnx=Math.min(...all.map(q=>q[0])),mxx=Math.max(...all.map(q=>q[0])),mny=Math.min(...all.map(q=>q[1])),mxy=Math.max(...all.map(q=>q[1])),pad=24;
+  const W=(mxx-mnx)*u+2*pad,H=(mxy-mny)*u+2*pad,X=x=>pad+(x-mnx)*u,Y=y=>pad+(mxy-y)*u,pt=q=>X(q[0]).toFixed(1)+','+Y(q[1]).toFixed(1);
+  let s='<svg viewBox="0 0 '+W.toFixed(0)+' '+H.toFixed(0)+'" role="img" aria-label="Quadrate über den Seiten" style="width:'+(o.w||W.toFixed(0))+'px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  const quad=(Q,f,st,n)=>{let h='<polygon points="'+Q.map(pt).join(" ")+'" fill="'+f+'" stroke="'+st+'" stroke-width="2"/>';
+    if(n){const P=Q[0],ux=(Q[1][0]-P[0])/n,uy=(Q[1][1]-P[1])/n,vx=(Q[3][0]-P[0])/n,vy=(Q[3][1]-P[1])/n;
+      for(let i=1;i<n;i++){h+='<line x1="'+X(P[0]+i*ux)+'" y1="'+Y(P[1]+i*uy)+'" x2="'+X(P[0]+i*ux+n*vx)+'" y2="'+Y(P[1]+i*uy+n*vy)+'" stroke="#7aa6d6" stroke-width="1"/>';
+        h+='<line x1="'+X(P[0]+i*vx)+'" y1="'+Y(P[1]+i*vy)+'" x2="'+X(P[0]+i*vx+n*ux)+'" y2="'+Y(P[1]+i*vy+n*uy)+'" stroke="#7aa6d6" stroke-width="1"/>';}}
+    return h;};
+  s+=quad(S.c,"#FDE7E7","#C62828",0)+quad(S.a,"#E3EEFB","#1565C0",Number.isInteger(a)?a:0)+quad(S.b,"#E3EEFB","#1565C0",Number.isInteger(b)?b:0);
+  s+='<polygon points="'+[A,B,C].map(pt).join(" ")+'" fill="#fff" stroke="#000" stroke-width="3" stroke-linejoin="round"/>';
+  const uC=gU(X(A[0])-X(C[0]),Y(A[1])-Y(C[1])),vC=gU(X(B[0])-X(C[0]),Y(B[1])-Y(C[1])),ra=Math.min(15,0.4*Math.min(a,b)*u),bi=gU(uC[0]+vC[0],uC[1]+vC[1]);
+  s+='<path d="M'+X(C[0])+' '+Y(C[1])+' L'+(X(C[0])+ra*uC[0])+' '+(Y(C[1])+ra*uC[1])+' A'+ra+' '+ra+' 0 0 0 '+(X(C[0])+ra*vC[0])+' '+(Y(C[1])+ra*vC[1])+' Z" fill="#e9e9e9" stroke="#000" stroke-width="1.2"/><circle cx="'+(X(C[0])+ra*.45*bi[0])+'" cy="'+(Y(C[1])+ra*.45*bi[1])+'" r="2.3" fill="#000"/>';
+  const G=[(A[0]+B[0]+C[0])/3,(A[1]+B[1]+C[1])/3],mid=(P,Q,t2)=>{const M=[(P[0]+Q[0])/2,(P[1]+Q[1])/2],d=gU(M[0]-G[0],M[1]-G[1]);return gT(X(M[0])-d[0]*12,Y(M[1])+d[1]*12,t2,{it:true,size:16});};
+  s+=mid(A,B,"c")+mid(B,C,"a")+mid(C,A,"b");
+  const lab=(P,t2)=>{const d=gU(P[0]-G[0],P[1]-G[1]);return gT(X(P[0])+14*d[0],Y(P[1])-14*d[1],t2,{bold:true,size:15});};
+  s+=lab(A,"A")+lab(B,"B")+lab(C,"C");
+  return s+'</svg>';
+}
+/* sdSvg(x,y,z): beliebiges Dreieck aus drei Seiten, längste Seite unten; größter Winkel mit Gradzahl im Bogen (bei 90° mit Punkt) */
+function sdSvg(x,y,z){
+  const L=[x,y,z].sort((p,q)=>p-q),[s1,s2,lg]=L;
+  if(!(s1>0)||s1+s2<=lg+1e-9)return '<p style="color:#C62828;font-weight:700">Mit diesen drei Seiten gibt es kein Dreieck.</p>';
+  const ax=(lg*lg+s1*s1-s2*s2)/(2*lg),ay=Math.sqrt(Math.max(0,s1*s1-ax*ax));
+  const W=340,H=230,pad=34,sc=Math.min((W-2*pad)/lg,(H-2*pad-10)/ay);
+  const A=[pad+(W-2*pad-lg*sc)/2,H-pad],B=[A[0]+lg*sc,H-pad],C=[A[0]+ax*sc,H-pad-ay*sc];
+  const gam=Math.acos(Math.max(-1,Math.min(1,(s1*s1+s2*s2-lg*lg)/(2*s1*s2))))*180/Math.PI,rund=Math.round(gam*10)/10,recht=Math.abs(rund-90)<0.05;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Dreieck aus drei Seiten" style="width:340px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  const u=gU(A[0]-C[0],A[1]-C[1]),v=gU(B[0]-C[0],B[1]-C[1]),bi=gU(u[0]+v[0],u[1]+v[1]),lb=recht?"90°":gZ(rund)+"°";
+  const ra=Math.min(0.45*Math.min(s1,s2)*sc,46),tR=ra*0.62;
+  s+='<path d="M'+C[0].toFixed(1)+' '+C[1].toFixed(1)+' L'+(C[0]+ra*u[0]).toFixed(1)+' '+(C[1]+ra*u[1]).toFixed(1)+' A'+ra.toFixed(1)+' '+ra.toFixed(1)+' 0 0 0 '+(C[0]+ra*v[0]).toFixed(1)+' '+(C[1]+ra*v[1]).toFixed(1)+' Z" fill="'+(recht?"#E5F4E6":"#e9e9e9")+'" stroke="#000" stroke-width="1.3"/>';
+  if(recht)s+='<circle cx="'+(C[0]+8*bi[0]).toFixed(1)+'" cy="'+(C[1]+8*bi[1]).toFixed(1)+'" r="2.6" fill="#000"/>';
+  s+=gT(C[0]+(tR+6)*bi[0],C[1]+(tR+6)*bi[1],lb,{size:12,bold:true});
+  s+='<polygon points="'+[A,B,C].map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(" ")+'" fill="none" stroke="#000" stroke-width="3" stroke-linejoin="round"/>';
+  s+=gT((A[0]+B[0])/2,H-pad+16,gZ(lg,2)+" cm",{size:14});
+  s+=gT((A[0]+C[0])/2-22,(A[1]+C[1])/2-4,gZ(s1,2)+" cm",{size:14})+gT((B[0]+C[0])/2+22,(B[1]+C[1])/2-4,gZ(s2,2)+" cm",{size:14});
+  return s+'</svg><p class="summe">Größter Winkel: <b>'+lb+'</b> → '+(recht?'<b style="color:#2e7d32">rechtwinklig</b>':'<b>nicht rechtwinklig</b>')+'</p>';
+}
+/* gSvg(a,b): rechtwinkliges Dreieck im Kästchenraster (1 Kästchen = 1 cm²), gestricheltes Rechteck aus beiden Katheten */
+function gSvg(a,b,o){
+  o=o||{};const u=o.u||26,M=o.max||10,pad=30,W=M*u+2*pad,H=M*u+2*pad,X=x=>pad+x*u,Y=y=>H-pad-y*u;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Dreieck im Kästchenraster" style="width:'+(o.w||W)+'px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  for(let i=0;i<=M;i++)s+='<line x1="'+X(i)+'" y1="'+Y(0)+'" x2="'+X(i)+'" y2="'+Y(M)+'" stroke="#c9d6e6" stroke-width="1"/><line x1="'+X(0)+'" y1="'+Y(i)+'" x2="'+X(M)+'" y2="'+Y(i)+'" stroke="#c9d6e6" stroke-width="1"/>';
+  s+='<rect x="'+X(0)+'" y="'+Y(b)+'" width="'+a*u+'" height="'+b*u+'" fill="#FFF3B0" fill-opacity=".55" stroke="#000" stroke-width="2" stroke-dasharray="7 5"/>';
+  s+='<polygon points="'+X(0)+','+Y(0)+' '+X(a)+','+Y(0)+' '+X(0)+','+Y(b)+'" fill="#9ED8BE" stroke="#000" stroke-width="3" stroke-linejoin="round"/>';
+  const ra=Math.min(18,0.45*Math.min(a,b)*u);
+  s+='<path d="M'+X(0)+' '+Y(0)+' L'+(X(0)+ra)+' '+Y(0)+' A'+ra+' '+ra+' 0 0 0 '+X(0)+' '+(Y(0)-ra)+' Z" fill="#e9e9e9" stroke="#000" stroke-width="1.2"/><circle cx="'+(X(0)+ra*.42)+'" cy="'+(Y(0)-ra*.42)+'" r="2.4" fill="#000"/>';
+  s+=gT(X(a/2),Y(0)+15,"a = "+gZ(a)+" cm",{size:15})+gT(X(0)+34,Y(b)-12,"b = "+gZ(b)+" cm",{size:15});
+  return s+'</svg>';
+}
+
+const dKap=(cap,svg)=>'<div><p><b>'+cap+'</b></p>'+svg+'</div>';
+/* Dreiecke für Übung 1 (gedreht, andere Buchstaben, rechter Winkel nicht immer bei C) */
+/* ─── Allgemeine Dreiecke (Sinussatz): erste Ecke links unten, gegen den Uhrzeigersinn; Winkelgröße im Bogen ─── */
+const GRK={A:"α",B:"β",C:"γ",D:"δ",E:"ε",F:"φ",K:"κ",L:"λ",M:"μ",R:"ρ",S:"σ",T:"τ",X:"ξ",Y:"ψ",Z:"ζ",U:"υ",V:"ν",W:"ω"};
+/* gdSvg({e, vn, al, be, c, s, wk, fix, org, bw, bh, w, hoehe})
+   e = Ecken (Buchstaben), vn = sichtbare Eckennamen (z. B. "Ben"), al/be = Winkel an e[0]/e[1], c = Länge e[0]e[1] (nur bei fix),
+   s = Seitenbeschriftung (Schlüssel = kleiner Buchstabe; fehlt → Buchstabe; "" → keine), wk = Winkelbeschriftung {0:"50°"} (fehlt → alle mit griech. Buchstaben) */
+function gdSvg(o){
+  const e=o.e||["A","B","C"],vn=o.vn||e,r=Math.PI/180,al=o.al,be=o.be,ga=180-al-be,c=o.c||1;
+  const b=c*Math.sin(be*r)/Math.sin(ga*r),raw=[[0,0],[c,0],[b*Math.cos(al*r),b*Math.sin(al*r)]];
+  const xs=raw.map(p=>p[0]),ys=raw.map(p=>p[1]),dx=Math.max(...xs)-Math.min(...xs),dy=Math.max(...ys)-Math.min(...ys);
+  let W=o.bw||320,H,sc,ox,oy;const pad=o.pad||42;
+  if(o.fix){sc=o.fix;H=o.bh||260;ox=o.org[0]-sc*Math.min(0,Math.min(...xs));oy=o.org[1];}
+  else{H=o.bh||Math.round(Math.max(150,Math.min(260,2*pad+(W-2*pad)*dy/dx)));sc=Math.min((W-2*pad)/dx,(H-2*pad)/dy);ox=(W-sc*(Math.max(...xs)+Math.min(...xs)))/2;oy=(H+sc*(Math.max(...ys)+Math.min(...ys)))/2;}
+  const P=raw.map(([x,y])=>[ox+sc*x,oy-sc*y]),G=[(P[0][0]+P[1][0]+P[2][0])/3,(P[0][1]+P[1][1]+P[2][1])/3],ang=[al,be,ga];
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Dreieck" style="width:'+(o.w||W)+'px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  const wk=o.wk||{0:null,1:null,2:null};
+  for(const key of Object.keys(wk)){const i=+key,lab=wk[key]==null?(GRK[e[i]]||""):wk[key];
+    const oo=[0,1,2].filter(j=>j!==i).map(j=>P[j]);
+    const u=gU(oo[0][0]-P[i][0],oo[0][1]-P[i][1]),v=gU(oo[1][0]-P[i][0],oo[1][1]-P[i][1]);
+    const l1=Math.hypot(oo[0][0]-P[i][0],oo[0][1]-P[i][1]),l2=Math.hypot(oo[1][0]-P[i][0],oo[1][1]-P[i][1]);
+    const tw=0.6*15*Math.max(String(lab).length,1),half=ang[i]*r/2;
+    let tR=Math.max(15,(tw/2+4)/Math.sin(half));const rr=Math.min(0.45*Math.min(l1,l2),Math.max(30,tR+tw/2+7));if(tR+tw/2>rr)tR=rr+tw/2+4;
+    const cr=u[0]*v[1]-u[1]*v[0],bi=gU(u[0]+v[0],u[1]+v[1]);
+    s+='<path d="M'+P[i][0].toFixed(1)+' '+P[i][1].toFixed(1)+' L'+(P[i][0]+rr*u[0]).toFixed(1)+' '+(P[i][1]+rr*u[1]).toFixed(1)+' A'+rr.toFixed(1)+' '+rr.toFixed(1)+' 0 0 '+(cr>0?1:0)+' '+(P[i][0]+rr*v[0]).toFixed(1)+' '+(P[i][1]+rr*v[1]).toFixed(1)+' Z" fill="#e9e9e9" stroke="#000" stroke-width="1.3"/>';
+    if(lab!=="")s+=gT(P[i][0]+tR*bi[0],P[i][1]+tR*bi[1],lab,{bold:true,size:15});}
+  if(o.hoehe){const A=P[0],B=P[1],C=P[2],d=gU(B[0]-C[0],B[1]-C[1]),t=(A[0]-C[0])*d[0]+(A[1]-C[1])*d[1],F=[C[0]+t*d[0],C[1]+t*d[1]];
+    if(t<0||t>Math.hypot(B[0]-C[0],B[1]-C[1]))s+='<line x1="'+C[0].toFixed(1)+'" y1="'+C[1].toFixed(1)+'" x2="'+F[0].toFixed(1)+'" y2="'+F[1].toFixed(1)+'" stroke="#000" stroke-width="1.2" stroke-dasharray="3 3"/>';
+    s+='<line x1="'+A[0].toFixed(1)+'" y1="'+A[1].toFixed(1)+'" x2="'+F[0].toFixed(1)+'" y2="'+F[1].toFixed(1)+'" stroke="#00805F" stroke-width="2.5" stroke-dasharray="6 4"/>';
+    const M=[(A[0]+F[0])/2,(A[1]+F[1])/2];s+=gT(M[0]-12*d[0],M[1]-12*d[1],"h",{it:true,bold:true,size:17,fill:"#00805F"});}
+  const lab=[];
+  for(let k=0;k<3;k++){const i=(k+1)%3,j=(k+2)%3,nm=e[k].toLowerCase(),A=P[i],B=P[j],M=[(A[0]+B[0])/2,(A[1]+B[1])/2],d=gU(B[0]-A[0],B[1]-A[1]);
+    let nn=[-d[1],d[0]];if((M[0]-G[0])*nn[0]+(M[1]-G[1])*nn[1]<0)nn=[-nn[0],-nn[1]];
+    s+='<line x1="'+A[0].toFixed(1)+'" y1="'+A[1].toFixed(1)+'" x2="'+B[0].toFixed(1)+'" y2="'+B[1].toFixed(1)+'" stroke="#000" stroke-width="3" stroke-linecap="round"/>';
+    const t=o.s&&o.s[nm]!=null?o.s[nm]:nm;if(t!==""){const off=13+Math.abs(nn[0])*t.length*4.4+Math.abs(nn[1])*6;
+      lab.push(gT(M[0]+off*nn[0],M[1]+off*nn[1],t,{it:t.length===1,size:16}));}}
+  s+=lab.join("");
+  for(let k=0;k<3;k++){const q=gU(P[k][0]-G[0],P[k][1]-G[1]),L=String(vn[k]).length;s+=gT(P[k][0]+(17+(L-1)*7)*q[0],P[k][1]+(17+(L>1?4:0))*q[1],vn[k],{bold:true,size:17});}
+  return s+'</svg>';
+}
+const gd=(e,al,be,o)=>gdSvg(Object.assign({e,al,be,w:250},o||{}));
+const kap=(t,svg)=>dKap(t,svg);
+const dgm=(...x)=>'<div class="dgm">'+x.join("")+'</div>';
+const ABCg=gd(["A","B","C"],62,50,{w:230});
+
+const BLATT = {
+  thema: "Sinussatz",
+  erstellt: "November 2026",
+  uebungen: [
+    { reiter: "Z1 + Z2 Sinussatz", titel: "Den Sinussatz aufstellen und anwenden", aufgaben: [
+      { art: "sinus", modus: "quot", name: "Entdecke den Sinussatz",
+        auftrag: "Verändere die Winkel α und β und die Seite c mit den Schiebereglern. Beobachte die Tabelle unter dem Dreieck.",
+        nach: '<p><b>a)</b> Stelle α = 50°, β = 60° und c = 6 cm ein. Dann ist γ = [70]°. Lies ab: Seite ÷ Sinus ist bei a ≈ [6,39~0,011], bei b ≈ [6,39~0,011] und bei c ≈ [6,39~0,011].</p>'+
+              '<p><b>b)</b> Probiere weitere Werte aus. In jedem Dreieck sind die drei Quotienten Seite ÷ Sinus des gegenüberliegenden Winkels ((verschieden|*gleich)).</p>'+
+              '<p><b>c)</b> Mache nur α größer. Die Seite a wird ((*länger|kürzer|nicht verändert)).</p>'+
+              '<p><b>d)</b> Der größte Winkel liegt immer der ((kürzesten|*längsten)) Seite gegenüber.</p>' },
+      { art: "auswahl", name: "Paare finden", auftrag: "Welche Seite liegt dem Winkel gegenüber? Tippe an.", bildoben: true,
+        bild: dgm(kap("Dreieck a)",gd(["D","E","F"],55,70)),kap("Dreieck b)",gd(["K","L","M"],40,105)),kap("Dreieck c)",gd(["R","S","T"],72,48))),
+        items: [["Dreieck a): Dem Winkel ε liegt die Seite","e",["d","e","f"]],["Dreieck a): Dem Winkel φ liegt die Seite","f",["d","e","f"]],
+                ["Dreieck b): Dem Winkel κ liegt die Seite","k",["k","l","m"]],["Dreieck b): Der Seite m liegt der Winkel","μ",["κ","λ","μ"]],
+                ["Dreieck c): Der Seite s liegt der Winkel","σ",["ρ","σ","τ"]],["Dreieck c): Dem Winkel τ liegt die Seite","t",["r","s","t"]]] },
+      { art: "luecke", name: "Sinussatz aufstellen", auftrag: "Ergänze den Sinussatz. Tippe zu jeder Seite den passenden Winkel an.", bildoben: true, spalten: 1, nummern: false,
+        bild: dgm(kap("Dreieck a)",gd(["D","E","F"],55,70)),kap("Dreieck b)",gd(["K","L","M"],40,105)),kap("Dreieck c)",gd(["R","S","T"],72,48))),
+        items: ["Dreieck a): {d/sin ((*δ|ε|φ))} = {e/sin ((δ|*ε|φ))} = {f/sin ((δ|ε|*φ))}",
+                "Dreieck b): {m/sin ((κ|λ|*μ))} = {k/sin ((*κ|λ|μ))} = {l/sin ((κ|*λ|μ))}",
+                "Dreieck c): {((r|*s|t))/sin σ} = {((*r|s|t))/sin ρ} = {((r|s|*t))/sin τ}"] },
+      { art: "auswahl", name: "Welche Gleichung stimmt?", auftrag: "Hier gibt es keine Zeichnung. Tippe die richtige Gleichung an.",
+        items: [["Dreieck ABC:","a ÷ sin α = c ÷ sin γ",["a ÷ sin α = c ÷ sin γ","a ÷ sin γ = c ÷ sin α","a ÷ sin β = c ÷ sin γ"]],
+                ["Dreieck RST:","s ÷ sin σ = t ÷ sin τ",["s ÷ sin τ = t ÷ sin σ","s ÷ sin σ = t ÷ sin τ","r ÷ sin σ = s ÷ sin ρ"]],
+                ["Dreieck DEF:","sin ε ÷ e = sin φ ÷ f",["sin ε ÷ e = sin φ ÷ f","sin ε ÷ f = sin φ ÷ e","sin δ ÷ e = sin ε ÷ d"]],
+                ["Dreieck KLM:","k ÷ sin κ = m ÷ sin μ",["k ÷ sin λ = m ÷ sin μ","k ÷ sin κ = m ÷ sin μ","k ÷ sin μ = m ÷ sin κ"]]] },
+      { art: "luecke", name: "Seiten berechnen", auftrag: "Berechne die Seite mit dem Sinussatz. Runde cm auf mm und m auf cm.", bild: ABCg, spalten: 1,
+        items: ["a = 5 cm, α = 30°, β = 90° → b = [10] cm",
+                "a = 6 cm, α = 40°, β = 75° → b ≈ [9~0,06] cm",
+                "c = 7 cm, α = 48°, γ = 65° → a ≈ [5,7~0,06] cm",
+                "c = 9 cm, α = 35°, β = 80° → b ≈ [9,8~0,06] cm",
+                "b = 120 m, α = 72°, γ = 43° → a ≈ [125,92~0,006] m"] },
+      { art: "luecke", name: "Winkel berechnen", auftrag: "Berechne den gesuchten Winkel. Er liegt immer der kürzeren Seite gegenüber. Runde auf ganze Grad.", bild: ABCg, spalten: 1,
+        items: [{ s: "a = 10 cm, b = 5 cm, α = 90°", z: "β = [30]°" },
+                { s: "a = 9 cm, b = 6 cm, α = 80°", z: "β ≈ [41]°" },
+                { s: "c = 12 cm, a = 7 cm, γ = 110°", z: ["α ≈ [33]°","β ≈ [37]°"] },
+                { s: "b = 7,4 m, c = 5,1 m, β = 124°", z: ["γ ≈ [35]°","α ≈ [21]°"] }] },
+      { art: "richtigfalsch", name: "Stimmt das?", stern: true,
+        items: [["sin 150° = sin 30°", true],
+                ["sin⁻¹(0,5) liefert 30° und 150°.", false],
+                ["Für den Sinussatz muss ein Paar aus Seite und gegenüberliegendem Winkel vollständig bekannt sein.", true],
+                ["Im Dreieck DEF gilt: d ÷ sin δ = e ÷ sin φ.", false],
+                ["Gegeben sind a = 7 cm, b = 5 cm und α. Dann berechnet man sicher eindeutig den Winkel β.", true]] }
+    ]},
+    { reiter: "Z3 Sachaufgaben", titel: "Sachaufgaben mit dem Sinussatz lösen", aufgaben: [
+      { art: "sinus", modus: "drohne", name: "Wo ist die Drohne?",
+        auftrag: "Ben und Lea peilen dieselbe Drohne an. Verändere ihren Abstand d und die beiden Winkel. Beobachte die Abstände zur Drohne.",
+        nach: '<p><b>a)</b> Stelle d = 100 m, Winkel bei Ben 50° und Winkel bei Lea 60° ein. Die Drohne ist von Ben ≈ [92,16~0,006] m entfernt.</p>'+
+              '<p><b>b)</b> Mache nur den Winkel bei Lea größer. Der Abstand von Ben zur Drohne wird ((*größer|kleiner)).</p>'+
+              '<p><b>c)</b> Stelle beide Winkel auf 60° ein. Dann ist das Dreieck ((rechtwinklig|*gleichseitig|stumpfwinklig)), und die Drohne ist von Ben genau [100] m entfernt, wenn d = 100 m ist.</p>' },
+      { art: "luecke", name: "Aus dem Leben", auftrag: "Skizziere die Situation. Berechne und schreibe einen Antwortsatz.", spalten: 1,
+        items: [{ s: "Ben und Lea stehen 80 m auseinander und peilen eine Drohne an. Bei Ben misst der Winkel 55°, bei Lea 65°. Wie weit ist die Drohne von Ben entfernt?", z: ["Abstand ≈ [83,72~0,006] m","Antwort: [satz:83,72~0,006:m]"] },
+                { s: "Mia und Tim stehen am Flussufer 40 m auseinander. Am anderen Ufer steht ein Baum. Bei Mia misst der Winkel zwischen Ufer und Baum 70°, bei Tim 60°. Wie weit ist der Baum von Mia entfernt?", z: ["Entfernung ≈ [45,22~0,006] m","Antwort: [satz:45,22~0,006:m]"] },
+                { s: "Zwei Handymasten stehen 3,2 km auseinander. Lenas Handy wird von beiden geortet: Am ersten Mast misst der Winkel 48°, am zweiten 77°. Wie weit ist Lenas Handy vom ersten Mast entfernt?", z: ["Entfernung ≈ [3,806~0,0006] km","Antwort: [satz:3,806~0,0006:km]"] }] },
+      { art: "luecke", name: "Wie hoch ist der Freefall-Tower?", stern: true, spalten: 1,
+        auftrag: "Skizziere die Situation. Du brauchst zwei Dreiecke nacheinander.",
+        items: [{ s: "Auf dem Rummel messen Jonas und Emma den Höhenwinkel zur Spitze eines Freefall-Towers. Jonas steht weiter weg und misst 30°. Emma steht 50 m näher am Turm und misst 45°. (Die Augenhöhe wird nicht mitgerechnet.)",
+                  z: ["Entfernung von Emma zur Turmspitze ≈ [96,59~0,006] m","Höhe des Turms ≈ [68,3~0,006] m","Antwort: [satz:68,3~0,006:m]"] }] }
+    ]},
+    { reiter: "Z4 Flächeninhalt", titel: "Den Flächeninhalt allgemeiner Dreiecke berechnen", aufgaben: [
+      { art: "sinus", modus: "flaeche", name: "Entdecke die Flächenformel",
+        auftrag: "Verändere die Seiten a und b und den Winkel γ dazwischen. Die grüne Strecke ist die Höhe h auf a.",
+        nach: '<p><b>a)</b> Stelle a = 6 cm, b = 5 cm und γ = 40° ein: A ≈ [9,64~0,006] cm²</p>'+
+              '<p><b>b)</b> Lass a und b so und stelle γ = 90° ein: A = [15] cm². Das ist der größte Flächeninhalt.</p>'+
+              '<p><b>c)</b> Stelle γ = 30° ein: A = [7,5] cm². Stelle jetzt γ = 150° ein: A = [7,5] cm².</p>'+
+              '<p><b>d)</b> Die Winkel 60° und 120° ergeben ((*denselben|einen anderen)) Flächeninhalt, weil sin 120° = sin [60]° ist.</p>' },
+      { art: "luecke", name: "Zwei Seiten und der Winkel dazwischen", auftrag: "Berechne den Flächeninhalt. Runde auf zwei Nachkommastellen.", spalten: 1,
+        items: ["a = 4 cm, b = 6 cm, γ = 90° → A = [12] cm²",
+                "a = 8 cm, b = 5 cm, γ = 30° → A = [10] cm²",
+                "a = 7 cm, b = 9 cm, γ = 50° → A ≈ [24,13~0,006] cm²",
+                "b = 4,5 cm, c = 6 cm, α = 72° → A ≈ [12,84~0,006] cm²",
+                "d = 3,2 m, e = 4,1 m, φ = 115° → A ≈ [5,95~0,006] m²"] },
+      { art: "auswahl", name: "Welcher Winkel gehört dazu?", auftrag: "Gegeben sind zwei Seiten. Welchen Winkel brauchst du für die Flächenformel? Tippe an.", bild: ABCg,
+        items: [["a und b","γ",["α","β","γ"]],["a und c","β",["α","β","γ"]],["b und c","α",["α","β","γ"]],["k und m (Dreieck KLM)","λ",["κ","λ","μ"]]] },
+      { art: "luecke", name: "Erst rechnen, dann die Fläche", stern: true, auftrag: "Berechne zuerst die fehlenden Stücke mit Innenwinkelsumme und Sinussatz. Wer mit gerundeten Zwischenergebnissen weiterrechnet, hat auch recht.", bild: ABCg, spalten: 1,
+        items: [{ s: "a = 6 cm, α = 40°, β = 65°", z: ["γ = [75]°","b ≈ [8,5~0,06] cm","A ≈ [24,63|24,51~0,006] cm²"] },
+                { s: "a = 9 cm, b = 6 cm, α = 80°", z: ["β ≈ [41]°","γ ≈ [59]°","A ≈ [23,14|23,13~0,006] cm²"] }] },
+      { art: "tabelle", name: "Welches LED-Segel beleuchtet die größte Fläche?", stern: true, nummern: false,
+        auftrag: "Erinnerst du dich an die Abstimmung? Berechne die Fläche unter jedem Segel.",
+        kopf: ["Segel","gegeben","Flächeninhalt"],
+        zeilen: [["türkis (links)","6 m und 7 m, Winkel dazwischen 30°","[10,5~0,006] m²"],["gold (Mitte)","4 m und 5 m, Winkel dazwischen 90°","[10~0,006] m²"],["pink (rechts)","5 m und 5 m, Winkel dazwischen 120°","[10,83~0,006] m²"]],
+        nach: '<p>Die größte Fläche hat das Segel ((türkis|gold|*pink)).</p><p class="antw-z">Antwort: [satz:10,83~0,006:m²|m2|quadratmeter]</p>' }
+    ]}
+  ]
+};
+
+/* ═════════════════════════ ENDE AUFGABENBLOCK ═════════════════════════ */
+</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+/* ─── Motor: Aussehen (Arbeitsblattvorlage) ─── */
+:root{color-scheme:light}*{box-sizing:border-box}html{background:#fff}
+body{margin:0;background:#fff;color:#000;font-family:Arial,"Liberation Sans",Helvetica,sans-serif;font-size:18px;line-height:1.4;
+  padding-block:16px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+[hidden]{display:none!important}
+.wrap{max-width:980px;margin:0 auto}
+.oben{color:#6F6F6F;font-size:.8em;margin:0 0 .3em}
+.titel{background:#00805F;color:#fff;font-weight:700;text-align:center;padding:.35em .5em;margin:0;font-size:1.4em}
+.fortschritt{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5em;margin:0 0 .4em;font-size:.9em}
+.kasten{border:2px solid #00805F;margin-top:.9em}
+.kasten>h2{margin:0;font-size:1em;background:#D3F2E5;border-bottom:2px solid #00805F;padding:.3em .7em}
+.kasten.fertig>h2::after{content:"  ✓";color:#00805F}
+.innen{padding:.5em .8em .7em}
+.innen p{margin:.35em 0}
+.auftrag{font-weight:700}
+.gross{font-size:1.1em}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .15em;line-height:1.15}
+.frac .fz{border-bottom:2px solid currentColor;padding:0 .15em .1em}.frac .fn{padding-top:.1em}
+.ein{font:inherit;height:1.7em;text-align:center;border:1.5px solid #000;border-radius:0;background:#fff;color:inherit;padding:0;vertical-align:middle}
+.ein.echo{background:#fff;color:#000}
+.ein:focus{outline:none;background:#FFF3B0}
+.ein.antw{width:100%;max-width:44em;text-align:left;padding:0 .5em;box-sizing:border-box}
+.antw-z{margin:.4em 0 1em}
+.ok{border-color:#2e7d32!important;background:#E5F4E6!important;border-width:2.5px!important}
+.falsch{border-color:#C62828!important;background:#FDE7E7!important;border-width:2.5px!important}
+.raster1,.raster2,.raster3,.raster4{display:grid;gap:.7em 1.4em}
+.raster1{grid-template-columns:1fr}
+.raster2{grid-template-columns:repeat(2,minmax(0,1fr))}.raster3{grid-template-columns:repeat(3,minmax(0,1fr))}.raster4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.erw{display:flex;align-items:center;gap:.2em;font-size:1.05em}
+.erwm{display:flex;flex-direction:column;align-items:center;margin:0 .2em}.erwm .lab{font-size:.8em;white-space:nowrap}
+.fig{display:flex;flex-direction:column;align-items:center;gap:.4em}.fig>b{align-self:flex-start}
+.zeile{white-space:nowrap}
+.g100{display:grid;grid-template-columns:repeat(10,1fr);width:9em;aspect-ratio:1;max-width:100%;border:1.5px solid #000}
+.g100 i{border:.5px solid #666;display:block}.g100 i.an{background:#7fb89a}
+.malen{width:13em;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+.malbox{display:flex;flex-wrap:wrap;gap:1em;align-items:center}
+.scroll{overflow-x:auto}
+.tab{border-collapse:collapse;font-size:inherit}
+.tab th,.tab td{border:1.5px solid #000;padding:.3em .8em;text-align:center;min-width:6.5em}
+.tab th{background:#F2F2F2}.tab td.nr{min-width:0;border:0;font-weight:700}.tab th.nr{background:none;border:0;min-width:0}
+.vgl{display:flex;align-items:center;gap:.5em;font-size:1.1em}
+.wahl,.auswahl{display:inline-flex;flex-wrap:wrap;gap:.3em;vertical-align:middle}
+.wahl button,.auswahl button{font:inherit;min-width:2.2em;height:1.9em;border:1.5px solid #000;background:#fff;color:#000;border-radius:0;cursor:pointer;padding:0 .4em}
+.auswahl button{font-size:.9em}
+.wahl button.an,.auswahl button.an{background:#FFE873}
+.wahl.ok button.an,.auswahl.ok button.an{background:#E5F4E6;border-color:#2e7d32;border-width:2.5px}
+.wahl.falsch button.an,.auswahl.falsch button.an{background:#FDE7E7;border-color:#C62828;border-width:2.5px}
+.sit{line-height:1.9}
+.mk{font-weight:700;padding:.05em .3em;border:1.5px dashed #999;cursor:pointer;user-select:none;-webkit-user-select:none}
+.mk[data-r="G"]{color:#1565C0;border:2px solid #1565C0;background:#E3EEFB}
+.mk[data-r="W"]{color:#C2410C;border:2px solid #C2410C;background:#FBEADF}
+.mk[data-r="P"]{color:#2e7d32;border:2px solid #2e7d32;background:#E5F4E6}
+.mk.falsch{outline:3px solid #C62828;outline-offset:1px}
+.Gt{color:#1565C0}.Wt{color:#C2410C}.Pt{color:#2e7d32}
+.gw{display:flex;flex-wrap:wrap;gap:.6em 1.6em}
+.wegz{display:flex;flex-wrap:wrap;align-items:center;gap:.5em;margin:.4em 0}.wegz>b{min-width:3em}
+.km{white-space:nowrap}
+.bildbox{display:flex;flex-wrap:wrap;gap:1em 1.6em;align-items:flex-start}.bildbox>.bild{flex:0 0 auto;max-width:100%}.bildbox>.rest{flex:1 1 16em;min-width:0}
+.bild svg{max-width:100%;height:auto;display:block}
+/* Prozentstreifen */
+.streifen{margin:.5em 0 1em;max-width:30em}
+.str-oben,.str-mitte{position:relative;min-height:2.2em}
+.str-oben>span,.str-mitte>span{position:absolute;left:0;bottom:.15em;white-space:nowrap}
+.str-mitte>span{top:.2em;bottom:auto}
+.str-bar{display:flex;height:1.7em;border:2px solid #1565C0;background:#9FC2EC}
+.str-w{background:#F2A672;border-right:2px solid #C2410C}
+.str-klammer{display:block;width:100%;height:14px}
+.str-g{text-align:center}
+/* Verhältnisgleichung */
+.vgl-gl{display:flex;flex-wrap:wrap;align-items:center;gap:.4em 1em;font-size:1.1em;margin:.3em 0}
+.vgl-gl .pfeil{color:#6F6F6F}
+.vgl-gl .frac .fz{border-bottom-color:#000}
+.Gt .ein{color:#1565C0}.Wt .ein{color:#C2410C}.Pt .ein{color:#2e7d32}
+.dgm{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:.3em 1.5em;margin-bottom:.6em}.dgm p{margin:.3em 0}
+.sw{display:inline-block;width:1em;height:1em;border:1.5px solid #000;vertical-align:-.15em}
+.live svg{max-width:100%;height:auto;display:block;margin:.5em 0}.summe{margin:.2em 0}
+/* Schieberegler und Prüfer (Pythagoras) */
+.regler{display:flex;flex-wrap:wrap;gap:.5em 2.2em;margin:.3em 0 .4em}.rg{display:flex;align-items:center;gap:.6em;white-space:nowrap}
+.rg input[type="range"]{width:12em;accent-color:#00805F}.sinx .tab td,.sinx .tab th{min-width:4em;padding:.25em .6em}.pbild svg{max-width:100%;height:auto;display:block;margin:.3em 0}
+/* Zuordnen */
+.zuo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.5em 2.5em;max-width:34em}
+.zuo .sp{display:flex;flex-direction:column;gap:.5em}
+.zuo button,.sort button{font:inherit;min-height:2.2em;border:1.5px solid #000;background:#fff;color:#000;border-radius:0;cursor:pointer;padding:.2em .6em;position:relative}
+.zuo button.wahl1{background:#FFE873}
+.zuo button[data-p]::before{content:attr(data-nr);position:absolute;left:-.1em;top:-.65em;font-size:.65em;font-weight:700;background:#000;color:#fff;border-radius:1em;min-width:1.5em;line-height:1.5em;text-align:center}
+.zuo button[data-p="0"]{background:#DDEBFA}.zuo button[data-p="1"]{background:#FCE3D3}.zuo button[data-p="2"]{background:#E0F2E1}
+.zuo button[data-p="3"]{background:#F1E4F7}.zuo button[data-p="4"]{background:#FFF1C4}.zuo button[data-p="5"]{background:#DDF3F3}
+.zuo button[data-p="6"]{background:#EDEDED}.zuo button[data-p="7"]{background:#F9DDE6}
+/* Sortieren */
+.sort{display:flex;flex-wrap:wrap;gap:.5em}
+.sort button[data-nr]::before{content:attr(data-nr);position:absolute;left:-.1em;top:-.65em;font-size:.65em;font-weight:700;background:#00805F;color:#fff;border-radius:1em;min-width:1.5em;line-height:1.5em;text-align:center}
+.sort button[data-nr]{background:#D3F2E5}
+.sortreihe{color:#444;min-height:1.4em}
+.pruefleiste{display:flex;flex-wrap:wrap;align-items:center;gap:.8em;margin-top:.7em}
+button.pruefen,button.knopf{font:inherit;font-size:.9em;background:#fff;color:#000;border:1.5px solid #00805F;padding:.3em 1em;cursor:pointer;border-radius:0;font-weight:700}
+button.pruefen:hover,button.knopf:hover{background:#D3F2E5}
+button.knopf.warnung{background:#00805F;color:#fff}
+button:focus-visible{outline:3px solid #00805F;outline-offset:2px}
+.ergebnis{font-weight:700}.ergebnis.gut{color:#2e7d32}.ergebnis.noch{color:#C62828}
+.fuss{text-align:right;font-style:italic;color:#6F6F6F;font-size:.7em;margin:1.2em 0 0}
+nav.reiter{display:flex;flex-wrap:wrap;gap:.4em;margin:0 0 .7em}
+nav.reiter button{font:inherit;font-size:.85em;border:2px solid #00805F;background:#fff;color:#000;padding:.35em .8em;cursor:pointer;border-radius:0}
+nav.reiter button b{margin-right:.35em}
+nav.reiter button[aria-selected="true"]{background:#00805F;color:#fff}
+@media (max-width:820px){.raster4{grid-template-columns:repeat(2,minmax(0,1fr))}.raster3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.raster2,.raster3{grid-template-columns:1fr}.zuo{gap:.5em 1.2em}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="oben" id="oben"></p>
+<nav class="reiter" role="tablist" aria-label="Übungen" id="reiter"></nav>
+<div class="fortschritt"><span id="stand"></span><button type="button" class="knopf" id="neu">Neu beginnen</button></div>
+<div id="blaetter"></div>
+<p class="fuss" id="fuss"></p>
+</div>
+<script>
+/* ─── Motor: Technik (nicht ändern) ─── */
+(function(){
+"use strict";
+const ABC="abcdefghijklmnopqrstuvwxyz";
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+const deZahl=x=>{const r=Math.round(x*1e9)/1e9;return String(r).replace(".",",");};
+const wert=s=>{s=String(s).trim().replace(/\s/g,"");if(s.includes("/")){const[a,b]=s.split("/");return num(a)/num(b);}return num(s);};
+const num=s=>{const t=String(s).replace(/\s+/g,"").replace(",",".");return t!==""&&!isNaN(t)?parseFloat(t):NaN;};
+const norm=s=>String(s).replace(/\s+/g,"").replace(/\./g,",").replace(/%$/,"").toLowerCase();
+const mischen=a=>{const b=a.slice();if(b.length<2)return b;let n=0;do{for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}n++;}while(n<20&&b.every((x,i)=>x===a[i]));return b;};
+
+/* Kurzschrift → HTML */
+function feld(antw,label){
+  let fid="";antw=antw.replace(/#(\w+)\s*$/,(m,s)=>{fid=s;return "";});let tol="";antw=antw.replace(/~([\d,.]+)\s*$/,(m,s)=>{tol=s.replace(",",".");return "";});
+  const alle=antw.split("|").map(x=>x.trim());
+  const lang=Math.max(...alle.map(x=>x.length));
+  const zahl=alle.every(x=>/^[\d\s,.%+\-]*$/.test(x));
+  const w=zahl||lang<=2?Math.max(2.6,lang*.55+1.5).toFixed(1):Math.max(5,Math.min(9,lang*.5+1.5)).toFixed(1);
+  return '<input class="ein" data-a="'+esc(alle.join("|"))+'"'+(fid?' data-id="'+fid+'"':'')+(tol?' data-t="'+tol+'"':'')+' style="width:'+w+'em"'+(zahl?' inputmode="decimal"':'')+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+(label||"Antwort")+'">';
+}
+function inl(t){
+  t=String(t);const lager=[];const pack=h=>"\u0001"+(lager.push(h)-1)+"\u0002";
+  t=t.replace(/\(\((.*?)\)\)/g,(m,inh)=>{
+    const opt=inh.split("|").map(x=>x.trim());let soll="";
+    const kn=opt.map(o=>{let z=o;if(z.startsWith("*")){z=z.slice(1).trim();soll=z;}return z;});
+    const kl="auswahl";
+    return pack('<span class="'+kl+'" data-soll="'+esc(soll)+'">'+kn.map(z=>'<button type="button" data-z="'+esc(z)+'">'+inl(z)+'</button>').join("")+'</span>');
+  });
+  t=t.replace(/\[satz:([^:\]]*):([^\]]*)\]/g,(m,w,e)=>{let tl="";w=w.replace(/~([\d,.]+)$/,(x,s)=>{tl=s.replace(",",".");return "";});
+    return pack('<input class="ein antw" data-w="'+esc(w)+'" data-e="'+esc(e)+'"'+(tl?' data-t="'+tl+'"':'')+' autocomplete="off" spellcheck="false" aria-label="Antwortsatz">');});
+  t=t.replace(/\[([GWP]):([^\]]*)\]/g,(m,r,z)=>pack('<span class="mk" data-r="" data-soll="'+r+'">'+z+'</span>'));
+  t=t.replace(/\[=([^\]]*)\]/g,(m,v)=>pack('<span class="frac fin" data-v="'+wert(v)+'"><span class="fz"><input class="ein" style="width:2.8em" inputmode="numeric" autocomplete="off" aria-label="Zähler"></span><span class="fn"><input class="ein" style="width:2.8em" inputmode="numeric" autocomplete="off" aria-label="Nenner"></span></span>'));
+  t=t.replace(/\[@(\w+)\]/g,(m,id)=>pack('<input class="ein echo" readonly tabindex="-1" data-echo="'+id+'" style="width:4.8em" aria-label="Dein Wert von vorhin">'));
+  t=t.replace(/\[([^\[\]]*)\]/g,(m,a)=>pack(feld(a)));
+  t=t.replace(/\{([^{}]*)\}/g,(m,inh)=>{const i=inh.indexOf("/");if(i<0)return m;
+    return '<span class="frac"><span class="fz">'+inh.slice(0,i).trim()+'</span><span class="fn">'+inh.slice(i+1).trim()+'</span></span>';});
+  t=t.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+  t=t.replace(/<blau>/g,'<span class="Gt">').replace(/<orange>/g,'<span class="Wt">').replace(/<gruen>/g,'<span class="Pt">').replace(/<\/(blau|orange|gruen)>/g,"</span>");
+  for(let k=0;k<3;k++)t=t.replace(/\u0001(\d+)\u0002/g,(m,i)=>lager[+i]);
+  return t;
+}
+const nr=(i,a)=>a.nummern===false?"":"<b>"+ABC[i]+")</b> ";
+const raster=(a,std)=>"raster"+(a.spalten||std||1);
+
+/* Aufgabenarten */
+const ARTEN={
+  luecke(a){
+    if(a.items.some(x=>typeof x==="object"))
+      return a.items.map((it,i)=>{if(typeof it==="string")return '<p>'+nr(i,a)+inl(it)+'</p>';
+        let h=it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':"";
+        const z=it.z==null?[]:it.z;
+        if(Array.isArray(z))h+='<p class="gw">'+z.map(x=>'<span>'+inl(x)+'</span>').join("")+'</p>';else h+='<p>'+inl(z)+'</p>';
+        return h;}).join("");
+    const sp=a.spalten||1;
+    return '<div class="'+raster(a)+(a.gross?" gross":"")+'">'+a.items.map((x,i)=>'<div'+(sp>1?' class="km"':'')+'>'+nr(i,a)+inl(x)+'</div>').join("")+'</div>';
+  },
+  erweitern(a){
+    const ziel=a.ziel||100;
+    return '<div class="'+raster(a,4)+'">'+a.items.map((b,i)=>{const[z,n]=String(b).split("/").map(Number);const f=ziel/n;
+      return '<div class="erw">'+nr(i,a)+inl("{"+z+"/"+n+"}")+'<span class="erwm"><span class="lab">· '+feld(deZahl(f),"Faktor")+'</span><span>=</span></span>'+inl("{["+deZahl(z*f)+"]/"+ziel+"}")+'</div>';}).join("")+'</div>';
+  },
+  hunderterfeld(a){
+    return '<div class="'+raster(a,3)+'">'+a.items.map((it,i)=>{const n=typeof it==="object"?it.an:it;
+      const z=typeof it==="object"&&it.z?it.z:"{["+n+"]/100} = ["+deZahl(n/100)+"] = ["+n+"] %";
+      let g='<div class="g100">';for(let k=0;k<100;k++)g+='<i'+(k<n?' class="an"':'')+'></i>';g+='</div>';
+      return '<div class="fig">'+(a.nummern===false?"":"<b>"+ABC[i]+")</b>")+g+'<div class="zeile">'+inl(z)+'</div></div>';}).join("")+'</div>';
+  },
+  faerben(a){
+    let g='<div class="g100 malen" data-soll="'+a.soll+'">';for(let k=0;k<100;k++)g+='<i></i>';
+    return '<div class="malbox">'+g+'</div><p class="zaehler">Gefärbt: <b>0</b> Kästchen</p></div>';
+  },
+  tabelle(a){
+    const n=a.nummern!==false;
+    let h='<div class="scroll"><table class="tab"><tr>'+(n?'<th class="nr"></th>':'')+a.kopf.map(k=>'<th>'+inl(k)+'</th>').join("")+'</tr>';
+    a.zeilen.forEach((z,i)=>{h+='<tr>'+(n?'<td class="nr">'+ABC[i]+')</td>':'')+z.map(c=>'<td>'+inl(c)+'</td>').join("")+'</tr>';});
+    return h+'</table></div>';
+  },
+  vergleichen(a){
+    return '<div class="'+raster(a,2)+'">'+a.items.map(([l,s,r])=>'<div class="vgl"><span>'+inl(l)+'</span><span class="wahl" data-soll="'+esc(s)+'"><button type="button" data-z="<">&lt;</button><button type="button" data-z="=">=</button><button type="button" data-z=">">&gt;</button></span><span>'+inl(r)+'</span></div>').join("")+'</div>';
+  },
+  auswahl(a){
+    return a.items.map(([t,r,opt])=>{const o=opt||a.optionen;
+      return '<div class="wegz">'+inl(t)+inl("(("+o.map(x=>(x===r?"*":"")+x).join("|")+"))")+'</div>';}).join("");
+  },
+  markieren(a){
+    return a.items.map((t,i)=>'<p class="sit">'+nr(i,a)+inl(t)+'</p>').join("");
+  },
+  streifen(a){
+    return a.items.map((it,i)=>{const p=Math.max(0,Math.min(100,it.anteil));
+      return (it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':(a.items.length>1&&a.nummern!==false?'<p>'+nr(i,a)+'</p>':''))+
+      '<div class="streifen"><div class="str-oben"><span class="Wt">W = '+inl(it.W)+'</span></div>'+
+      '<div class="str-bar"><div class="str-w" style="width:'+p+'%"></div></div>'+
+      '<div class="str-mitte"><span class="Pt">p % = '+inl(it.p)+'</span></div>'+
+      '<svg class="str-klammer" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path d="M1 1 Q1 7 8 7 L44 7 Q50 7 50 13 Q50 7 56 7 L92 7 Q99 7 99 1" fill="none" stroke="#1565C0" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>'+
+      '<div class="str-g Gt">G = '+inl(it.G)+' ≙ 100 %</div></div>';}).join("");
+  },
+  verhaeltnis(a){
+    return a.items.map((it,i)=>{
+      const x=it.x||"W";const ans=it.ansatz!==false;
+      const teil=k=>{const v=deZahl(it[k]);if(k===x)return ans?"[x]":"x";return ans?"["+v+"]":v;};
+      const fr=(o,u)=>'<span class="frac"><span class="fz">'+o+'</span><span class="fn">'+u+'</span></span>';
+      const bs=deZahl(it.bas||100);
+      const gi=k=>'<input class="ein gl" data-pos="'+k+'" style="width:3.6em" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Feld der Verhältnisgleichung">';
+      const tok=k=>k===x?"x":deZahl(it[k]);
+      const sol=JSON.stringify([tok("G"),bs,tok("W"),tok("p")]);
+      const glei=ans?fr(gi(0),gi(1)+" %")+" = "+fr(gi(2),gi(3)+" %"):fr(inl(teil("G")),bs+" %")+" = "+fr(inl(teil("W")),inl(teil("p"))+" %");
+      const ein=it.einheit?" "+it.einheit:"";
+      const id=it.id?"#"+it.id:"";
+      const erg='x = '+inl("["+deZahl(it[x])+(ein?"|"+deZahl(it[x])+ein:"")+id+"]")+(x==="p"?"":ein);
+      return (it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':'<p>'+nr(i,a)+'</p>')+
+        '<div class="vgl-gl"'+(ans?' data-gl="1" data-sol="'+esc(sol)+'"':'')+'><span>'+glei+'</span></div>'+
+        '<p>'+erg+'</p>'+(it.antwort?'<p class="antw-z"><b>Antwortsatz:</b> <input type="text" class="ein antw" autocomplete="off" aria-label="Antwortsatz" data-w="'+deZahl(it[x])+'" data-e="'+(it.einheit||"")+'"></p>':'');}).join("")+(a.nach?"":"");
+  },
+  streifenbau(a){
+    const rows=a.daten.map((d,i)=>'<tr data-n="'+esc(d[0])+'"><td style="text-align:left"><i class="sw" style="background:'+DFARBEN[i%5]+'"></i> '+esc(d[0])+'</td><td>'+deZahl(d[1])+' %</td><td>'+feld(deZahl(d[1]/10),"Länge")+' cm</td></tr>').join("");
+    return '<div class="scroll"><table class="tab"><tr><th>Bereich</th><th>p %</th><th>Länge</th></tr>'+rows+'</table></div><div class="live" data-typ="streifen"></div>';
+  },
+  kreisbau(a){
+    const rows=a.daten.map((d,i)=>'<tr data-n="'+esc(d[0])+'"><td style="text-align:left"><i class="sw" style="background:'+DFARBEN[i%5]+'"></i> '+esc(d[0])+'</td><td>'+deZahl(d[1])+' %</td><td>'+feld(String(Math.round(d[1]*3.6)),"Winkel")+'°</td></tr>').join("");
+    return '<div class="scroll"><table class="tab"><tr><th>Bereich</th><th>p %</th><th>Winkel</th></tr>'+rows+'</table></div><div class="live" data-typ="kreis"></div>';
+  },
+  zuordnen(a){
+    const re=mischen(a.paare.map((p,i)=>i));
+    return '<div class="zuo">'+a.paare.map((p,i)=>'<button type="button" data-s="l" data-i="'+i+'">'+inl(p[0])+'</button>'+
+      '<button type="button" data-s="r" data-i="'+re[i]+'">'+inl(a.paare[re[i]][1])+'</button>').join("")+'</div>';
+  },
+  richtigfalsch(a){
+    return a.items.map(([t,r],i)=>'<div class="wegz"><span>'+nr(i,a)+inl(t)+'</span>'+inl(r?"((*richtig|falsch))":"((richtig|*falsch))")+'</div>').join("");
+  },
+  pyth(a){
+    const m=a.modus;
+    if(m==="pruefer"){const f=(n,v)=>'<label class="rg">'+n+'. Seite <input class="ein pin" inputmode="decimal" value="'+v+'" style="width:4em" aria-label="'+n+'. Seite"> cm</label>';
+      return '<div class="pyth" data-m="pruefer"><div class="regler">'+f(1,3)+f(2,4)+f(3,6)+'</div><div class="pbild"></div></div>';}
+    const lim={quadrate:[1,8,1,2,5],hypo:[1,10,.5,2,5],raster:[1,10,1,3,5]}[m];
+    const R=(k,v)=>'<label class="rg"><span>'+k+' = <b data-z="'+k+'">'+v+'</b> cm</span><input type="range" min="'+lim[0]+'" max="'+lim[1]+'" step="'+lim[2]+'" value="'+v+'" data-k="'+k+'" aria-label="Kathete '+k+'"></label>';
+    return '<div class="pyth" data-m="'+m+'"><div class="regler">'+R("a",lim[3])+R("b",lim[4])+'</div><div class="pbild"></div></div>';
+  },
+  sinus(a){
+    const R=(k,lab,mi,ma,st,v,u)=>'<label class="rg"><span>'+lab+' = <b data-z="'+k+'">'+v+'</b> '+u+'</span><input type="range" min="'+mi+'" max="'+ma+'" step="'+st+'" value="'+v+'" data-k="'+k+'" aria-label="'+lab+'"></label>';
+    const C={quot:[["al","α",15,140,1,50,"°"],["be","β",15,140,1,60,"°"],["c","c",2,10,.5,6,"cm"]],
+      drohne:[["d","d",20,150,10,100,"m"],["al","Winkel bei Ben",20,85,1,50,"°"],["be","Winkel bei Lea",20,85,1,60,"°"]],
+      flaeche:[["a","a",1,8,.5,6,"cm"],["b","b",1,8,.5,5,"cm"],["ga","γ",5,175,1,40,"°"]]}[a.modus];
+    return '<div class="sinx" data-m="'+a.modus+'"><div class="regler">'+C.map(x=>R(...x)).join("")+'</div><div class="pbild"></div></div>';
+  },
+  sortieren(a){
+    const m=mischen(a.items.map((x,i)=>i));
+    return '<div class="sort" data-n="'+a.items.length+'">'+m.map(i=>'<button type="button" data-i="'+i+'">'+inl(a.items[i])+'</button>').join("")+'</div><p class="sortreihe"></p>';
+  }
+};
+const AUFTRAG={streifenbau:"Rechne die Länge aus und trage sie ein. Dein Streifen wächst unter der Tabelle.",
+  kreisbau:"Rechne den Winkel aus (ganze Grad) und trage ihn ein. Dein Kreis wächst unter der Tabelle.",
+  vergleichen:"Tippe auf &lt;, = oder &gt;.",
+  markieren:'Tippe jede fett gedruckte Zahl an: 1× <b class="Gt">blau = G</b>, 2× <b class="Wt">orange = W</b>, 3× <b class="Pt">grün = p %</b>.',
+  zuordnen:"Was gehört zusammen? Tippe links und dann rechts an.",
+  richtigfalsch:"Richtig oder falsch? Tippe an.",
+  sortieren:"Tippe die Zahlen der Größe nach an. Beginne mit der kleinsten.",
+  verhaeltnis:"Stelle die Verhältnisgleichung auf. Schreibe x für die gesuchte Größe. Trage dann das Ergebnis ein.",
+  faerben:"Tippe Kästchen an oder wische darüber."};
+
+function baueAufgabe(a,n){
+  let inh=ARTEN[a.art]?ARTEN[a.art](a):'<p style="color:#C62828">Unbekannte Aufgabenart: '+esc(a.art)+'</p>';
+  if(a.bild)inh=a.bildoben?'<div class="bild">'+a.bild+'</div>'+inh:'<div class="bildbox"><div class="bild">'+a.bild+'</div><div class="rest">'+inh+'</div></div>';
+  const auf=a.auftrag!=null?inl(a.auftrag):(AUFTRAG[a.art]||"");
+  return '<section class="kasten" data-aufgabe><h2>Aufgabe '+n+(a.name?' · '+esc(a.name):'')+(a.stern?' ★':'')+'</h2><div class="innen">'+
+    (auf?'<p class="auftrag">'+auf+'</p>':'')+inh+(a.nach?inl(a.nach):'')+
+    '<div class="pruefleiste"><button type="button" class="pruefen">Prüfen</button><span class="ergebnis" aria-live="polite"></span></div></div></section>';
+}
+function baueBlatt(u,i){
+  const s=document.createElement("section");s.className="blatt";s.id="uebung"+(i+1);s.hidden=true;
+  s.innerHTML='<div class="titel"><a class="ll-zurueck" href="../" aria-label="Zurück zur Lern-Lounge 10. Klasse">← Zurück</a><span>'+esc(u.titel)+'</span><button type="button" class="ll-spick" aria-haspopup="dialog">Spickzettel</button></div>'+u.aufgaben.map((a,k)=>baueAufgabe(a,k+1)).join("");
+  binde(s);return s;
+}
+
+/* Bedienung */
+function binde(B){
+  B.querySelectorAll(".wahl,.auswahl").forEach(g=>g.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    g.querySelectorAll("button").forEach(x=>x.classList.toggle("an",x===b));g.classList.remove("ok","falsch");})));
+  B.querySelectorAll(".mk").forEach(m=>m.addEventListener("click",()=>{const o=["","G","W","P"];m.dataset.r=o[(o.indexOf(m.dataset.r)+1)%4];m.classList.remove("falsch");}));
+  B.querySelectorAll(".g100.malen").forEach(g=>{
+    let modus=null;const z=g.closest(".innen").querySelector(".zaehler b");
+    const upd=()=>{if(z)z.textContent=g.querySelectorAll("i.an").length;g.classList.remove("ok","falsch");};
+    const zelle=e=>{const el=document.elementFromPoint(e.clientX,e.clientY);return el&&el.parentNode===g?el:null;};
+    g.addEventListener("pointerdown",e=>{const c=zelle(e);if(!c)return;modus=!c.classList.contains("an");c.classList.toggle("an",modus);g.setPointerCapture(e.pointerId);e.preventDefault();upd();});
+    g.addEventListener("pointermove",e=>{if(modus===null)return;const c=zelle(e);if(c&&c.classList.contains("an")!==modus){c.classList.toggle("an",modus);upd();}});
+    ["pointerup","pointercancel"].forEach(n=>g.addEventListener(n,()=>modus=null));
+  });
+  B.querySelectorAll(".zuo").forEach(Z=>{
+    let gew=null;
+    const farbe=()=>{const L=[...Z.querySelectorAll('[data-s="l"]')];let k=0;
+      Z.querySelectorAll("button").forEach(b=>{delete b.dataset.p;delete b.dataset.nr;b.classList.remove("ok","falsch");});
+      L.forEach(l=>{if(l.dataset.mit!=null&&l.dataset.mit!==""){const r=Z.querySelector('[data-s="r"][data-i="'+l.dataset.mit+'"]');
+        l.dataset.p=r.dataset.p=k%8;l.dataset.nr=r.dataset.nr=++k;}});};
+    Z.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+      const seite=b.dataset.s;
+      // schon verbunden → lösen
+      if(seite==="l"&&b.dataset.mit){b.dataset.mit="";gew=null;Z.querySelectorAll(".wahl1").forEach(x=>x.classList.remove("wahl1"));farbe();return;}
+      if(seite==="r"){const l=Z.querySelector('[data-s="l"][data-mit="'+b.dataset.i+'"]');if(l&&!(gew&&gew.dataset.s==="l")){l.dataset.mit="";farbe();return;}}
+      if(!gew||gew.dataset.s===seite){Z.querySelectorAll(".wahl1").forEach(x=>x.classList.remove("wahl1"));gew=b;b.classList.add("wahl1");return;}
+      const l=seite==="l"?b:gew,r=seite==="r"?b:gew;
+      Z.querySelectorAll('[data-s="l"]').forEach(x=>{if(x.dataset.mit===r.dataset.i)x.dataset.mit="";});
+      l.dataset.mit=r.dataset.i;gew.classList.remove("wahl1");gew=null;farbe();
+    }));
+  });
+  B.querySelectorAll(".sort").forEach(S=>{
+    const reihe=[];const txt=S.nextElementSibling;
+    const zeig=()=>{S.querySelectorAll("button").forEach(b=>{const p=reihe.indexOf(b);b.classList.remove("ok","falsch");if(p<0)delete b.dataset.nr;else b.dataset.nr=p+1;});
+      txt.innerHTML=reihe.length?"Deine Reihenfolge: "+reihe.map(b=>b.innerHTML).join(" &lt; "):"";};
+    S._reihe=reihe;
+    S.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const p=reihe.indexOf(b);if(p<0)reihe.push(b);else reihe.splice(p,1);zeig();}));
+  });
+  B.querySelectorAll(".live").forEach(L=>{const T=L.closest(".innen");
+    const upd=()=>{const R=[...T.querySelectorAll("tr[data-n]")];const namen=R.map(r=>r.dataset.n);
+      const v=R.map(r=>{const x=num(r.querySelector("input").value);return isNaN(x)||x<0?0:x;});
+      if(L.dataset.typ==="streifen")L.innerHTML=streifenSvg(namen,v,{live:true});
+      else{const s=v.reduce((p,q)=>p+q,0);L.innerHTML=kreisSvg(namen,v)+'<p class="summe">Summe der Winkel: <b>'+dZ(s)+'</b>° '+(Math.abs(s-360)<1e-9?"✓":"(soll 360° sein)")+'</p>';}};
+    T.addEventListener("input",upd);upd();});
+  B.querySelectorAll(".pyth").forEach(P=>{const m=P.dataset.m,bild=P.querySelector(".pbild");
+    const upd=()=>{
+      if(m==="pruefer"){const v=[...P.querySelectorAll(".pin")].map(i=>num(i.value));bild.innerHTML=v.every(x=>x>0)?sdSvg(v[0],v[1],v[2]):'<p class="summe">Gib drei Seitenlängen ein.</p>';return;}
+      const g={};P.querySelectorAll('input[type="range"]').forEach(r=>{g[r.dataset.k]=+r.value;P.querySelector('[data-z="'+r.dataset.k+'"]').textContent=dZ(+r.value);});
+      if(m==="quadrate")bild.innerHTML=qSvg(g.a,g.b)+'<p class="summe"><b style="color:#C62828">Rotes Quadrat über c:</b> Flächeninhalt <b>'+dZ(g.a*g.a+g.b*g.b)+' cm²</b></p>';
+      else if(m==="raster")bild.innerHTML=gSvg(g.a,g.b);
+      else{const c=Math.hypot(g.a,g.b),gl=Math.abs(c*10-Math.round(c*10))<1e-9;
+        bild.innerHTML=rtSvg({e:["A","B","C"],r:2,L:[g.b,g.a],fix:25,org:[45,250],bw:450,bh:290,ra:20,s:{a:"a = "+gZ(g.a)+" cm",b:"b = "+gZ(g.b)+" cm",c:"c "+(gl?"=":"≈")+" "+gZ(c)+" cm"},farbe:{c:"#C62828"},w:400});}
+    };
+    P.addEventListener("input",upd);upd();});
+  B.querySelectorAll(".sinx").forEach(P=>{const m=P.dataset.m,bild=P.querySelector(".pbild"),rd=Math.PI/180,sn=x=>Math.sin(x*rd);
+    const z2=x=>gZ(x,2),z4=x=>gZ(x,4);
+    const upd=ev=>{const g={},RR={};P.querySelectorAll('input[type="range"]').forEach(r=>{RR[r.dataset.k]=r;g[r.dataset.k]=+r.value;});
+      if(m!=="flaeche"){const lim=m==="quot"?170:175;if(g.al+g.be>lim){const k=ev&&ev.target&&ev.target.dataset.k==="be"?"al":"be";g[k]=lim-g[k==="al"?"be":"al"];RR[k].value=g[k];}}
+      Object.keys(g).forEach(k=>{P.querySelector('[data-z="'+k+'"]').textContent=gZ(g[k],1);});
+      if(m==="quot"){const ga=180-g.al-g.be,a=g.c*sn(g.al)/sn(ga),b=g.c*sn(g.be)/sn(ga);
+        bild.innerHTML=gdSvg({e:["A","B","C"],al:g.al,be:g.be,s:{a:"a ≈ "+z2(a)+" cm",b:"b ≈ "+z2(b)+" cm",c:"c = "+gZ(g.c,1)+" cm"},wk:{0:g.al+"°",1:g.be+"°",2:ga+"°"},bw:440,w:440})+
+          '<table class="tab"><tr><th>Paar</th><th>Seite</th><th>Sinus des gegenüberliegenden Winkels</th><th>Seite ÷ Sinus</th></tr>'+
+          [["a und α",a,g.al],["b und β",b,g.be],["c und γ",g.c,ga]].map(([n,s,w])=>'<tr><td>'+n+'</td><td>'+z2(s)+' cm</td><td>sin '+w+'° ≈ '+z4(sn(w))+'</td><td><b>'+z2(s/sn(w))+'</b></td></tr>').join("")+'</table>';}
+      else if(m==="drohne"){const ga=180-g.al-g.be,b=g.d*sn(g.be)/sn(ga),a=g.d*sn(g.al)/sn(ga);
+        bild.innerHTML=gdSvg({e:["A","B","C"],vn:["Ben","Lea","Drohne"],al:g.al,be:g.be,s:{c:"d = "+g.d+" m",b:"≈ "+z2(b)+" m",a:"≈ "+z2(a)+" m"},wk:{0:g.al+"°",1:g.be+"°",2:ga+"°"},bw:460,w:460});}
+      else{const c=Math.sqrt(g.a*g.a+g.b*g.b-2*g.a*g.b*Math.cos(g.ga*rd)),al=Math.acos(Math.max(-1,Math.min(1,(g.b*g.b+c*c-g.a*g.a)/(2*g.b*c))))/rd,A=g.a*g.b*sn(g.ga)/2;
+        bild.innerHTML=gdSvg({e:["A","B","C"],al:al,be:180-al-g.ga,c:c,fix:26,org:[110,232],bw:560,bh:255,w:520,hoehe:true,s:{a:"a = "+gZ(g.a,1)+" cm",b:"b = "+gZ(g.b,1)+" cm",c:""},wk:{2:g.ga+"°"}})+
+          '<p class="summe">sin '+g.ga+'° ≈ '+z4(sn(g.ga))+' · Höhe h ≈ '+z2(g.b*sn(g.ga))+' cm · <b>Flächeninhalt A ≈ '+z2(A)+' cm²</b></p>';}
+    };
+    P.addEventListener("input",upd);upd();});
+  B.querySelectorAll("[data-aufgabe]").forEach(k=>k.querySelector(".pruefen").addEventListener("click",()=>pruefe(k)));
+}
+document.addEventListener("input",e=>{if(e.target.tagName==="INPUT")e.target.classList.remove("ok","falsch");});
+document.addEventListener("input",e=>{const id=e.target.dataset&&e.target.dataset.id;if(!id)return;const B=e.target.closest(".blatt");if(B)B.querySelectorAll('.echo[data-echo="'+id+'"]').forEach(el=>el.value=e.target.value);});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("ein")){e.preventDefault();const k=e.target.closest("[data-aufgabe]");if(k)pruefe(k);}});
+
+function pruefe(k){
+  let r=0,n=0;const setz=(el,ok)=>{el.classList.toggle("ok",ok);el.classList.toggle("falsch",!ok);if(ok)r++;};
+  k.querySelectorAll("input[data-a]").forEach(i=>{n++;const ok=i.dataset.a.split("|").some(a=>{const x=num(i.value),y=num(a);
+    return (!isNaN(x)&&!isNaN(y)&&Math.abs(x-y)<=(parseFloat(i.dataset.t)||1e-9))||(i.value.trim()!==""&&norm(i.value)===norm(a));});setz(i,ok);});
+  k.querySelectorAll("input.antw").forEach(i=>{n++;const t=i.value.trim(),w=parseFloat(i.dataset.w.replace(",","."));
+    const zs=(t.replace(/(\d)\s(?=\d{3}\b)/g,"$1").match(/\d+(?:[.,]\d+)?/g)||[]).map(z=>parseFloat(z.replace(",",".")));
+    const E={"€":/€|euro/i,"g":/(^|[\d\s])g(\b|$)|gramm/i,"km":/km|kilometer/i,"m":/(\d|\s)m(\b|$)|meter/i,"cm":/cm|zentimeter/i}[i.dataset.e];
+    const ok=t.split(/\s+/).length>=3&&zs.some(z=>Math.abs(z-w)<=(parseFloat(i.dataset.t)||1e-9))&&(!i.dataset.e||(E?E.test(t):i.dataset.e.toLowerCase().split("|").some(u=>t.toLowerCase().includes(u))));setz(i,ok);});
+  k.querySelectorAll(".fin").forEach(f=>{n++;const[a,b]=f.querySelectorAll("input");const x=num(a.value),y=num(b.value);
+    const ok=!isNaN(x)&&!isNaN(y)&&y!==0&&Math.abs(x/y-parseFloat(f.dataset.v))<1e-9;[a,b].forEach(i=>{i.classList.toggle("ok",ok);i.classList.toggle("falsch",!ok);});if(ok)r++;});
+  k.querySelectorAll(".wahl,.auswahl").forEach(g=>{n++;const an=g.querySelector("button.an");setz(g,!!an&&an.dataset.z===g.dataset.soll);});
+  k.querySelectorAll(".mk").forEach(m=>{n++;const ok=m.dataset.r===m.dataset.soll;m.classList.toggle("falsch",!ok);if(ok)r++;});
+  k.querySelectorAll(".g100.malen").forEach(g=>{n++;setz(g,g.querySelectorAll("i.an").length===+g.dataset.soll);});
+  k.querySelectorAll(".zuo").forEach(Z=>Z.querySelectorAll('[data-s="l"]').forEach(l=>{n++;const ok=l.dataset.mit===l.dataset.i;
+    const rr=l.dataset.mit?Z.querySelector('[data-s="r"][data-i="'+l.dataset.mit+'"]'):null;
+    l.classList.toggle("ok",ok);l.classList.toggle("falsch",!ok);if(rr){rr.classList.toggle("ok",ok);rr.classList.toggle("falsch",!ok);}if(ok)r++;}));
+  k.querySelectorAll(".sort").forEach(S=>{const R=S._reihe;S.querySelectorAll("button").forEach(b=>{n++;const p=R.indexOf(b);setz(b,p>=0&&+b.dataset.i===p);});});
+  /* Verhältnisgleichung: jede richtig aufgestellte Gleichung zählt (Seiten tauschen, Brüche umdrehen, über Kreuz) */
+  k.querySelectorAll(".vgl-gl[data-gl]").forEach(E=>{n++;const [G,B,W,P]=JSON.parse(E.dataset.sol);
+    const AR=[[G,B,W,P],[W,P,G,B],[B,G,P,W],[P,W,B,G],[G,W,B,P],[B,P,G,W],[W,G,P,B],[P,B,W,G]];
+    const f=[...E.querySelectorAll("input.gl")].map(i=>i.value.trim().replace(/%/g,"").replace(/\s+/g,"").toLowerCase());
+    const gl=(a,b)=>{if(a==="x"||b==="x")return a===b;const u=num(a),v=num(b);return !isNaN(u)&&!isNaN(v)&&Math.abs(u-v)<1e-9;};
+    const ok=AR.some(r=>r.every((v,i)=>gl(f[i],String(v).toLowerCase())));
+    E.querySelectorAll("input.gl").forEach(i=>{i.classList.toggle("ok",ok);i.classList.toggle("falsch",!ok);});if(ok)r++;});
+  const e=k.querySelector(".ergebnis");
+  if(r===n){e.textContent="Super, alles richtig! ("+r+" von "+n+")";e.className="ergebnis gut";k.classList.add("fertig");}
+  else{e.textContent=r+" von "+n+" richtig. Verbessere die rot markierten Stellen.";e.className="ergebnis noch";k.classList.remove("fertig");}
+  stand();
+}
+function stand(){const B=document.querySelector(".blatt:not([hidden])");if(!B)return;const alle=B.querySelectorAll("[data-aufgabe]").length,f=B.querySelectorAll("[data-aufgabe].fertig").length;
+  document.getElementById("stand").textContent=f+" von "+alle+" Aufgaben geschafft"+(f===alle?" – klasse!":"");}
+
+/* Aufbau der Seite */
+document.title="Übungen "+BLATT.thema.replace(/\s*–\s*/," ");
+document.getElementById("oben").textContent="Interaktive Arbeitsblätter · "+BLATT.thema;
+document.getElementById("fuss").textContent="Erstellt von Marion Klugmann ("+BLATT.erstellt+") mit freundlicher Unterstützung von Claude.";
+const nav=document.getElementById("reiter"),box=document.getElementById("blaetter");
+BLATT.uebungen.forEach((u,i)=>{
+  const t=document.createElement("button");t.type="button";t.setAttribute("role","tab");t.dataset.b="uebung"+(i+1);
+  t.innerHTML="<b>Übung "+(i+1)+"</b>"+esc(u.reiter||"");nav.appendChild(t);box.appendChild(baueBlatt(u,i));
+});
+const tabs=[...nav.querySelectorAll("button")];
+let aktiv="uebung1";
+function zeige(id){if(!document.getElementById(id))id="uebung1";aktiv=id;tabs.forEach(t=>t.setAttribute("aria-selected",t.dataset.b===id));
+  document.querySelectorAll(".blatt").forEach(b=>b.hidden=b.id!==id);stand();}
+tabs.forEach(t=>t.addEventListener("click",()=>{if(location.hash!=="#"+t.dataset.b)location.hash=t.dataset.b;else zeige(t.dataset.b);window.scrollTo({top:0});}));
+window.addEventListener("hashchange",()=>zeige(location.hash.slice(1)));
+const btn=document.getElementById("neu");let tm=null;
+btn.addEventListener("click",()=>{
+  if(!btn.classList.contains("warnung")){btn.classList.add("warnung");btn.textContent="Wirklich?";tm=setTimeout(()=>{btn.classList.remove("warnung");btn.textContent="Neu beginnen";},3000);return;}
+  clearTimeout(tm);btn.classList.remove("warnung");btn.textContent="Neu beginnen";
+  const alt=document.getElementById(aktiv),i=+aktiv.slice(6)-1,neu=baueBlatt(BLATT.uebungen[i],i);neu.hidden=false;alt.replaceWith(neu);
+  stand();window.scrollTo({top:0,behavior:"smooth"});
+});
+zeige(location.hash.slice(1));
+})();
+</script>
+<style>
+.titel{position:relative;display:flex;align-items:center;justify-content:center;gap:.6em;min-height:2.3em;padding-left:6.2em!important;padding-right:7.6em!important}
+.ll-zurueck,.ll-spick{position:absolute;top:50%;transform:translateY(-50%);font:700 .62em/1 Arial,sans-serif;text-decoration:none;cursor:pointer;border-radius:999px;padding:.6em 1.1em;white-space:nowrap}
+.ll-zurueck{left:.5em;color:#00805F;background:#fff;border:2px solid #fff}
+.ll-spick{right:.5em;color:#fff;background:#C62828;border:2px solid #fff;box-shadow:0 0 0 2px #C62828,0 2px 8px rgba(0,0,0,.35)}
+.ll-zurueck:hover{background:#D3F2E5}.ll-spick:hover{background:#A31515}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible{outline:3px solid #FFE873;outline-offset:2px}
+@media (max-width:620px){.titel{flex-direction:column;padding:.4em .5em!important}.ll-zurueck,.ll-spick{position:static;transform:none}}
+.ll-pop{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:14px}
+.ll-pop[hidden]{display:none!important}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 30px rgba(0,0,0,.4)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,sans-serif;color:#fff;background:#C62828;border:0;border-radius:999px;padding:8px 16px;cursor:pointer}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+@media print{.ll-zurueck,.ll-spick,.ll-pop{display:none!important}.titel{padding:.35em .5em!important}}
+</style>
+<div class="ll-pop" id="llpop" hidden><div class="ll-box" role="dialog" aria-modal="true" aria-label="Spickzettel"><button type="button" class="ll-zu" id="llzu">✕ Schließen</button><iframe id="llframe" title="Spickzettel"></iframe></div></div>
+<script>(function(){var o=document.getElementById("llpop"),f=document.getElementById("llframe"),last=null;
+function zu(){o.hidden=true;f.removeAttribute("src");document.body.style.overflow="";if(last)last.focus();}
+document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest(".ll-spick");if(!b)return;last=b;f.src="spickzettel.html";o.hidden=false;document.body.style.overflow="hidden";document.getElementById("llzu").focus();});
+document.getElementById("llzu").addEventListener("click",zu);o.addEventListener("click",function(e){if(e.target===o)zu();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!o.hidden)zu();});})();</script>
+</body>
+</html>

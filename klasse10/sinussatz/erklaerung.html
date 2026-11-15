@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Erklärvideo · Hefter-Eintrag Sinussatz</title><style>
+:root{--g:#00805F;--gl:#D3F2E5}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:#000;font-family:Arial,"Liberation Sans",Helvetica,sans-serif}
+.page{font-size:var(--fs);line-height:1.35}
+.title{background:var(--g);color:#fff;font-weight:bold;font-size:1.45em;padding:.35em .7em;border-radius:3px}
+.zn{font-weight:bold;font-size:.95em;padding:.3em .1em .45em}
+.box{border:2px solid var(--g);border-radius:4px;margin:0 0 .55em;break-inside:avoid}
+.box>h3{background:var(--gl);margin:0;padding:.2em .6em;font-size:1em;border-bottom:2px solid var(--g)}
+.box .in{padding:.35em .6em .4em}
+.box p{margin:.25em 0}
+.f{display:inline-block;vertical-align:baseline;border:0;border-bottom:1.5px solid #222;height:1.45em;min-width:1em;margin:0 .12em;padding:0 .1em;font:inherit;text-align:center;background:transparent;border-radius:0;color:#1565C0;font-weight:bold;outline:none}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55em}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55em}
+.card{border:1.5px solid var(--g);border-radius:6px;padding:.3em .5em .45em}
+.card h4{margin:0 0 .3em;font-size:1em;color:var(--g);border-bottom:1.5px solid var(--gl);padding-bottom:.15em}
+.chip{display:block;margin:.3em 0}
+.formel{margin-top:.4em;padding:.35em .5em;background:#f2f2f2;border-radius:5px;font-weight:bold;text-align:center;line-height:1.9}
+.formel.big{font-size:1.12em}
+.fz{margin-top:.45em;border:1.5px dashed var(--g);border-radius:6px;padding:.3em .6em;text-align:center;font-weight:bold;background:#fffdf0;font-size:.95em}
+.klein{font-size:.85em;color:#333}
+.bsp{display:flex;gap:.6em;align-items:center}
+.bsp>div:last-child{flex:1;min-width:0}
+.bsp.col{flex-direction:column;align-items:flex-start}
+.bsp.col .fig{align-self:center}
+.zl{margin:.28em 0;white-space:nowrap}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .15em;line-height:1.15}
+.nu{border-bottom:1.5px solid #000;padding:0 .2em .1em}.nu .f{border-bottom:0;height:1.3em}.de{padding:.1em .2em 0}
+.tb{border-collapse:collapse;width:100%}
+.tb th,.tb td{border:1px solid #000;padding:.15em .45em;text-align:center}
+.tb th{background:#F2F2F2}
+.foot{text-align:right;font-style:italic;color:#555;font-size:.75em;margin-top:.3em}
+svg .seite{transition:stroke .15s}
+@media screen{
+ :root{--fs:19px}
+ .bar{position:sticky;top:0;z-index:10;background:#fff;border-bottom:2px solid #ddd;padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+ .bar button{font:inherit;font-size:16px;border:2px solid var(--g);background:#fff;color:#000;border-radius:8px;padding:8px 16px;cursor:pointer}
+ .bar .tab.on{background:var(--g);color:#fff;font-weight:bold}
+ .bar .sp{flex:1}.bar .hinw{font-size:14px;color:#555}
+ .bar button.warn{background:#C62828;border-color:#C62828;color:#fff;font-weight:bold}
+ .bar .gr button{padding:6px 10px;font-size:17px;min-width:2.2em}
+ .bar .gr{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+ .wrap{max-width:1050px;margin:0 auto;padding:14px 18px 40px}
+ .page{display:none}
+ input.f:focus{background:#FFFDE7;box-shadow:0 0 0 2px #FDD835}
+ @media (max-width:760px){.grid2,.grid3{grid-template-columns:1fr!important}.zl{white-space:normal}}
+}
+@page{size:A4;margin:1.1cm 1.5cm 1.0cm 2.5cm}
+@page :left{margin-left:1.5cm;margin-right:2.5cm}
+@page :right{margin-left:2.5cm;margin-right:1.5cm}
+@media print{
+ :root{--fs:14.5px}
+ .fig svg{width:180px!important}
+ #z1 .card .fig svg{width:140px!important} #z4{--fs:13.6px} #z4 .fig svg{width:122px!important} #z4 .grid2>.fig svg{width:170px!important}
+ .box{margin-bottom:.6em}
+ .zl{margin:.14em 0} .box p{margin:.15em 0} .box .in{padding:.25em .5em .3em}
+ .bar{display:none}.wrap{padding:0;max-width:none}
+ .page{display:block!important;break-after:page;page-break-after:always}
+ .page:last-of-type{break-after:auto;page-break-after:auto}
+ .f{color:#000}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style><style id="video-style">
+.videoctl{position:sticky;top:60px;z-index:12;background:#fff;padding:6px 8px;border:1.5px solid #00805F;border-radius:8px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:6px 0 8px;font:15px Arial,sans-serif}
+.videoctl button{font:inherit;font-weight:bold;border:1.5px solid #00805F;background:#fff;color:#000;border-radius:7px;padding:7px 12px;cursor:pointer}
+.videoctl button:disabled{opacity:.4;cursor:default}
+.videoctl .go{background:#00805F;color:#fff}.videoctl .go.warn{background:#C62828;border-color:#C62828}
+.videoctl .hint{color:#444;flex-basis:100%}
+.videoctl select{font:inherit;padding:5px;border:1.5px solid #00805F;border-radius:6px;background:#fff;max-width:16em}
+.videoctl .status{color:#555;font-size:13px}
+.speaking{background:#FFF2BD!important;box-shadow:0 0 0 3px #E9B72B!important;border-radius:4px}
+svg .seite.vglow{animation:vglow .9s ease-in-out infinite}
+@keyframes vglow{50%{stroke-width:10}}
+input.f,.box{scroll-margin-top:150px}
+@media print{.videoctl{display:none!important}}
+</style>
+</head><body>
+<div class="bar"><button class="tab" data-p="z1">Z1</button><button class="tab" data-p="z2">Z2</button><button class="tab" data-p="z4">Z4</button>
+<span class="gr" title="Buchstabe ins gewählte Feld einsetzen"><button>α</button><button>β</button><button>γ</button><button>δ</button><button>ε</button><button>φ</button><button>κ</button><button>λ</button><button>μ</button><button>ρ</button><button>σ</button><button>τ</button><button>sin⁻¹</button></span>
+<span class="hinw">Seiten und Winkel antippen: blau → orange → grün (Paare färben)</span><span class="sp"></span><button id="clr1">Seite leeren</button><button id="clrA">Alles löschen</button></div>
+<div class="wrap"><section class="page" id="z1"><div class="title">Der Sinussatz – aufstellen</div><div class="zn">Z1 · Ich kann den Sinussatz zu beliebig bezeichneten Dreiecken aufstellen.</div><div class="box"><h3>Merke</h3><div class="in"><div class="grid2"><div class="card"><h4>Seite und Winkel als Paar</h4><div class="bsp"><div class="fig" data-fk="z1-f0" data-o='{"e": ["A", "B", "C"], "al": 55, "be": 72, "farbe": {"a": "#1565C0", "α": "#1565C0", "b": "#C2410C", "β": "#C2410C", "c": "#2E7D32", "γ": "#2E7D32"}, "w": 180}'></div><div><p class="chip">Die Seite a liegt dem Winkel <input data-k="z1-0" class="f" style="width:1.6em" aria-label="Lücke"  data-l="α"> gegenüber.</p><p class="chip">Eine Seite und der gegenüberliegende Winkel bilden ein <input data-k="z1-1" class="f" style="width:4em" aria-label="Lücke"  data-l="Paar">.</p></div></div><div class="fz">Tipp: Erst die <input data-k="z1-2" class="f" style="width:4em" aria-label="Lücke"  data-l="Paare"> suchen – welcher Winkel liegt welcher Seite gegenüber?</div></div><div class="card"><h4>Sinussatz</h4><p>In jedem Dreieck ist der Quotient aus einer Seite und dem Sinus des gegenüberliegenden Winkels <input data-k="z1-3" class="f" style="width:4em" aria-label="Lücke"  data-l="gleich">.</p><div class="formel big"><span class="fr"><span class="nu">a</span><span class="de">sin α</span></span> = <span class="fr"><span class="nu"><input data-k="z1-4" class="f" style="width:1.6em" aria-label="Lücke"  data-l="b"></span><span class="de">sin <input data-k="z1-5" class="f" style="width:1.6em" aria-label="Lücke"  data-l="β"></span></span> = <span class="fr"><span class="nu"><input data-k="z1-6" class="f" style="width:1.6em" aria-label="Lücke"  data-l="c"></span><span class="de">sin <input data-k="z1-7" class="f" style="width:1.6em" aria-label="Lücke"  data-l="γ"></span></span></div><p class="klein">Auch umgedreht richtig: <span class="fr"><span class="nu">sin α</span><span class="de">a</span></span> = <span class="fr"><span class="nu">sin β</span><span class="de">b</span></span> = <span class="fr"><span class="nu">sin γ</span><span class="de">c</span></span></p></div></div></div></div><div class="box"><h3>Musterbeispiele</h3><div class="in"><div class="grid2"><div class="bsp col"><div class="fig" data-fk="z1-f1" data-o='{"al": 62, "be": 48, "e": ["A", "B", "C"], "klick": true, "w": 220}'></div><div><p class="zl">Dreieck ABC: Paare finden, dann aufstellen</p><div class="formel big"><span class="fr"><span class="nu"><input data-k="z1-8" class="f" style="width:1.6em" aria-label="Lücke"  data-l="a"></span><span class="de">sin <input data-k="z1-9" class="f" style="width:1.6em" aria-label="Lücke"  data-l="α"></span></span> = <span class="fr"><span class="nu"><input data-k="z1-10" class="f" style="width:1.6em" aria-label="Lücke"  data-l="b"></span><span class="de">sin <input data-k="z1-11" class="f" style="width:1.6em" aria-label="Lücke"  data-l="β"></span></span> = <span class="fr"><span class="nu"><input data-k="z1-12" class="f" style="width:1.6em" aria-label="Lücke"  data-l="c"></span><span class="de">sin <input data-k="z1-13" class="f" style="width:1.6em" aria-label="Lücke"  data-l="γ"></span></span></div></div></div><div class="bsp col"><div class="fig" data-fk="z1-f2" data-o='{"al": 38, "be": 104, "e": ["R", "S", "T"], "klick": true, "w": 220}'></div><div><p class="zl">Dreieck RST: Paare finden, dann aufstellen</p><div class="formel big"><span class="fr"><span class="nu"><input data-k="z1-14" class="f" style="width:1.6em" aria-label="Lücke"  data-l="r"></span><span class="de">sin <input data-k="z1-15" class="f" style="width:1.6em" aria-label="Lücke"  data-l="ρ"></span></span> = <span class="fr"><span class="nu"><input data-k="z1-16" class="f" style="width:1.6em" aria-label="Lücke"  data-l="s"></span><span class="de">sin <input data-k="z1-17" class="f" style="width:1.6em" aria-label="Lücke"  data-l="σ"></span></span> = <span class="fr"><span class="nu"><input data-k="z1-18" class="f" style="width:1.6em" aria-label="Lücke"  data-l="t"></span><span class="de">sin <input data-k="z1-19" class="f" style="width:1.6em" aria-label="Lücke"  data-l="τ"></span></span></div></div></div></div></div></div><div class="box"><h3>Jetzt ihr</h3><div class="in"><div class="grid2"><div class="bsp col"><div class="fig" data-fk="z1-f3" data-o='{"al": 70, "be": 40, "e": ["K", "L", "M"], "klick": true, "w": 220}'></div><div><p class="zl">Dreieck KLM: Paare finden, dann aufstellen</p><div class="formel big"><span class="fr"><span class="nu"><input data-k="z1-20" class="f" style="width:1.6em" aria-label="Lücke"></span><span class="de">sin <input data-k="z1-21" class="f" style="width:1.6em" aria-label="Lücke"></span></span> = <span class="fr"><span class="nu"><input data-k="z1-22" class="f" style="width:1.6em" aria-label="Lücke"></span><span class="de">sin <input data-k="z1-23" class="f" style="width:1.6em" aria-label="Lücke"></span></span> = <span class="fr"><span class="nu"><input data-k="z1-24" class="f" style="width:1.6em" aria-label="Lücke"></span><span class="de">sin <input data-k="z1-25" class="f" style="width:1.6em" aria-label="Lücke"></span></span></div></div></div><div class="bsp col"><div class="fig" data-fk="z1-f4" data-o='{"al": 30, "be": 65, "e": ["D", "E", "F"], "klick": true, "w": 220}'></div><div><p class="zl">Dreieck DEF: Paare finden, dann aufstellen</p><div class="formel big"><span class="fr"><span class="nu"><input data-k="z1-26" class="f" style="width:1.6em" aria-label="Lücke"></span><span class="de">sin <input data-k="z1-27" class="f" style="width:1.6em" aria-label="Lücke"></span></span> = <span class="fr"><span class="nu"><input data-k="z1-28" class="f" style="width:1.6em" aria-label="Lücke"></span><span class="de">sin <input data-k="z1-29" class="f" style="width:1.6em" aria-label="Lücke"></span></span> = <span class="fr"><span class="nu"><input data-k="z1-30" class="f" style="width:1.6em" aria-label="Lücke"></span><span class="de">sin <input data-k="z1-31" class="f" style="width:1.6em" aria-label="Lücke"></span></span></div></div></div></div></div></div><p class="foot">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p></section><section class="page" id="z2"><div class="title">Mit dem Sinussatz Seiten und Winkel berechnen</div><div class="zn">Z2 · Ich kann den Sinussatz zur Berechnung von Seiten und Winkeln anwenden.</div><div class="box"><h3>Merke</h3><div class="in"><div class="grid3"><div class="card"><h4>Seite gesucht</h4><div class="formel"><span class="fr"><span class="nu">a</span><span class="de">sin α</span></span> = <span class="fr"><span class="nu">c</span><span class="de">sin γ</span></span><br>→ a = <input data-k="z2-0" class="f" style="width:1.4em" aria-label="Lücke"  data-l="c"> · sin <input data-k="z2-1" class="f" style="width:1.4em" aria-label="Lücke"  data-l="α"> ÷ sin <input data-k="z2-2" class="f" style="width:1.4em" aria-label="Lücke"  data-l="γ"></div></div><div class="card"><h4>Winkel gesucht</h4><div class="formel"><span class="fr"><span class="nu">sin β</span><span class="de">b</span></span> = <span class="fr"><span class="nu">sin α</span><span class="de">a</span></span><br>→ sin β = <input data-k="z2-3" class="f" style="width:1.4em" aria-label="Lücke"  data-l="b"> · sin α ÷ <input data-k="z2-4" class="f" style="width:1.4em" aria-label="Lücke"  data-l="a"><br>→ β = <input data-k="z2-5" class="f" style="width:2.4em" aria-label="Lücke"  data-l="sin⁻¹">(…)</div></div><div class="card"><h4>Stumpfe Winkel</h4><p>Auch stumpfe Winkel haben einen Sinus: sin (180° − α) = sin α</p><p class="zl">sin 120° = sin <input data-k="z2-6" class="f" style="width:2em" aria-label="Lücke"  data-l="60">° ≈ <input data-k="z2-7" class="f" style="width:2.6em" aria-label="Lücke"  data-l="0,87"></p><p>sin⁻¹ liefert immer den <input data-k="z2-8" class="f" style="width:4.2em" aria-label="Lücke"  data-l="spitzen"> Winkel. Gesucht ist deshalb immer der Winkel gegenüber der <input data-k="z2-9" class="f" style="width:4.6em" aria-label="Lücke"  data-l="kürzeren"> Seite.</p></div></div><div class="fz">Ein <input data-k="z2-10" class="f" style="width:3.4em" aria-label="Lücke"  data-l="Paar"> muss vollständig bekannt sein. Fehlt ein Winkel, hilft die <input data-k="z2-11" class="f" style="width:8em" aria-label="Lücke"  data-l="Innenwinkelsumme">. · Runden: Winkel auf ganze Grad, cm auf mm</div></div></div><div class="box"><h3>Musterbeispiele</h3><div class="in"><div class="grid2"><div class="bsp col"><div class="fig" data-fk="z2-f0" data-o='{"e": ["A", "B", "C"], "al": 50, "be": 70, "s": {"c": "8 cm", "a": "?", "b": "?"}, "wk": {"0": "50°", "1": "70°", "2": "γ"}, "w": 230, "klick": true}'></div><div><p class="zl"><b>Seite gesucht</b></p><p class="zl">1. γ = 180° − <input data-k="z2-12" class="f" style="width:2em" aria-label="Lücke"  data-l="50">° − <input data-k="z2-13" class="f" style="width:2em" aria-label="Lücke"  data-l="70">° = <input data-k="z2-14" class="f" style="width:2em" aria-label="Lücke"  data-l="60">°</p><p class="zl">2. <span class="fr"><span class="nu">a</span><span class="de">sin α</span></span> = <span class="fr"><span class="nu">c</span><span class="de">sin γ</span></span> → a = <input data-k="z2-15" class="f" style="width:1.6em" aria-label="Lücke"  data-l="8"> · sin <input data-k="z2-16" class="f" style="width:2em" aria-label="Lücke"  data-l="50">° ÷ sin <input data-k="z2-17" class="f" style="width:2em" aria-label="Lücke"  data-l="60">°</p><p class="zl">a ≈ <input data-k="z2-18" class="f" style="width:2.6em" aria-label="Lücke"  data-l="7,1"> cm</p><p class="zl">3. b = <input data-k="z2-19" class="f" style="width:1.6em" aria-label="Lücke"  data-l="8"> · sin <input data-k="z2-20" class="f" style="width:2em" aria-label="Lücke"  data-l="70">° ÷ sin <input data-k="z2-21" class="f" style="width:2em" aria-label="Lücke"  data-l="60">° ≈ <input data-k="z2-22" class="f" style="width:2.6em" aria-label="Lücke"  data-l="8,7"> cm</p></div></div><div class="bsp col"><div class="fig" data-fk="z2-f1" data-o='{"e": ["A", "B", "C"], "al": 65, "be": 40.343, "s": {"a": "7 cm", "b": "5 cm", "c": "c"}, "wk": {"0": "65°", "1": "?", "2": "γ"}, "w": 230, "klick": true}'></div><div><p class="zl"><b>Winkel gesucht</b></p><p class="zl"><span class="fr"><span class="nu">sin β</span><span class="de">b</span></span> = <span class="fr"><span class="nu">sin α</span><span class="de">a</span></span> → sin β = <input data-k="z2-23" class="f" style="width:1.6em" aria-label="Lücke"  data-l="5"> · sin <input data-k="z2-24" class="f" style="width:2em" aria-label="Lücke"  data-l="65">° ÷ <input data-k="z2-25" class="f" style="width:1.6em" aria-label="Lücke"  data-l="7"></p><p class="zl">sin β ≈ <input data-k="z2-26" class="f" style="width:3.4em" aria-label="Lücke"  data-l="0,6474"> → β ≈ <input data-k="z2-27" class="f" style="width:2em" aria-label="Lücke"  data-l="40">°</p><p class="zl">γ = 180° − <input data-k="z2-28" class="f" style="width:2em" aria-label="Lücke"  data-l="65">° − <input data-k="z2-29" class="f" style="width:2em" aria-label="Lücke"  data-l="40">° = <input data-k="z2-30" class="f" style="width:2em" aria-label="Lücke"  data-l="75">°</p><p class="zl">Probe: β liegt der kürzeren Seite <input data-k="z2-31" class="f" style="width:1.4em" aria-label="Lücke"  data-l="b"> gegenüber ✔</p></div></div></div></div></div><div class="box"><h3>Jetzt ihr</h3><div class="in"><div class="grid2"><div class="bsp col"><div class="fig" data-fk="z2-f2" data-o='{"e": ["A", "B", "C"], "al": 65, "be": 40, "s": {"b": "6 cm", "a": "?", "c": "c"}, "wk": {"0": "α", "1": "40°", "2": "75°"}, "w": 230, "klick": true}'></div><div><p class="zl"><b>Seite gesucht</b></p><p class="zl">1. α = 180° − <input data-k="z2-32" class="f" style="width:2em" aria-label="Lücke">° − <input data-k="z2-33" class="f" style="width:2em" aria-label="Lücke">° = <input data-k="z2-34" class="f" style="width:2em" aria-label="Lücke">°</p><p class="zl">2. <span class="fr"><span class="nu">a</span><span class="de">sin α</span></span> = <span class="fr"><span class="nu">b</span><span class="de">sin β</span></span> → a = <input data-k="z2-35" class="f" style="width:1.6em" aria-label="Lücke"> · sin <input data-k="z2-36" class="f" style="width:2em" aria-label="Lücke">° ÷ sin <input data-k="z2-37" class="f" style="width:2em" aria-label="Lücke">°</p><p class="zl">a ≈ <input data-k="z2-38" class="f" style="width:2.6em" aria-label="Lücke"> cm</p></div></div><div class="bsp col"><div class="fig" data-fk="z2-f3" data-o='{"e": ["A", "B", "C"], "al": 28.869, "be": 41.131, "s": {"c": "10 cm", "b": "7 cm", "a": "a"}, "wk": {"0": "α", "1": "?", "2": "110°"}, "w": 230, "klick": true}'></div><div><p class="zl"><b>Winkel gesucht</b></p><p class="zl"><span class="fr"><span class="nu">sin β</span><span class="de">b</span></span> = <span class="fr"><span class="nu">sin γ</span><span class="de">c</span></span> → sin β = <input data-k="z2-39" class="f" style="width:1.6em" aria-label="Lücke"> · sin <input data-k="z2-40" class="f" style="width:2.4em" aria-label="Lücke">° ÷ <input data-k="z2-41" class="f" style="width:1.6em" aria-label="Lücke"></p><p class="zl">sin β ≈ <input data-k="z2-42" class="f" style="width:3.4em" aria-label="Lücke"> → β ≈ <input data-k="z2-43" class="f" style="width:2em" aria-label="Lücke">°</p><p class="zl">α = 180° − <input data-k="z2-44" class="f" style="width:2.4em" aria-label="Lücke">° − <input data-k="z2-45" class="f" style="width:2em" aria-label="Lücke">° = <input data-k="z2-46" class="f" style="width:2em" aria-label="Lücke">°</p></div></div></div></div></div><p class="foot">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p></section><section class="page" id="z4"><div class="title">Flächeninhalt allgemeiner Dreiecke</div><div class="zn">Z4 · Ich kann den Flächeninhalt allgemeiner Dreiecke berechnen.</div><div class="box"><h3>Merke</h3><div class="in"><div class="grid2" style="grid-template-columns:auto 1fr"><div class="fig" data-fk="z4-f0" data-o='{"e": ["A", "B", "C"], "al": 42, "be": 68, "wk": {"2": "γ"}, "hoehe": true, "farbe": {"a": "#1565C0", "b": "#C2410C", "γ": "#2E7D32"}, "s": {"a": "a", "b": "b", "c": "c"}, "w": 230}'></div><div><p class="zl">Höhe h auf a: sin γ = <span class="fr"><span class="nu">h</span><span class="de"><input data-k="z4-0" class="f" style="width:1.4em" aria-label="Lücke"  data-l="b"></span></span> → h = <input data-k="z4-1" class="f" style="width:1.4em" aria-label="Lücke"  data-l="b"> · sin γ</p><p class="zl">A = <span class="fr"><span class="nu">1</span><span class="de">2</span></span> · a · <input data-k="z4-2" class="f" style="width:1.4em" aria-label="Lücke"  data-l="h"> = <span class="fr"><span class="nu">1</span><span class="de">2</span></span> · a · <input data-k="z4-3" class="f" style="width:1.4em" aria-label="Lücke"  data-l="b"> · sin <input data-k="z4-4" class="f" style="width:1.4em" aria-label="Lücke"  data-l="γ"></p><div class="formel big">A = <span class="fr"><span class="nu">1</span><span class="de">2</span></span> · a · b · sin γ</div><div class="fz">Der Winkel muss <input data-k="z4-5" class="f" style="width:5em" aria-label="Lücke"  data-l="zwischen"> den beiden Seiten liegen.<br>Sonderfall γ = 90°: sin 90° = <input data-k="z4-6" class="f" style="width:1.4em" aria-label="Lücke"  data-l="1"> → A = <span class="fr"><span class="nu">1</span><span class="de">2</span></span> · a · b (wie bei Pythagoras)<br>Runden: Flächen auf 2 Nachkommastellen</div></div></div></div></div><div class="box"><h3>Musterbeispiele</h3><div class="in"><div class="grid2"><div class="bsp col"><div class="fig" data-fk="z4-f1" data-o='{"e": ["A", "B", "C"], "al": 84, "be": 56, "s": {"a": "6 cm", "b": "5 cm", "c": "c"}, "wk": {"2": "40°"}, "w": 220, "klick": true}'></div><div><p class="zl"><b>Zwei Seiten und der Winkel dazwischen</b></p><p class="zl">A = <span class="fr"><span class="nu">1</span><span class="de">2</span></span> · <input data-k="z4-7" class="f" style="width:1.6em" aria-label="Lücke"  data-l="6"> · <input data-k="z4-8" class="f" style="width:1.6em" aria-label="Lücke"  data-l="5"> · sin <input data-k="z4-9" class="f" style="width:2em" aria-label="Lücke"  data-l="40">°</p><p class="zl">A ≈ <input data-k="z4-10" class="f" style="width:3em" aria-label="Lücke"  data-l="9,64"> cm²</p></div></div><div class="bsp col"><div class="fig" data-fk="z4-f2" data-o='{"e": ["A", "B", "C"], "al": 50, "be": 70, "s": {"c": "8 cm", "b": "8,7 cm", "a": "a"}, "wk": {"0": "50°", "1": "70°", "2": "60°"}, "w": 220, "klick": true}'></div><div><p class="zl"><b>Dreieck aus Z2: erst die fehlende Seite</b></p><p class="zl">1. b = 8 · sin 70° ÷ sin 60° ≈ <input data-k="z4-11" class="f" style="width:2.6em" aria-label="Lücke"  data-l="8,7"> cm</p><p class="zl">2. A = <span class="fr"><span class="nu">1</span><span class="de">2</span></span> · <input data-k="z4-12" class="f" style="width:2.4em" aria-label="Lücke"  data-l="8,7"> · <input data-k="z4-13" class="f" style="width:1.6em" aria-label="Lücke"  data-l="8"> · sin <input data-k="z4-14" class="f" style="width:2em" aria-label="Lücke"  data-l="50">°</p><p class="zl">A ≈ <input data-k="z4-15" class="f" style="width:3.2em" aria-label="Lücke"  data-l="26,66"> cm²</p><p class="klein">Mit dem genauen Wert für b: 26,60 cm² – beides ist richtig.</p></div></div></div></div></div><div class="box"><h3>Jetzt ihr</h3><div class="in"><div class="grid2"><div class="bsp col"><div class="fig" data-fk="z4-f3" data-o='{"e": ["A", "B", "C"], "al": 40, "be": 110, "s": {"a": "9 cm", "c": "7 cm", "b": "b"}, "wk": {"1": "110°"}, "w": 220, "klick": true}'></div><div><p class="zl">A = <span class="fr"><span class="nu">1</span><span class="de">2</span></span> · <input data-k="z4-16" class="f" style="width:1.6em" aria-label="Lücke"> · <input data-k="z4-17" class="f" style="width:1.6em" aria-label="Lücke"> · sin <input data-k="z4-18" class="f" style="width:2.4em" aria-label="Lücke">°</p><p class="zl">A ≈ <input data-k="z4-19" class="f" style="width:3.2em" aria-label="Lücke"> cm²</p></div></div><div class="bsp col"><div class="fig" data-fk="z4-f4" data-o='{"e": ["K", "L", "M"], "al": 31.7, "be": 113.3, "s": {"k": "4 cm", "l": "7 cm", "m": "m"}, "wk": {"2": "35°"}, "w": 220, "klick": true}'></div><div><p class="zl">A = <span class="fr"><span class="nu">1</span><span class="de">2</span></span> · <input data-k="z4-20" class="f" style="width:1.6em" aria-label="Lücke"> · <input data-k="z4-21" class="f" style="width:1.6em" aria-label="Lücke"> · sin <input data-k="z4-22" class="f" style="width:2.4em" aria-label="Lücke">°</p><p class="zl">A ≈ <input data-k="z4-23" class="f" style="width:3.2em" aria-label="Lücke"> cm²</p></div></div></div></div></div><div class="box"><h3>Auflösung: Welches LED-Segel beleuchtet die größte Fläche?</h3><div class="in"><table class="tb"><tr><th>Segel</th><th>gegeben</th><th>Flächeninhalt</th></tr><tr><td>türkis (links)</td><td>6 m und 7 m, Winkel dazwischen 30°</td><td>A = <span class="fr"><span class="nu">1</span><span class="de">2</span></span> · 6 · 7 · sin 30° = <input data-k="z4-24" class="f" style="width:3.2em" aria-label="Lücke"  data-l="10,50"> m²</td></tr><tr><td>gold (Mitte)</td><td>4 m und 5 m, Winkel dazwischen 90°</td><td>A = <span class="fr"><span class="nu">1</span><span class="de">2</span></span> · 4 · 5 · sin 90° = <input data-k="z4-25" class="f" style="width:3.2em" aria-label="Lücke"  data-l="10,00"> m²</td></tr><tr><td>pink (rechts)</td><td>5 m und 5 m, Winkel dazwischen 120°</td><td>A = <span class="fr"><span class="nu">1</span><span class="de">2</span></span> · 5 · 5 · sin 120° ≈ <input data-k="z4-26" class="f" style="width:3.2em" aria-label="Lücke"  data-l="10,83"> m²</td></tr></table><p class="zl">Die größte Fläche hat das Segel <input data-k="z4-27" class="f" style="width:4em" aria-label="Lücke"  data-l="pink">. Falle: sin 120° = sin 60° ≈ 0,87 ist größer als sin 30° = <input data-k="z4-28" class="f" style="width:2em" aria-label="Lücke"  data-l="0,5">.</p></div></div><p class="foot">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p></section></div><script>
+const gU=(x,y)=>{const l=Math.hypot(x,y)||1;return[x/l,y/l];};
+const gE=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+function gT(x,y,s,o){o=o||{};return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" font-size="'+(o.size||16)+'" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" fill="'+(o.fill||"#000")+'"'+(o.bold?' font-weight="700"':'')+(o.it?' font-style="italic"':'')+'>'+gE(s)+'</text>';}
+const GR={A:"α",B:"β",C:"γ",D:"δ",E:"ε",F:"φ",K:"κ",L:"λ",M:"μ",R:"ρ",S:"σ",T:"τ"};
+/* gdSvg({e:["A","B","C"], al, be, s:{a:"8 cm"}, wk:{0:"50°"}, farbe:{a:"#1565C0","α":"#1565C0"}, klick, w, hoehe})
+   allgemeines Dreieck: erste Ecke links unten, gegen den Uhrzeigersinn; Seite gegenüber der gleichnamigen Ecke; Winkelgröße im Bogen.
+   wk fehlt → alle Winkel mit griechischem Buchstaben; wk gegeben → nur diese Winkel. */
+function gdSvg(o){
+  const e=o.e||["A","B","C"],r=Math.PI/180,al=o.al,be=o.be,ga=180-al-be;
+  const b=Math.sin(be*r)/Math.sin(ga*r),raw=[[0,0],[1,0],[b*Math.cos(al*r),b*Math.sin(al*r)]];
+  const W=o.bw||320,pad=o.pad||40,xs=raw.map(p=>p[0]),ys=raw.map(p=>p[1]);
+  const dx=Math.max(...xs)-Math.min(...xs),dy=Math.max(...ys)-Math.min(...ys);
+  const H=Math.round(Math.max(150,Math.min(260,2*pad+(W-2*pad)*dy/dx)));
+  const sc=Math.min((W-2*pad)/dx,(H-2*pad)/dy),ox=(W-sc*(Math.max(...xs)+Math.min(...xs)))/2,oy=(H+sc*(Math.max(...ys)+Math.min(...ys)))/2;
+  const P=raw.map(([x,y])=>[ox+sc*x,oy-sc*y]),G=[(P[0][0]+P[1][0]+P[2][0])/3,(P[0][1]+P[1][1]+P[2][1])/3];
+  const ang=[al,be,ga],F=o.farbe||{};
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Dreieck '+e.join("")+'" style="width:'+(o.w||W)+'px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  const wk=o.wk||{0:null,1:null,2:null};
+  for(const key of Object.keys(wk)){const i=+key,g=GR[e[i]],lab=wk[key]==null?g:wk[key];
+    const oo=[0,1,2].filter(j=>j!==i).map(j=>P[j]);
+    const u=gU(oo[0][0]-P[i][0],oo[0][1]-P[i][1]),v=gU(oo[1][0]-P[i][0],oo[1][1]-P[i][1]);
+    const l1=Math.hypot(oo[0][0]-P[i][0],oo[0][1]-P[i][1]),l2=Math.hypot(oo[1][0]-P[i][0],oo[1][1]-P[i][1]);
+    const tw=0.6*15*Math.max(String(lab).length,1),half=ang[i]*r/2;
+    let tR=Math.max(15,(tw/2+4)/Math.sin(half));const rr=Math.min(0.45*Math.min(l1,l2),Math.max(30,tR+tw/2+7));if(tR+tw/2>rr)tR=rr+tw/2+4;
+    const cr=u[0]*v[1]-u[1]*v[0],bi=gU(u[0]+v[0],u[1]+v[1]),col=F[g]||"#000";
+    s+='<path class="seite wb" data-s="'+g+'" d="M'+P[i][0].toFixed(1)+' '+P[i][1].toFixed(1)+' L'+(P[i][0]+rr*u[0]).toFixed(1)+' '+(P[i][1]+rr*u[1]).toFixed(1)+' A'+rr.toFixed(1)+' '+rr.toFixed(1)+' 0 0 '+(cr>0?1:0)+' '+(P[i][0]+rr*v[0]).toFixed(1)+' '+(P[i][1]+rr*v[1]).toFixed(1)+' Z" fill="#e9e9e9" stroke="'+col+'" stroke-width="'+(col==="#000"?1.3:4)+'"'+(o.klick?' style="cursor:pointer"':'')+'/>';
+    if(lab!=="")s+=gT(P[i][0]+tR*bi[0],P[i][1]+tR*bi[1],lab,{bold:true,size:15,fill:col==="#000"?"#000":col});}
+  if(o.hoehe){const B=P[1],C=P[2],A=P[0],d=gU(B[0]-C[0],B[1]-C[1]),t=(A[0]-C[0])*d[0]+(A[1]-C[1])*d[1],Fp=[C[0]+t*d[0],C[1]+t*d[1]];
+    s+='<line x1="'+A[0].toFixed(1)+'" y1="'+A[1].toFixed(1)+'" x2="'+Fp[0].toFixed(1)+'" y2="'+Fp[1].toFixed(1)+'" stroke="#000" stroke-width="2" stroke-dasharray="6 4"/>';
+    const n=gU(A[0]-Fp[0],A[1]-Fp[1]),q=12;s+='<path d="M'+(Fp[0]+q*d[0]).toFixed(1)+' '+(Fp[1]+q*d[1]).toFixed(1)+' A'+q+' '+q+' 0 0 '+((d[0]*n[1]-d[1]*n[0])>0?1:0)+' '+(Fp[0]+q*n[0]).toFixed(1)+' '+(Fp[1]+q*n[1]).toFixed(1)+'" fill="none" stroke="#000" stroke-width="1.2"/>';
+    const bb=gU(d[0]+n[0],d[1]+n[1]);s+='<circle cx="'+(Fp[0]+5*bb[0]).toFixed(1)+'" cy="'+(Fp[1]+5*bb[1]).toFixed(1)+'" r="2.2" fill="#000"/>';
+    const M=[(A[0]+Fp[0])/2,(A[1]+Fp[1])/2];s+=gT(M[0]+12*d[0]*-1,M[1]+12*d[1]*-1,"h",{it:true,bold:true,size:17});}
+  const lab=[];
+  for(let k=0;k<3;k++){const i=(k+1)%3,j=(k+2)%3,nm=e[k].toLowerCase(),A=P[i],B=P[j],M=[(A[0]+B[0])/2,(A[1]+B[1])/2],d=gU(B[0]-A[0],B[1]-A[1]);
+    let nn=[-d[1],d[0]];if((M[0]-G[0])*nn[0]+(M[1]-G[1])*nn[1]<0)nn=[-nn[0],-nn[1]];const f=F[nm]||"#000";
+    s+='<line class="seite" data-s="'+nm+'" x1="'+A[0].toFixed(1)+'" y1="'+A[1].toFixed(1)+'" x2="'+B[0].toFixed(1)+'" y2="'+B[1].toFixed(1)+'" stroke="'+f+'" stroke-width="'+(f==="#000"?3:5)+'" stroke-linecap="round"/>';
+    if(o.klick)s+='<line class="hit" data-s="'+nm+'" x1="'+A[0].toFixed(1)+'" y1="'+A[1].toFixed(1)+'" x2="'+B[0].toFixed(1)+'" y2="'+B[1].toFixed(1)+'" stroke="transparent" stroke-width="22" style="cursor:pointer"/>';
+    const t=o.s&&o.s[nm]!=null?o.s[nm]:nm;if(t!==""){const off=13+Math.abs(nn[0])*t.length*4.4+Math.abs(nn[1])*6;
+      lab.push(gT(M[0]+off*nn[0],M[1]+off*nn[1],t,{it:t.length===1,size:16,fill:f==="#000"?"#000":f,bold:f!=="#000"}));}}
+  s+=lab.join("");
+  for(let k=0;k<3;k++){const q=gU(P[k][0]-G[0],P[k][1]-G[1]);s+=gT(P[k][0]+17*q[0],P[k][1]+17*q[1],e[k],{bold:true,size:17});}
+  return s+'</svg>';
+}
+function zeichne(root){(root||document).querySelectorAll(".fig").forEach(d=>{d.innerHTML=gdSvg(JSON.parse(d.dataset.o));});}
+zeichne();
+/* Antippen: schwarz → blau → orange → grün → schwarz (Paare färben) */
+const FARB=["#000","#1565C0","#C2410C","#2E7D32"];
+document.addEventListener("click",e=>{const h=e.target.closest(".hit,.wb");if(!h)return;const svg=h.closest("svg");if(!svg.closest(".fig[data-o]")||!JSON.parse(svg.closest(".fig").dataset.o).klick)return;
+  const l=h.classList.contains("wb")?h:svg.querySelector('line.seite[data-s="'+h.dataset.s+'"]');const k=(FARB.indexOf(l.getAttribute("stroke"))+1)%4;
+  l.setAttribute("stroke",FARB[k]);l.setAttribute("stroke-width",h.classList.contains("wb")?(k?4:1.3):(k?5:3));});
+const pages=[...document.querySelectorAll(".page")],tabs=[...document.querySelectorAll(".tab")];
+function show(id){pages.forEach(p=>p.style.display=p.id===id?"block":"none");tabs.forEach(t=>t.classList.toggle("on",t.dataset.p===id));
+  try{history.replaceState(null,"","#"+id)}catch(e){};window.scrollTo(0,0)}
+tabs.forEach(t=>t.onclick=()=>show(t.dataset.p));
+function cur(){return pages.find(p=>p.style.display==="block")}
+let letztes=null;document.addEventListener("focusin",e=>{if(e.target.matches("input.f"))letztes=e.target;});
+document.querySelectorAll(".gr button").forEach(b=>{b.addEventListener("mousedown",e=>e.preventDefault());b.addEventListener("click",()=>{
+  if(!letztes)return;const i=letztes,a=i.selectionStart??i.value.length,z=i.selectionEnd??i.value.length;i.value=i.value.slice(0,a)+b.textContent+i.value.slice(z);i.focus();try{i.setSelectionRange(a+b.textContent.length,a+b.textContent.length)}catch(e){}});});
+document.addEventListener("keydown",e=>{if(e.key!=="Enter"||!e.target.matches("input.f"))return;e.preventDefault();
+  const l=[...cur().querySelectorAll("input.f")],i=l.indexOf(e.target);(l[i+1]||e.target).focus();if(!l[i+1])e.target.blur()});
+function clearPage(p){p.querySelectorAll("input.f").forEach(i=>i.value="");zeichne(p);}
+function armed(btn,action){const l=btn.textContent;btn.onclick=()=>{if(btn.dataset.a){clearTimeout(btn._t);delete btn.dataset.a;btn.textContent=l;btn.classList.remove("warn");action()}
+  else{btn.dataset.a=1;btn.textContent="Sicher? Nochmal tippen";btn.classList.add("warn");btn._t=setTimeout(()=>{delete btn.dataset.a;btn.textContent=l;btn.classList.remove("warn")},3500)}}}
+armed(document.getElementById("clr1"),()=>clearPage(cur()));
+armed(document.getElementById("clrA"),()=>pages.forEach(clearPage));
+const h0=location.hash.slice(1);show(["z1","z2","z4"].includes(h0)?h0:"z1");
+</script><script id="video-script">(()=>{
+const ROT="#C62828",BLAU="#1565C0",GRUEN="#2E7D32",ORANGE="#C2410C",FC={h:ROT,g:BLAU,a:GRUEN,p1:BLAU,p2:ORANGE,p3:GRUEN};
+const SKRIPT={
+z1:[
+{kap:'Seite und Winkel als Paar',t:'Hallo! Heute lernst du den Sinussatz kennen. Mit ihm kannst du in jedem Dreieck rechnen, nicht nur im rechtwinkligen. Schau dir zuerst das Dreieck im Merkkasten an.',fig:'z1-f0',box:'Merke'},
+{t:'Die Seite a liegt der Ecke A gegenüber. Und an der Ecke A liegt der Winkel Alpha. Die Seite a liegt also dem Winkel Alpha gegenüber.',f:['z1-0'],fig:'z1-f0',glow:['a','α']},
+{t:'Seite b und Winkel Beta gehören genauso zusammen, ebenso Seite c und Winkel Gamma. Eine Seite und der gegenüberliegende Winkel bilden ein Paar. Im Bild hat jedes Paar seine eigene Farbe.',f:['z1-1'],fig:'z1-f0',glow:['b','β','c','γ']},
+{t:'Deshalb lautet der wichtigste Tipp: Suche zuerst die Paare. Frag dich: Welcher Winkel liegt welcher Seite gegenüber?',f:['z1-2'],q:'.fz'},
+{kap:'Der Sinussatz',t:'Jetzt kommt der Sinussatz. In jedem Dreieck gilt: Teilt man eine Seite durch den Sinus des gegenüberliegenden Winkels, kommt immer dasselbe heraus. Die Quotienten sind also gleich.',f:['z1-3']},
+{t:'Als Formel: a durch Sinus Alpha gleich b durch Sinus Beta gleich c durch Sinus Gamma. In jedem Bruch steht oben eine Seite und unten der Sinus ihres Partnerwinkels.',f:['z1-4','z1-5','z1-6','z1-7']},
+{t:'Du darfst die Brüche auch umdrehen: Sinus Alpha durch a gleich Sinus Beta durch b und so weiter. Wichtig ist nur, dass in jedem Bruch ein Paar steht.',q:'.klein'},
+{kap:'Musterbeispiel ABC',t:'Nun das erste Musterbeispiel, das Dreieck A B C. Erst die Paare: a liegt Alpha gegenüber, b liegt Beta gegenüber, c liegt Gamma gegenüber.',fig:'z1-f1',farbe:{a:'p1','α':'p1',b:'p2','β':'p2',c:'p3','γ':'p3'},box:'Musterbeispiele'},
+{t:'Dann setzen wir ein: a durch Sinus Alpha gleich b durch Sinus Beta gleich c durch Sinus Gamma.',f:['z1-8','z1-9','z1-10','z1-11','z1-12','z1-13'],fig:'z1-f1'},
+{kap:'Musterbeispiel RST',t:'Das zweite Dreieck heißt R S T. Hier gibt es andere Buchstaben, aber die Regel bleibt gleich. Die Seite r liegt der Ecke R gegenüber, und der Winkel an R heißt Rho.',fig:'z1-f2',farbe:{r:'p1','ρ':'p1'}},
+{t:'Die Seite s gehört zum Winkel Sigma, die Seite t zum Winkel Tau.',fig:'z1-f2',farbe:{s:'p2','σ':'p2',t:'p3','τ':'p3'}},
+{t:'Also: r durch Sinus Rho gleich s durch Sinus Sigma gleich t durch Sinus Tau. Die griechischen Buchstaben findest du oben in der Leiste.',f:['z1-14','z1-15','z1-16','z1-17','z1-18','z1-19'],fig:'z1-f2'},
+{kap:'Jetzt ihr',t:'Jetzt bist du dran! Bearbeite die Aufgaben im Kasten Jetzt ihr selbstständig. Tipp: Tippe Seiten und Winkel an und färbe jedes Paar in einer Farbe. Danach geht es mit dem Reiter Z2 weiter.',box:'Jetzt ihr'}
+],
+z2:[
+{kap:'Seite gesucht',t:'Jetzt rechnen wir mit dem Sinussatz. Du brauchst immer nur zwei Brüche, also zwei Paare. Ist eine Seite gesucht, zum Beispiel a, nimmst du a durch Sinus Alpha gleich c durch Sinus Gamma.',box:'Merke'},
+{t:'Um a allein zu bekommen, multiplizierst du beide Seiten mit Sinus Alpha. Dann steht da: a gleich c mal Sinus Alpha geteilt durch Sinus Gamma.',f:['z2-0','z2-1','z2-2']},
+{kap:'Winkel gesucht',t:'Ist ein Winkel gesucht, drehst du die Brüche um, damit der Sinus oben steht: Sinus Beta durch b gleich Sinus Alpha durch a.',q:'.grid3 .card:nth-child(2)'},
+{t:'Jetzt multiplizierst du mit b. Sinus Beta gleich b mal Sinus Alpha geteilt durch a. Den Winkel selbst bekommst du mit Sinus hoch minus eins.',f:['z2-3','z2-4','z2-5']},
+{kap:'Stumpfe Winkel',t:'Auch stumpfe Winkel haben einen Sinus. Es gilt: Sinus von hundertachtzig Grad minus Alpha ist gleich Sinus Alpha. Zum Beispiel ist Sinus hundertzwanzig Grad gleich Sinus sechzig Grad, ungefähr null Komma acht sieben.',f:['z2-6','z2-7'],q:'.grid3 .card:nth-child(3)'},
+{t:'Aber Achtung: Sinus hoch minus eins liefert immer nur den spitzen Winkel. Deshalb suchen wir immer nur den Winkel, der der kürzeren Seite gegenüberliegt. Der ist ganz sicher spitz.',f:['z2-8','z2-9']},
+{t:'Für jede Rechnung muss ein Paar vollständig bekannt sein, also eine Seite und ihr Partnerwinkel. Fehlt dir ein Winkel, hilft die Innenwinkelsumme: Alle drei Winkel ergeben zusammen hundertachtzig Grad. Runde Winkel auf ganze Grad und Zentimeter auf Millimeter.',f:['z2-10','z2-11'],q:'.fz'},
+{kap:'Musterbeispiel Seite',t:'Musterbeispiel eins. Gegeben sind c gleich acht Zentimeter, Alpha gleich fünfzig Grad und Beta gleich siebzig Grad. Gesucht sind die Seiten a und b.',fig:'z2-f0',box:'Musterbeispiele'},
+{t:'Zur Seite c fehlt noch der Partnerwinkel Gamma. Mit der Innenwinkelsumme: Gamma gleich hundertachtzig Grad minus fünfzig Grad minus siebzig Grad gleich sechzig Grad. Jetzt ist das Paar c und Gamma vollständig.',f:['z2-12','z2-13','z2-14'],fig:'z2-f0',farbe:{c:'p3','γ':'p3'}},
+{t:'Für a nehmen wir a durch Sinus Alpha gleich c durch Sinus Gamma. Umgestellt: a gleich acht mal Sinus fünfzig Grad geteilt durch Sinus sechzig Grad.',f:['z2-15','z2-16','z2-17'],fig:'z2-f0',farbe:{a:'p1','α':'p1'}},
+{t:'Taschenrechner: acht, mal, Sinus fünfzig, Klammer zu, geteilt durch, Sinus sechzig, Klammer zu, Gleich. Es kommt ungefähr sieben Komma null acht heraus. Auf Millimeter gerundet: a ist ungefähr sieben Komma eins Zentimeter.',f:['z2-18'],fig:'z2-f0'},
+{t:'Genauso für b: b gleich acht mal Sinus siebzig Grad geteilt durch Sinus sechzig Grad. Das ist ungefähr acht Komma sieben Zentimeter.',f:['z2-19','z2-20','z2-21','z2-22'],fig:'z2-f0',farbe:{b:'p2','β':'p2'}},
+{kap:'Musterbeispiel Winkel',t:'Musterbeispiel zwei. Gegeben sind a gleich sieben Zentimeter, b gleich fünf Zentimeter und Alpha gleich fünfundsechzig Grad. Gesucht ist der Winkel Beta.',fig:'z2-f1'},
+{t:'Das Paar a und Alpha ist vollständig. Beta gehört zur Seite b. Also Sinus Beta durch b gleich Sinus Alpha durch a. Umgestellt: Sinus Beta gleich fünf mal Sinus fünfundsechzig Grad geteilt durch sieben.',f:['z2-23','z2-24','z2-25'],fig:'z2-f1',farbe:{a:'p1','α':'p1',b:'p2','β':'p2'}},
+{t:'Taschenrechner: fünf, mal, Sinus fünfundsechzig, Klammer zu, geteilt durch sieben, Gleich. Das ergibt ungefähr null Komma sechs vier sieben vier. Dann Shift, die Sinus-Taste, Ans und Gleich. Beta ist ungefähr vierzig Grad.',f:['z2-26','z2-27'],fig:'z2-f1'},
+{t:'Den dritten Winkel bekommst du wieder mit der Innenwinkelsumme: Gamma gleich hundertachtzig Grad minus fünfundsechzig Grad minus vierzig Grad gleich fünfundsiebzig Grad.',f:['z2-28','z2-29','z2-30'],fig:'z2-f1'},
+{t:'Zur Probe: Beta liegt der kürzeren Seite b gegenüber. Also ist Beta spitz, und unser Ergebnis stimmt.',f:['z2-31'],fig:'z2-f1'},
+{kap:'Jetzt ihr',t:'Jetzt bist du dran! Bearbeite die Aufgaben im Kasten Jetzt ihr selbstständig. Tipp: Tippe zuerst das vollständige Paar an. Danach geht es mit dem Reiter Z4 weiter.',box:'Jetzt ihr'}
+],
+z4:[
+{kap:'Die Formel',t:'Jetzt berechnen wir den Flächeninhalt eines beliebigen Dreiecks. Du kennst schon: Flächeninhalt gleich ein halb mal Grundseite mal Höhe. Wir nehmen a als Grundseite. Die Höhe h steht senkrecht auf a.',fig:'z4-f0',box:'Merke'},
+{t:'Im kleinen rechtwinkligen Dreieck mit der Ecke C ist b die Hypotenuse und h die Gegenkathete von Gamma. Also: Sinus Gamma gleich h durch b. Mit b multipliziert: h gleich b mal Sinus Gamma.',f:['z4-0','z4-1'],fig:'z4-f0',glow:['b']},
+{t:'Das setzen wir für h ein: A gleich ein halb mal a mal h gleich ein halb mal a mal b mal Sinus Gamma. Das ist die neue Flächenformel.',f:['z4-2','z4-3','z4-4'],q:'.formel.big'},
+{t:'Wichtig: Der Winkel muss zwischen den beiden Seiten liegen. Gamma liegt genau zwischen a und b.',f:['z4-5'],fig:'z4-f0',glow:['a','b']},
+{t:'Ist Gamma ein rechter Winkel, ist Sinus neunzig Grad gleich eins. Dann bleibt ein halb mal a mal b übrig, genau wie beim rechtwinkligen Dreieck. Flächen runden wir auf zwei Nachkommastellen.',f:['z4-6'],q:'.fz'},
+{kap:'Musterbeispiel 1',t:'Musterbeispiel eins. Gegeben sind a gleich sechs Zentimeter, b gleich fünf Zentimeter und der Winkel dazwischen, Gamma gleich vierzig Grad. Wir setzen direkt ein: A gleich ein halb mal sechs mal fünf mal Sinus vierzig Grad.',f:['z4-7','z4-8','z4-9'],fig:'z4-f1',box:'Musterbeispiele'},
+{t:'Taschenrechner: null Komma fünf, mal sechs, mal fünf, mal Sinus vierzig, Gleich. Das ergibt ungefähr neun Komma sechs vier Quadratzentimeter.',f:['z4-10'],fig:'z4-f1'},
+{kap:'Musterbeispiel 2',t:'Musterbeispiel zwei ist das Dreieck aus Z2. Gegeben sind c gleich acht Zentimeter und die Winkel fünfzig und siebzig Grad. Zum Winkel Alpha brauchen wir die Seiten b und c, denn Alpha liegt zwischen ihnen. Die Seite b fehlt noch.',fig:'z4-f2',glow:['b','c']},
+{t:'b haben wir in Z2 schon mit dem Sinussatz berechnet: b ist ungefähr acht Komma sieben Zentimeter.',f:['z4-11'],fig:'z4-f2'},
+{t:'Jetzt einsetzen: A gleich ein halb mal acht Komma sieben mal acht mal Sinus fünfzig Grad. Das ist ungefähr sechsundzwanzig Komma sechs sechs Quadratzentimeter.',f:['z4-12','z4-13','z4-14','z4-15'],fig:'z4-f2'},
+{t:'Wer mit dem genauen Wert für b weiterrechnet, bekommt sechsundzwanzig Komma sechs null Quadratzentimeter. Beide Ergebnisse sind richtig.',q:'#z4 .klein'},
+{kap:'Auflösung LED-Segel',t:'Und jetzt lösen wir die Frage vom Wochenanfang auf: Welches LED-Segel beleuchtet die größte Fläche? Türkis: ein halb mal sechs mal sieben mal Sinus dreißig Grad gleich zehn Komma fünf null Quadratmeter.',f:['z4-24'],box:'Auflösung: Welches LED-Segel beleuchtet die größte Fläche?'},
+{t:'Gold: ein halb mal vier mal fünf mal Sinus neunzig Grad gleich zehn Komma null null Quadratmeter. Pink: ein halb mal fünf mal fünf mal Sinus hundertzwanzig Grad, das ist ungefähr zehn Komma acht drei Quadratmeter.',f:['z4-25','z4-26']},
+{t:'Die größte Fläche hat also das pinke Segel. Die Falle: Sinus hundertzwanzig Grad ist gleich Sinus sechzig Grad, ungefähr null Komma acht sieben. Das ist viel größer als Sinus dreißig Grad, also null Komma fünf.',f:['z4-27','z4-28']},
+{kap:'Jetzt ihr',t:'Jetzt bist du dran! Bearbeite die Aufgaben im Kasten Jetzt ihr selbstständig. Tipp: Tippe die beiden Seiten an, die den gegebenen Winkel einschließen. Damit hast du alle drei Seiten des Hefter-Eintrags geschafft.',box:'Jetzt ihr'}
+]
+};
+
+const synth=window.speechSynthesis;let stimme=null;
+function waehleStimme(){if(!synth)return;const v=synth.getVoices().filter(x=>/^de/i.test(x.lang));
+ stimme=v.find(x=>/natural/i.test(x.name)&&/de-DE/i.test(x.lang))||v.find(x=>/google deutsch/i.test(x.name))||v.find(x=>/anna|helena|petra|markus|yannick/i.test(x.name)&&/de-DE/i.test(x.lang))||v.find(x=>/de-DE/i.test(x.lang))||v[0]||null;}
+if(synth){waehleStimme();try{synth.addEventListener('voiceschanged',waehleStimme)}catch(e){synth.onvoiceschanged=waehleStimme}}
+const saetze=t=>t.match(/[^.!?]+[.!?]*/g).map(s=>s.trim()).filter(Boolean);
+let lauf=null,token=0,wachhund=null;
+function stopWachhund(){if(wachhund){clearTimeout(wachhund);wachhund=null;}}
+function sprich(liste,fertig){
+ const my=++token;let k=0;
+ const weiter=()=>{if(my!==token)return;stopWachhund();
+  if(k>=liste.length){fertig();return;}
+  const text=liste[k++];let u;
+  try{u=new SpeechSynthesisUtterance(text);u.lang='de-DE';u.rate=.92;if(stimme)u.voice=stimme;}catch(e){keineStimme();return;}
+  let gestartet=false;
+  u.onstart=()=>{if(my!==token)return;gestartet=true;stopWachhund();
+    wachhund=setTimeout(()=>{if(my===token){synth.cancel();weiter();}},text.length*110+5000);};
+  u.onend=()=>{if(my===token)weiter();};
+  u.onerror=e=>{if(my!==token)return;if(e&&(e.error==='interrupted'||e.error==='canceled'))return;weiter();};
+  synth.speak(u);
+  wachhund=setTimeout(()=>{if(my===token&&!gestartet)keineStimme();},6000);
+ };
+ weiter();
+}
+function keineStimme(){const r=lauf;stopAlles();if(r)status(r.id,'Keine Sprachausgabe. iPad: Stummschalter und Lautstärke prüfen. Computer: Chrome, Edge oder Safari verwenden.');}
+function abbrechen(){token++;stopWachhund();if(synth)synth.cancel();}
+const page=id=>document.getElementById(id);
+const feld=k=>document.querySelector('input.f[data-k="'+k+'"]');
+const fig=k=>document.querySelector('[data-fk="'+k+'"]');
+function linie(fk,s){const d=fig(fk);return d&&d.querySelector('.seite[data-s="'+s+'"]');}
+function boxMit(p,titel){return [...p.querySelectorAll('.box')].find(b=>b.querySelector('h3')?.textContent.trim()===titel);}
+let aktiv=[];
+function markiereAus(){aktiv.forEach(el=>el.classList.remove('speaking','vglow'));aktiv=[];}
+function markiere(el,cls){if(!el)return;el.classList.add(cls||'speaking');aktiv.push(el);}
+function wirkung(st){
+ (st.f||[]).forEach(k=>{const i=feld(k);if(i)i.value=i.dataset.l;});
+ if(st.farbe)Object.entries(st.farbe).forEach(([s,c])=>{const l=linie(st.fig,s);if(l){l.setAttribute('stroke',FC[c]);l.setAttribute('stroke-width',l.classList.contains('wb')?4:5);}});
+}
+function zeige(st,p){
+ markiereAus();wirkung(st);
+ (st.f||[]).forEach(k=>markiere(feld(k)));
+ (st.glow||[]).forEach(s=>markiere(linie(st.fig,s),'vglow'));
+ if(st.farbe)Object.keys(st.farbe).forEach(s=>markiere(linie(st.fig,s),'vglow'));
+ let ziel=null;
+ if(st.q){const el=p.querySelector(st.q);markiere(el);ziel=el;}
+ if(st.box){const b=boxMit(p,st.box);if(b){b.scrollIntoView({block:'start',behavior:'smooth'});ziel=null;}}
+ const f0=(st.f||[]).map(feld).find(Boolean);
+ ziel=ziel||(st.fig?fig(st.fig):null)||f0;
+ if(ziel)ziel.scrollIntoView({block:'center',behavior:'smooth'});
+}
+function status(id,t){const c=page(id)?.querySelector('.videoctl .status');if(c)c.textContent=t;}
+function knoepfe(){document.querySelectorAll('.videoctl').forEach(c=>{const an=lauf&&lauf.id===c.parentNode.id;
+ c.querySelector('.pause').textContent=an&&lauf.pausiert?'▶ Weiter':'⏸ Pause';
+ c.querySelector('.pause').disabled=!an;c.querySelector('.zur').disabled=!an;c.querySelector('.vor').disabled=!an;});}
+function schritt(){
+ const r=lauf;if(!r||r.pausiert)return;
+ if(r.i>=r.schritte.length){markiereAus();status(r.id,'Erklärung beendet');lauf=null;knoepfe();return;}
+ const st=r.schritte[r.i],p=page(r.id);
+ zeige(st,p);kapitelAnzeige(r);
+ status(r.id,'Schritt '+(r.i+1)+' von '+r.schritte.length);
+ sprich(saetze(st.t),()=>{if(lauf!==r)return;r.i++;schritt();});
+}
+function kapitelAnzeige(r){const sel=page(r.id).querySelector('.videoctl select');let k=0;
+ r.schritte.forEach((s,i)=>{if(s.kap&&i<=r.i)k=i;});sel.value=String(k);}
+function starte(id,ab){
+ abbrechen();markiereAus();
+ const schritte=SKRIPT[id];ab=ab||0;
+ schritte.slice(0,ab).forEach(wirkung);
+ lauf={id,schritte,i:ab,pausiert:false};knoepfe();
+ const los=()=>{if(lauf&&lauf.id===id)schritt();};
+ if(synth&&synth.speaking)setTimeout(los,80);else los();
+}
+function springe(n){const r=lauf;if(!r)return;abbrechen();
+ n=Math.max(0,Math.min(r.schritte.length-1,n));
+ if(n>r.i)r.schritte.slice(r.i,n).forEach(wirkung);
+ r.i=n;r.pausiert=false;knoepfe();setTimeout(schritt,80);}
+function pause(){const r=lauf;if(!r)return;
+ if(r.pausiert){r.pausiert=false;knoepfe();schritt();}
+ else{r.pausiert=true;abbrechen();status(r.id,'Pausiert – tippe auf ▶ Weiter');knoepfe();}}
+function stopAlles(){abbrechen();markiereAus();if(lauf){status(lauf.id,'Gestoppt');}lauf=null;knoepfe();}
+function eigeneEintraege(id){return [...page(id).querySelectorAll('input.f[data-l]')].some(i=>i.value.trim()!==''&&i.value.trim()!==i.dataset.l);}
+for(const p of document.querySelectorAll('.page')){
+ const id=p.id,sk=SKRIPT[id];if(!sk)continue;
+ const c=document.createElement('div');c.className='videoctl';
+ const opts=sk.map((s,i)=>s.kap?'<option value="'+i+'">'+s.kap+'</option>':'').join('');
+ c.innerHTML='<span class="hint">Tippe auf ▶ Start, um dir die Erklärung anzuhören.</span>'+
+  '<button class="go" type="button">▶ Start</button><button class="pause" type="button">⏸ Pause</button>'+
+  '<button class="zur" type="button" title="Einen Schritt zurück">◀ Zurück</button><button class="vor" type="button" title="Einen Schritt weiter">Vor ▶</button>'+
+  '<button class="stop" type="button">■ Stopp</button>'+
+  '<label class="kap">Abschnitt: <select>'+opts+'</select></label><span class="status" aria-live="polite"></span>';
+ p.insertBefore(c,p.firstChild);
+ const go=c.querySelector('.go'),sel=c.querySelector('select');
+ if(!synth||typeof SpeechSynthesisUtterance==='undefined'){c.querySelector('.status').textContent='Sprachausgabe in diesem Browser nicht verfügbar';}
+ let warn=null;
+ const startMitPruefung=ab=>{
+  if(!warn&&eigeneEintraege(id)){warn=setTimeout(()=>{warn=null;go.textContent='▶ Start';go.classList.remove('warn');},4000);
+   go.textContent='Deine Einträge werden überschrieben – nochmal tippen';go.classList.add('warn');go.dataset.ab=ab;return;}
+  clearTimeout(warn);warn=null;go.textContent='▶ Start';go.classList.remove('warn');delete go.dataset.ab;starte(id,+ab||0);};
+ go.onclick=()=>startMitPruefung(go.dataset.ab||0);
+ sel.onchange=()=>{if(lauf&&lauf.id===id)springe(+sel.value);else{go.dataset.ab=sel.value;startMitPruefung(sel.value);}};
+ c.querySelector('.pause').onclick=pause;
+ c.querySelector('.zur').onclick=()=>lauf&&springe(lauf.i-1);
+ c.querySelector('.vor').onclick=()=>lauf&&springe(lauf.i+1);
+ c.querySelector('.stop').onclick=stopAlles;
+}
+knoepfe();
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',stopAlles));
+window.addEventListener('pagehide',()=>{if(synth)synth.cancel();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&lauf&&!lauf.pausiert)pause();});
+})();
+</script></body></html>

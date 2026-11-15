@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spickzettel · Kosinussatz</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:#000;font-family:Arial,"Liberation Sans",Helvetica,sans-serif;font-size:17px;line-height:1.4}
+.wrap{max-width:1000px;margin:0 auto;padding:14px 16px 20px}
+.kopf{background:#B3261E;color:#fff;text-align:center;font-weight:bold;border-radius:6px;padding:10px 12px 12px;margin-bottom:12px}
+.kopf small{display:block;font-size:.78em;letter-spacing:.18em;text-transform:uppercase;opacity:.95}
+.kopf div{font-size:1.75em;line-height:1.15}
+.spalten{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.k{border:2px solid #B3261E;border-radius:6px;margin-bottom:12px;break-inside:avoid}
+.k h2{margin:0;background:#FBE3E1;font-size:1em;padding:5px 10px;border-bottom:2px solid #B3261E}
+.k .in{padding:8px 10px}
+.k p{margin:.3em 0}
+.fig{text-align:center}.fig svg{max-width:100%;height:auto}
+.formel{background:#F2F2F2;border-radius:6px;padding:8px;text-align:center;font-weight:bold;font-size:1.12em;line-height:1.9;margin:.4em 0}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.15;margin:0 .15em}
+.fr span:first-child{border-bottom:2px solid #000;padding:0 .2em}
+.merk{border:1.5px dashed #B3261E;border-radius:6px;padding:5px 8px;text-align:center;font-weight:bold;background:#fff8f7;margin-top:.4em}
+.p1{color:#1565C0}.p2{color:#C2410C}.p3{color:#2E7D32}
+.schema{display:flex;flex-direction:column;align-items:center;gap:6px}
+.pille{border:2px solid #000;border-radius:999px;padding:4px 14px;font-weight:bold;background:#fff;text-align:center}
+.pfeil{font-size:1.3em;line-height:1}
+.aeste{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
+.ast{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.erg{border-radius:10px;padding:5px 6px;font-weight:bold;font-size:.82em;line-height:1.7;border:2px solid;white-space:nowrap}
+.erg.s{border-color:#1565C0;background:#E8EFFB}.erg.w{border-color:#C2410C;background:#FBEADF}.erg.a{border-color:#2E7D32;background:#E3F2E5}
+.tb{border-collapse:collapse;width:100%;font-size:.95em}
+.tb td,.tb th{border:1px solid #000;padding:3px 6px;text-align:center}.tb th{background:#F2F2F2}
+.falle{border:2px dashed #B3261E;border-radius:6px;background:#fff8f7;padding:8px 10px}
+.falle b.t{color:#B3261E}
+.no{color:#B3261E;font-weight:bold}.ok{color:#2E7D32;font-weight:bold}
+.foot{text-align:right;font-style:italic;color:#666;font-size:.8em;margin-top:6px}
+@media (max-width:700px){.spalten{grid-template-columns:1fr}.aeste{grid-template-columns:1fr}}
+@media print{body{font-size:14px}.wrap{padding:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body><div class="wrap">
+<div class="kopf"><small>Spickzettel · Trigonometrie</small><div>Der Kosinussatz</div></div>
+<div class="spalten"><div>
+ <div class="k"><h2>Seite und Winkel dazwischen</h2><div class="in">
+  <div class="fig" id="f1"></div>
+  <p class="merk">Links steht eine Seite zum Quadrat.<br>Rechts: die beiden anderen Seiten und der Winkel dazwischen.</p>
+ </div></div>
+ <div class="k"><h2>Der Kosinussatz</h2><div class="in">
+  <div class="formel"><span class="p1">c²</span> = <span class="p2">a²</span> + <span class="p2">b²</span> − 2 · <span class="p2">a</span> · <span class="p2">b</span> · cos <span class="p3">γ</span></div>
+  <p style="text-align:center">a² = b² + c² − 2 · b · c · cos α<br>b² = a² + c² − 2 · a · c · cos β</p>
+  <p>Andere Buchstaben, gleiche Regel – Dreieck KLM:</p><p style="text-align:center">k² = l² + m² − 2 · l · m · cos κ</p>
+  <p class="merk">γ = 90°: cos 90° = 0 → c² = a² + b² (Pythagoras)<br>Pythagoras gilt nur im rechtwinkligen Dreieck!</p>
+ </div></div>
+ <div class="k"><h2>Spitz oder stumpf?</h2><div class="in">
+  <table class="tb"><tr><th>cos γ</th><th>γ ist …</th><th>c ist im Vergleich zu Pythagoras …</th></tr>
+  <tr><td>positiv</td><td>spitz</td><td>kürzer</td></tr><tr><td>0</td><td>90°</td><td>genauso lang</td></tr><tr><td>negativ</td><td>stumpf</td><td>länger</td></tr></table>
+  <p class="merk">cos⁻¹ liefert immer den richtigen Winkel – auch stumpfe.<br>Der größte Winkel liegt der längsten Seite gegenüber.</p>
+ </div></div>
+</div><div>
+ <div class="k"><h2>So gehst du vor</h2><div class="in"><div class="schema">
+  <div class="pille">Was ist gegeben?</div>
+  <div class="aeste" style="grid-template-columns:1fr 1fr">
+   <div class="ast"><b>zwei Seiten und der Winkel dazwischen</b><div class="pfeil">↓</div><div class="erg s">c² = a² + b² − 2 · a · b · cos γ<br>→ c = √(…)</div></div>
+   <div class="ast"><b>alle drei Seiten</b><div class="pfeil">↓</div><div class="erg w">cos γ = <span class="fr"><span>a² + b² − c²</span><span>2 · a · b</span></span><br>→ γ = cos⁻¹(…)</div></div>
+  </div>
+  <div style="font-size:.92em">Runden: Winkel auf ganze Grad, cm auf mm, m auf cm, km auf m</div>
+ </div></div></div>
+ <div class="k"><h2>Welcher Satz passt?</h2><div class="in">
+  <table class="tb"><tr><th>gegeben</th><th>Satz</th></tr>
+  <tr><td>rechtwinkliges Dreieck</td><td>Pythagoras oder sin, cos, tan</td></tr>
+  <tr><td>ein Paar (Seite + gegenüberliegender Winkel)</td><td>Sinussatz</td></tr>
+  <tr><td>zwei Seiten + Winkel dazwischen</td><td>Kosinussatz (Seite)</td></tr>
+  <tr><td>drei Seiten</td><td>Kosinussatz (Winkel)</td></tr></table>
+ </div></div>
+ <div class="k"><h2>Beispiele</h2><div class="in">
+  <table class="tb"><tr><th>gegeben</th><th>Rechnung</th></tr>
+  <tr><td>a = 5 cm, b = 7 cm<br>γ = 60°</td><td>c² = 5² + 7² − 2 · 5 · 7 · cos 60° = 39<br>c = √39 ≈ 6,2 cm</td></tr>
+  <tr><td>a = 3 cm, b = 5 cm<br>c = 7 cm</td><td>cos γ = (9 + 25 − 49) ÷ 30 = −0,5<br>γ = cos⁻¹(−0,5) = 120°</td></tr></table>
+ </div></div>
+ <div class="falle"><b class="t">Achtung, Falle:</b>
+  <p>Pythagoras im schiefen Dreieck: γ = 75°, c² = a² + b² <span class="no">✘</span> &nbsp; richtig: c² = a² + b² − 2 · a · b · cos 75° <span class="ok">✔</span></p>
+  <p>Falscher Winkel: Bei c² gehört γ in den Kosinus, nicht α oder β!</p>
+ </div>
+</div></div>
+<p class="foot">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p>
+</div>
+<script>(()=>{const gU=(x,y)=>{const l=Math.hypot(x,y)||1;return[x/l,y/l];};
+const gE=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+function gT(x,y,s,o){o=o||{};return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" font-size="'+(o.size||16)+'" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" fill="'+(o.fill||"#000")+'"'+(o.bold?' font-weight="700"':'')+(o.it?' font-style="italic"':'')+'>'+gE(s)+'</text>';}
+const GRK={A:"α",B:"β",C:"γ",D:"δ",E:"ε",F:"φ",K:"κ",L:"λ",M:"μ",R:"ρ",S:"σ",T:"τ",X:"ξ",Y:"ψ",Z:"ζ"};
+function gdSvg(o){const FA=o.farbe||{};
+  const e=o.e||["A","B","C"],vn=o.vn||e,r=Math.PI/180,al=o.al,be=o.be,ga=180-al-be;
+  const b=Math.sin(be*r)/Math.sin(ga*r),raw=[[0,0],[1,0],[b*Math.cos(al*r),b*Math.sin(al*r)]];
+  const xs=raw.map(p=>p[0]),ys=raw.map(p=>p[1]),dx=Math.max(...xs)-Math.min(...xs),dy=Math.max(...ys)-Math.min(...ys);
+  const W=o.bw||400,pad=44,H=Math.round(Math.max(160,Math.min(250,2*pad+(W-2*pad)*dy/dx)));
+  const sc=Math.min((W-2*pad)/dx,(H-2*pad)/dy),ox=(W-sc*(Math.max(...xs)+Math.min(...xs)))/2,oy=(H+sc*(Math.max(...ys)+Math.min(...ys)))/2;
+  const P=raw.map(([x,y])=>[ox+sc*x,oy-sc*y]),G=[(P[0][0]+P[1][0]+P[2][0])/3,(P[0][1]+P[1][1]+P[2][1])/3],ang=[al,be,ga];
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Dreieck" style="width:${o.w||W}px;max-width:100%;height:auto;font-family:Arial,sans-serif">`;
+  const wk=o.wk||{0:null,1:null,2:null};
+  for(const key of Object.keys(wk)){const i=+key,lab=wk[key]==null?(GRK[e[i]]||""):wk[key];
+    const oo=[0,1,2].filter(j=>j!==i).map(j=>P[j]);
+    const u=gU(oo[0][0]-P[i][0],oo[0][1]-P[i][1]),v=gU(oo[1][0]-P[i][0],oo[1][1]-P[i][1]);
+    const l1=Math.hypot(oo[0][0]-P[i][0],oo[0][1]-P[i][1]),l2=Math.hypot(oo[1][0]-P[i][0],oo[1][1]-P[i][1]);
+    const tw=0.6*15*Math.max(String(lab).length,1),half=ang[i]*r/2;
+    let tR=Math.max(15,(tw/2+4)/Math.sin(half));const rr=Math.min(0.45*Math.min(l1,l2),Math.max(30,tR+tw/2+7));if(tR+tw/2>rr)tR=rr+tw/2+4;
+    const cr=u[0]*v[1]-u[1]*v[0],bi=gU(u[0]+v[0],u[1]+v[1]);
+    s+=`<path d="M${P[i][0].toFixed(1)} ${P[i][1].toFixed(1)} L${(P[i][0]+rr*u[0]).toFixed(1)} ${(P[i][1]+rr*u[1]).toFixed(1)} A${rr.toFixed(1)} ${rr.toFixed(1)} 0 0 ${cr>0?1:0} ${(P[i][0]+rr*v[0]).toFixed(1)} ${(P[i][1]+rr*v[1]).toFixed(1)} Z" fill="${FA[lab]?FA[lab]+'22':'#e9e9e9'}" stroke="${FA[lab]||'#000'}" stroke-width="${FA[lab]?3:1.3}"/>`;
+    if(lab!=="")s+=gT(P[i][0]+tR*bi[0],P[i][1]+tR*bi[1],lab,{bold:true,size:15});}
+  const lab=[];
+  for(let k=0;k<3;k++){const i=(k+1)%3,j=(k+2)%3,nm=e[k].toLowerCase(),A=P[i],B=P[j],M=[(A[0]+B[0])/2,(A[1]+B[1])/2],d=gU(B[0]-A[0],B[1]-A[1]);
+    let nn=[-d[1],d[0]];if((M[0]-G[0])*nn[0]+(M[1]-G[1])*nn[1]<0)nn=[-nn[0],-nn[1]];
+    s+=`<line x1="${A[0].toFixed(1)}" y1="${A[1].toFixed(1)}" x2="${B[0].toFixed(1)}" y2="${B[1].toFixed(1)}" stroke="${FA[nm]||'#000'}" stroke-width="${FA[nm]?5:3}" stroke-linecap="round"/>`;
+    const t=o.s&&o.s[nm]!=null?o.s[nm]:nm;if(t!==""){const off=13+Math.abs(nn[0])*t.length*4.4+Math.abs(nn[1])*6;
+      lab.push(gT(M[0]+off*nn[0],M[1]+off*nn[1],t,{it:t.length===1,size:16,fill:FA[nm]||"#000",bold:!!FA[nm]}));}}
+  s+=lab.join("");
+  for(let k=0;k<3;k++){const q=gU(P[k][0]-G[0],P[k][1]-G[1]),L=String(vn[k]).length;s+=gT(P[k][0]+(17+(L-1)*7)*q[0],P[k][1]+(17+(L>1?4:0))*q[1],vn[k],{bold:true,size:17});}
+  return s+"</svg>";
+}
+
+const B="#1565C0",O="#C2410C",G="#2E7D32";
+document.getElementById("f1").innerHTML=gdSvg({e:["A","B","C"],al:55,be:70,w:300,bw:380,wk:{2:"γ"},farbe:{c:B,a:O,b:O,"γ":G}});
+})();</script>
+</body></html>

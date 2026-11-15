@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Winkel und Dreiecke</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: Tafelbild auf weißem Grund, oben Reiter Z1–Z4, darunter links die verschiebbare Figur, rechts Einteilung und aufdeckbarer Merkkasten */
+:root{
+  color-scheme:light;
+  --bg:#ffffff; --ink:#111111; --muted:#555555; --line:#cfcfcf; --mark:#fff1a8; --soft:#f4f4f4;
+  --alpha:#c62828; --beta:#1565c0; --gamma:#2e7d32;
+  --font:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 28px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:3px solid var(--ink);padding-bottom:8px}
+header h1{margin:0;font-size:clamp(1.6rem,3.2vw,2.3rem);line-height:1.1}
+header .school{color:var(--muted);font-size:.95rem}
+nav{display:flex;flex-wrap:wrap;gap:8px}
+nav button{font:inherit;font-size:1rem;border:2px solid var(--ink);background:var(--bg);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer;text-align:left}
+nav button b{margin-right:6px}
+nav button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+button:focus-visible{outline:3px solid var(--beta);outline-offset:2px}
+.panel{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:20px;align-items:start}
+@media (max-width:860px){.panel{grid-template-columns:1fr}}
+.panel h2{grid-column:1/-1;margin:0;font-size:1.35rem}
+.panel h2 span{color:var(--muted);font-weight:400}
+.board{border:2px solid var(--ink);border-radius:10px;background:var(--bg);min-width:0}
+.board svg{display:block;width:100%;height:auto;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.tools{display:flex;flex-wrap:wrap;gap:8px;padding:10px;border-top:1px solid var(--line)}
+.tools button,.side button{font:inherit;font-size:.95rem;border:1.5px solid var(--ink);background:var(--bg);color:var(--ink);border-radius:7px;padding:6px 12px;cursor:pointer}
+.tools button.on{background:var(--mark)}
+.side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.types{display:flex;flex-direction:column;gap:6px}
+.type{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:8px;padding:8px 12px;transition:background .15s}
+.type.active{background:var(--mark);border-color:var(--ink);font-weight:700}
+.type .range{font-variant-numeric:tabular-nums;color:var(--muted)}
+.type .range.hide{visibility:hidden}
+.readout{font-size:1.15rem;font-variant-numeric:tabular-nums;background:var(--soft);border-radius:8px;padding:10px 12px}
+.readout .a{color:var(--alpha);font-weight:700}.readout .b{color:var(--beta);font-weight:700}.readout .g{color:var(--gamma);font-weight:700}
+.merke{border:2px solid var(--ink);border-radius:8px;padding:10px 14px}
+.merke h3{margin:0 0 6px;font-size:1rem;letter-spacing:.08em;text-transform:uppercase}
+.merke ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.merke p{margin:0}
+.big{font-size:1.4rem;font-weight:700;font-variant-numeric:tabular-nums}
+.task{border:2px dashed var(--ink);border-radius:8px;padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.task .sol{font-variant-numeric:tabular-nums}
+.hint{color:var(--muted);font-size:.9rem;margin:0}
+.footer{text-align:right;color:var(--muted);font-size:.9rem;margin-top:8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Winkel und Dreiecke</h1>
+    <span class="school">Emil-Petri-Schule Arnstadt · Mathematik Klasse 10 · Grundlagen für die Trigonometrie</span>
+  </header>
+
+  <nav role="tablist" aria-label="Wochenziele">
+    <button role="tab" aria-selected="true" data-tab="z1"><b>Z1</b>Winkelarten</button>
+    <button role="tab" aria-selected="false" data-tab="z2"><b>Z2</b>Dreiecke nach Seiten</button>
+    <button role="tab" aria-selected="false" data-tab="z3"><b>Z3</b>Dreiecke nach Winkeln</button>
+    <button role="tab" aria-selected="false" data-tab="z4"><b>Z4</b>Innenwinkelsumme</button>
+  </nav>
+
+  <!-- Z1 -->
+  <section class="panel" id="z1" role="tabpanel">
+    <h2>Ich kann Winkelarten bestimmen. <span>– Zieh den Punkt am Schenkel.</span></h2>
+    <div class="board">
+      <svg id="svg1" viewBox="0 0 600 430" aria-label="Winkel zum Verändern"></svg>
+      <div class="tools">
+        <button data-w="40">40°</button><button data-w="90">90°</button><button data-w="130">130°</button>
+        <button data-w="180">180°</button><button data-w="250">250°</button><button data-w="360">360°</button>
+        <button id="w_rand">Zufallswinkel</button>
+        <button id="w_hide">Winkelart verdecken</button>
+      </div>
+    </div>
+    <div class="side">
+      <div class="readout">Winkel: <span class="a" id="w_val">α = 40°</span></div>
+      <div class="types" id="w_types"></div>
+      <button id="w_merke" style="align-self:flex-start">Merke aufdecken</button>
+      <p class="hint">Die Bereiche erscheinen erst mit „Merke aufdecken“. So können die Schüler sie zuerst selbst finden.</p>
+    </div>
+  </section>
+
+  <!-- Z2 -->
+  <section class="panel" id="z2" role="tabpanel" hidden>
+    <h2>Ich kann Dreiecke nach Seiten einteilen. <span>– Zieh die Eckpunkte.</span></h2>
+    <div class="board">
+      <svg id="svg2" viewBox="0 0 600 430" aria-label="Dreieck zum Verändern"></svg>
+      <div class="tools">
+        <button data-p="unregel">unregelmäßig</button><button data-p="schenk">gleichschenklig</button><button data-p="seitig">gleichseitig</button>
+        <button id="t2_len" class="on">Seitenlängen</button>
+      </div>
+    </div>
+    <div class="side">
+      <div class="readout" id="s_read"></div>
+      <div class="types" id="s_types"></div>
+      <div class="merke" id="s_merke" hidden>
+        <h3>Merke</h3>
+        <ul>
+          <li>Eckpunkte A, B, C gegen den Uhrzeigersinn.</li>
+          <li>Die Seite a liegt gegenüber von A, b gegenüber von B, c gegenüber von C.</li>
+          <li>Der Winkel α liegt bei A, β bei B, γ bei C.</li>
+          <li><b>unregelmäßig:</b> alle Seiten sind verschieden lang.</li>
+          <li><b>gleichschenklig:</b> zwei Seiten (die Schenkel) sind gleich lang. Die dritte Seite heißt Basis. Die Basiswinkel sind gleich groß.</li>
+          <li><b>gleichseitig:</b> alle drei Seiten sind gleich lang, jeder Winkel ist 60° groß.</li>
+        </ul>
+      </div>
+      <button id="s_btn" style="align-self:flex-start">Merke aufdecken</button>
+    </div>
+  </section>
+
+  <!-- Z3 -->
+  <section class="panel" id="z3" role="tabpanel" hidden>
+    <h2>Ich kann Dreiecke nach Winkeln einteilen. <span>– Zieh die Eckpunkte.</span></h2>
+    <div class="board">
+      <svg id="svg3" viewBox="0 0 600 430" aria-label="Dreieck zum Verändern"></svg>
+      <div class="tools">
+        <button data-p="spitz">spitzwinklig</button><button data-p="recht">rechtwinklig</button><button data-p="stumpf">stumpfwinklig</button>
+      </div>
+    </div>
+    <div class="side">
+      <div class="readout" id="a_read"></div>
+      <div class="types" id="a_types"></div>
+      <div class="merke" id="a_merke" hidden>
+        <h3>Merke</h3>
+        <ul>
+          <li><b>spitzwinklig:</b> alle drei Winkel sind kleiner als 90°.</li>
+          <li><b>rechtwinklig:</b> ein Winkel ist genau 90°.</li>
+          <li><b>stumpfwinklig:</b> ein Winkel ist größer als 90°.</li>
+          <li>Der größte Winkel entscheidet.</li>
+        </ul>
+      </div>
+      <button id="a_btn" style="align-self:flex-start">Merke aufdecken</button>
+    </div>
+  </section>
+
+  <!-- Z4 -->
+  <section class="panel" id="z4" role="tabpanel" hidden>
+    <h2>Ich kann die Innenwinkelsumme im Dreieck für Berechnungen nutzen.</h2>
+    <div class="board">
+      <svg id="svg4" viewBox="0 0 600 430" aria-label="Dreieck zum Verändern"></svg>
+      <div class="tools">
+        <button id="t4_free">Frei verschieben</button>
+        <button id="t4_task">Neue Aufgabe</button>
+      </div>
+    </div>
+    <div class="side">
+      <div class="readout" id="i_read"></div>
+      <div class="task" id="i_task" hidden>
+        <div id="i_given"></div>
+        <div class="sol" id="i_sol" hidden></div>
+        <button id="i_solbtn" style="align-self:flex-start">Lösung zeigen</button>
+      </div>
+      <button id="i_sumbtn" style="align-self:flex-start">Summe zeigen</button>
+      <div class="merke" id="i_merke" hidden>
+        <h3>Merke</h3>
+        <p class="big">α + β + γ = 180°</p>
+        <p>In jedem Dreieck ist die Summe der Innenwinkel 180°.</p>
+        <p style="margin-top:6px">Fehlender Winkel: γ = 180° − α − β</p>
+      </div>
+      <button id="i_btn" style="align-self:flex-start">Merke aufdecken</button>
+    </div>
+  </section>
+
+  <p class="footer">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p>
+</div>
+
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg";
+const COL={A:"#c62828",B:"#1565c0",C:"#2e7d32"};
+const FILL={A:"rgba(198,40,40,.18)",B:"rgba(21,101,192,.18)",C:"rgba(46,125,50,.18)"};
+const GR={A:"α",B:"β",C:"γ"};
+const UNIT=50; // 50 px = 1 cm
+const $=id=>document.getElementById(id);
+const num=(x,d=1)=>x.toFixed(d).replace(".",",");
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function txt(parent,x,y,s,attrs={}){const t=el("text",Object.assign({x,y,"text-anchor":"middle","dominant-baseline":"central","font-size":24,"font-family":"Atkinson Hyperlegible, sans-serif",fill:"#111"},attrs),parent);t.textContent=s;return t;}
+function toSvg(svg,e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse());}
+const sub=(p,q)=>({x:p.x-q.x,y:p.y-q.y}), len=v=>Math.hypot(v.x,v.y), unit=v=>{const l=len(v)||1;return{x:v.x/l,y:v.y/l};};
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.setAttribute("aria-selected",x===b?"true":"false"));
+  document.querySelectorAll(".panel").forEach(p=>p.hidden=p.id!==b.dataset.tab);
+}));
+function merkeToggle(btnId,boxId,onShow){const btn=$(btnId);let shown=false;btn.addEventListener("click",()=>{shown=!shown;if(boxId)$(boxId).hidden=!shown;btn.textContent=shown?"Merke verdecken":"Merke aufdecken";if(onShow)onShow(shown);});}
+
+/* ---------- Z1 Winkelarten ---------- */
+const TYPES=[
+ {n:"spitzer Winkel",r:"0° < α < 90°",t:w=>w<90},
+ {n:"rechter Winkel",r:"α = 90°",t:w=>w===90},
+ {n:"stumpfer Winkel",r:"90° < α < 180°",t:w=>w>90&&w<180},
+ {n:"gestreckter Winkel",r:"α = 180°",t:w=>w===180},
+ {n:"überstumpfer Winkel",r:"180° < α < 360°",t:w=>w>180&&w<360},
+ {n:"Vollwinkel",r:"α = 360°",t:w=>w===360}];
+const wt=$("w_types");
+TYPES.forEach(t=>{const d=document.createElement("div");d.className="type";d.innerHTML=`<span>${t.n}</span><span class="range hide">${t.r}</span>`;wt.appendChild(d);});
+let W=40, wHidden=false;
+const s1=$("svg1"), S={x:300,y:215}, R=175;
+function drawW(){
+  s1.innerHTML="";
+  const rad=W*Math.PI/180, lab=`${W}°`, tw=15*lab.length;
+  const half=Math.min(W,360)/2*Math.PI/180;
+  const tR=W>=180?62:Math.max(60,(tw/2+6)/Math.sin(half));
+  const r=Math.min(160,Math.max(100,tR+tw/2+14));
+  const end={x:S.x+R*Math.cos(rad),y:S.y-R*Math.sin(rad)};
+  if(W>=360){
+    el("circle",{cx:S.x,cy:S.y,r,fill:FILL.A,stroke:COL.A,"stroke-width":2.5},s1);
+  }else{
+    const ax=S.x+r*Math.cos(rad), ay=S.y-r*Math.sin(rad);
+    el("path",{d:`M${S.x} ${S.y} L${S.x+r} ${S.y} A${r} ${r} 0 ${W>180?1:0} 0 ${ax} ${ay} Z`,fill:FILL.A,stroke:COL.A,"stroke-width":2.5},s1);
+  }
+  if(W===90) el("circle",{cx:S.x+17,cy:S.y-17,r:4.5,fill:COL.A},s1);
+  el("line",{x1:S.x,y1:S.y,x2:S.x+R,y2:S.y,stroke:"#111","stroke-width":4,"stroke-linecap":"round"},s1);
+  if(W<360) el("line",{x1:S.x,y1:S.y,x2:end.x,y2:end.y,stroke:"#111","stroke-width":4,"stroke-linecap":"round"},s1);
+  el("circle",{cx:S.x,cy:S.y,r:6,fill:"#111"},s1);
+  txt(s1,S.x-18,S.y+22,"S",{"font-weight":700});
+  const mid=(W>=360?45:W/2)*Math.PI/180;
+  txt(s1,S.x+tR*Math.cos(mid),S.y-tR*Math.sin(mid),lab,{fill:COL.A,"font-weight":700,"font-size":26});
+  const h=el("circle",{cx:W>=360?S.x+R:end.x,cy:W>=360?S.y:end.y,r:18,fill:"rgba(198,40,40,.15)",stroke:COL.A,"stroke-width":3,"stroke-dasharray":"5 4",style:"cursor:grab"},s1);
+  h.addEventListener("pointerdown",e=>{e.preventDefault();s1.setPointerCapture(e.pointerId);dragW=true;});
+  $("w_val").textContent=`α = ${W}°`;
+  [...wt.children].forEach((d,i)=>d.classList.toggle("active",!wHidden&&TYPES[i].t(W)));
+}
+let dragW=false;
+s1.addEventListener("pointermove",e=>{if(!dragW)return;const p=toSvg(s1,e);let raw=Math.atan2(-(p.y-S.y),p.x-S.x)*180/Math.PI;if(raw<0)raw+=360;setW(raw,true);});
+["pointerup","pointercancel"].forEach(ev=>s1.addEventListener(ev,()=>dragW=false));
+function setW(raw,fromDrag){
+  let v=Math.round(raw);
+  if(fromDrag){
+    if((v<=2||v>=357)) v=(W>180)?360:1;
+    for(const t of [90,180,270]) if(Math.abs(v-t)<=3&&t!==270) v=t;
+    if(W===360&&v<20) v=360;
+    if(v<1)v=1;
+  }
+  W=v; drawW();
+}
+document.querySelectorAll("[data-w]").forEach(b=>b.addEventListener("click",()=>setW(+b.dataset.w,false)));
+$("w_rand").addEventListener("click",()=>{
+  const pick=[()=>10+Math.floor(Math.random()*75),()=>90,()=>95+Math.floor(Math.random()*80),()=>180,()=>185+Math.floor(Math.random()*170),()=>360];
+  let v; do{v=pick[Math.floor(Math.random()*pick.length)]();}while(v===W); setW(v,false);
+});
+$("w_hide").addEventListener("click",e=>{wHidden=!wHidden;e.target.classList.toggle("on",wHidden);e.target.textContent=wHidden?"Winkelart zeigen":"Winkelart verdecken";drawW();});
+merkeToggle("w_merke",null,on=>wt.querySelectorAll(".range").forEach(r=>r.classList.toggle("hide",!on)));
+drawW();
+
+/* ---------- Dreiecksberechnung ---------- */
+function angleAt(P,Q,R){const u=unit(sub(Q,P)),v=unit(sub(R,P));return Math.acos(Math.max(-1,Math.min(1,u.x*v.x+u.y*v.y)))*180/Math.PI;}
+function analyse(T){
+  const L={a:len(sub(T.B,T.C))/UNIT,b:len(sub(T.A,T.C))/UNIT,c:len(sub(T.A,T.B))/UNIT};
+  const raw={A:angleAt(T.A,T.B,T.C),B:angleAt(T.B,T.A,T.C),C:angleAt(T.C,T.A,T.B)};
+  const eq=(x,y)=>Math.abs(x-y)/Math.max(x,y)<0.03;
+  let side="unregel", pair=null;
+  if(eq(L.a,L.b)&&eq(L.b,L.c)&&eq(L.a,L.c)) side="seitig";
+  else if(eq(L.a,L.b)) {side="schenk";pair=["a","b"];}
+  else if(eq(L.b,L.c)) {side="schenk";pair=["b","c"];}
+  else if(eq(L.a,L.c)) {side="schenk";pair=["a","c"];}
+  // Anzeige-Längen (gleiche Seiten gleich anzeigen)
+  const D={...L};
+  if(side==="seitig"){const m=(L.a+L.b+L.c)/3;D.a=D.b=D.c=m;}
+  if(pair){const m=(L[pair[0]]+L[pair[1]])/2;D[pair[0]]=D[pair[1]]=m;}
+  // Winkel einrasten und auf 180° runden
+  const ang={...raw}, lock={};
+  if(side==="seitig"){ang.A=ang.B=ang.C=60;lock.A=lock.B=lock.C=1;}
+  else if(pair){const V={a:"A",b:"B",c:"C"};const p=V[pair[0]],q=V[pair[1]];const m=(raw[p]+raw[q])/2;ang[p]=ang[q]=m;}
+  for(const k of ["A","B","C"]) if(Math.abs(raw[k]-90)<1.5){ang[k]=90;lock[k]=1;
+    if(pair){const V={a:"A",b:"B",c:"C"};const others=["A","B","C"].filter(x=>x!==k);if(pair.map(s=>V[s]).every(x=>others.includes(x))){others.forEach(o=>{ang[o]=45;lock[o]=1;});}}}
+  const rd={A:Math.round(ang.A),B:Math.round(ang.B),C:Math.round(ang.C)};
+  let diff=180-(rd.A+rd.B+rd.C);
+  if(diff){const free=["A","B","C"].filter(k=>!lock[k]);const cand=(free.length?free:["C"]).sort((x,y)=>Math.abs(ang[y]-rd[y])-Math.abs(ang[x]-rd[x]));
+    if(pair&&free.length===3){const V={a:"A",b:"B",c:"C"};const third=["A","B","C"].find(k=>!pair.map(s=>V[s]).includes(k));rd[third]+=diff;}else rd[cand[0]]+=diff;}
+  const mx=Math.max(rd.A,rd.B,rd.C);
+  const angType=mx===90?"recht":mx>90?"stumpf":"spitz";
+  return {L,D,raw,rd,side,pair,angType};
+}
+
+/* ---------- Dreieck-Tafel ---------- */
+function makeBoard(svg,opt){
+  const B={T:{A:{x:100,y:360},B:{x:490,y:360},C:{x:230,y:110}},opt,locked:false,unknown:{},info:null};
+  let drag=null;
+  B.draw=function(){
+    const T=B.T, info=analyse(T); B.info=info; svg.innerHTML="";
+    const G={x:(T.A.x+T.B.x+T.C.x)/3,y:(T.A.y+T.B.y+T.C.y)/3};
+    el("polygon",{points:`${T.A.x},${T.A.y} ${T.B.x},${T.B.y} ${T.C.x},${T.C.y}`,fill:"#fafafa",stroke:"none"},svg);
+    // Winkel
+    if(opt.angles){
+      const nb={A:["B","C"],B:["A","C"],C:["A","B"]};
+      for(const k of ["A","B","C"]){
+        const P=T[k],u=unit(sub(T[nb[k][0]],P)),v=unit(sub(T[nb[k][1]],P));
+        const right=info.rd[k]===90;
+        const lab=B.unknown[k]?"?":info.rd[k]+"°", tw=14*lab.length, half=info.raw[k]*Math.PI/360;
+        const l1=len(sub(T[nb[k][0]],P)), l2=len(sub(T[nb[k][1]],P));
+        const tR=Math.max(right?44:34,(tw/2+5)/Math.sin(half));
+        const r=Math.min(0.55*Math.min(l1,l2),Math.max(64,tR+tw/2+10));
+        {const cr=u.x*v.y-u.y*v.x;
+          el("path",{d:`M${P.x} ${P.y} L${P.x+r*u.x} ${P.y+r*u.y} A${r} ${r} 0 0 ${cr>0?1:0} ${P.x+r*v.x} ${P.y+r*v.y} Z`,fill:FILL[k],stroke:COL[k],"stroke-width":2.5},svg);
+          if(right){const bi=unit({x:u.x+v.x,y:u.y+v.y});el("circle",{cx:P.x+16*bi.x,cy:P.y+16*bi.y,r:4,fill:COL[k]},svg);}}
+        const bis=unit({x:u.x+v.x,y:u.y+v.y});
+        txt(svg,P.x+tR*bis.x,P.y+tR*bis.y,lab,{fill:COL[k],"font-weight":700,"font-size":B.unknown[k]?28:23});
+      }
+    }
+    el("polygon",{points:`${T.A.x},${T.A.y} ${T.B.x},${T.B.y} ${T.C.x},${T.C.y}`,fill:"none",stroke:"#111","stroke-width":4,"stroke-linejoin":"round"},svg);
+    // Seiten
+    const sides={a:["B","C","A"],b:["A","C","B"],c:["A","B","C"]};
+    const eqSides=info.side==="seitig"?["a","b","c"]:(info.pair||[]);
+    for(const s in sides){
+      const [p,q]=sides[s], P=T[p],Q=T[q], M={x:(P.x+Q.x)/2,y:(P.y+Q.y)/2};
+      let n=unit({x:-(Q.y-P.y),y:Q.x-P.x}); if((M.x-G.x)*n.x+(M.y-G.y)*n.y<0) n={x:-n.x,y:-n.y};
+      if(opt.ticks&&eqSides.includes(s)){const t=11,d=unit(sub(Q,P));for(const o of [-6,6]){const c={x:M.x+o*d.x,y:M.y+o*d.y};el("line",{x1:c.x-t*n.x,y1:c.y-t*n.y,x2:c.x+t*n.x,y2:c.y+t*n.y,stroke:"#111","stroke-width":3},svg);}}
+      if(opt.sideLabels){const label=opt.lengths&&opt.lengths()?`${s} = ${num(info.D[s])} cm`:s;
+        const off=opt.lengths&&opt.lengths()?30:24;
+        txt(svg,M.x+off*n.x,M.y+off*n.y,label,{"font-style":"italic","font-size":22});}
+    }
+    // Eckpunkte
+    for(const k of ["A","B","C"]){const P=T[k],o=unit(sub(P,G));txt(svg,P.x+30*o.x,P.y+30*o.y,k,{"font-weight":700,"font-size":26});}
+    if(!B.locked) for(const k of ["A","B","C"]){
+      const P=T[k];const h=el("circle",{cx:P.x,cy:P.y,r:18,fill:"rgba(0,0,0,.06)",stroke:"#111","stroke-width":2,"stroke-dasharray":"5 4",style:"cursor:grab"},svg);
+      h.addEventListener("pointerdown",e=>{e.preventDefault();svg.setPointerCapture(e.pointerId);drag=k;});
+    } else for(const k of ["A","B","C"]) el("circle",{cx:T[k].x,cy:T[k].y,r:4,fill:"#111"},svg);
+    if(opt.onChange)opt.onChange(info,B);
+  };
+  function move(k,p){
+    const np={x:Math.max(40,Math.min(560,p.x)),y:Math.max(40,Math.min(395,p.y))};
+    const T={...B.T,[k]:np};
+    const area=Math.abs((T.B.x-T.A.x)*(T.C.y-T.A.y)-(T.C.x-T.A.x)*(T.B.y-T.A.y))/2;
+    if(area<2500||len(sub(T.A,T.B))<50||len(sub(T.A,T.C))<50||len(sub(T.B,T.C))<50)return;
+    B.T=T;B.draw();
+  }
+  svg.addEventListener("pointermove",e=>{if(!drag||B.locked)return;move(drag,toSvg(svg,e));});
+  ["pointerup","pointercancel"].forEach(ev=>svg.addEventListener(ev,()=>drag=null));
+  B.set=function(T){B.T=T;B.draw();};
+  B.fromAngles=function(a,b){ // Basis AB waagerecht, in Feld einpassen
+    const g=180-a-b, ar=a*Math.PI/180, br=b*Math.PI/180, gr=g*Math.PI/180;
+    const bl=Math.sin(br)/Math.sin(gr);
+    const A={x:0,y:0},Bp={x:1,y:0},C={x:bl*Math.cos(ar),y:-bl*Math.sin(ar)};
+    const xs=[0,1,C.x],ys=[0,C.y];const minx=Math.min(...xs),maxx=Math.max(...xs),miny=Math.min(...ys);
+    const sc=Math.min(440/(maxx-minx),300/(-miny));
+    const ox=300-sc*(minx+maxx)/2, oy=370;
+    const f=p=>({x:ox+sc*p.x,y:oy+sc*p.y});
+    B.set({A:f(A),B:f(Bp),C:f(C)});
+  };
+  return B;
+}
+
+function cards(container,list){container.innerHTML="";list.forEach(([key,name])=>{const d=document.createElement("div");d.className="type";d.dataset.k=key;d.innerHTML=`<span>${name}</span>`;container.appendChild(d);});}
+function mark(container,key){[...container.children].forEach(d=>d.classList.toggle("active",d.dataset.k===key));}
+
+/* ---------- Z2 ---------- */
+let showLen=true;
+cards($("s_types"),[["unregel","unregelmäßiges Dreieck"],["schenk","gleichschenkliges Dreieck"],["seitig","gleichseitiges Dreieck"]]);
+const b2=makeBoard($("svg2"),{angles:false,ticks:true,sideLabels:true,lengths:()=>showLen,onChange:info=>{
+  mark($("s_types"),info.side);
+  $("s_read").innerHTML=showLen?`a = ${num(info.D.a)} cm &nbsp; b = ${num(info.D.b)} cm &nbsp; c = ${num(info.D.c)} cm`:"Seitenlängen ausgeblendet";
+}});
+const P2={unregel:{A:{x:100,y:360},B:{x:480,y:360},C:{x:220,y:120}},schenk:{A:{x:180,y:380},B:{x:420,y:380},C:{x:300,y:60}},seitig:{A:{x:150,y:370},B:{x:450,y:370},C:{x:300,y:370-259.81}}};
+document.querySelectorAll("#z2 [data-p]").forEach(b=>b.addEventListener("click",()=>b2.set(JSON.parse(JSON.stringify(P2[b.dataset.p])))));
+$("t2_len").addEventListener("click",e=>{showLen=!showLen;e.target.classList.toggle("on",showLen);b2.draw();});
+merkeToggle("s_btn","s_merke");
+b2.set(JSON.parse(JSON.stringify(P2.unregel)));
+
+/* ---------- Z3 ---------- */
+cards($("a_types"),[["spitz","spitzwinkliges Dreieck"],["recht","rechtwinkliges Dreieck"],["stumpf","stumpfwinkliges Dreieck"]]);
+const b3=makeBoard($("svg3"),{angles:true,ticks:false,sideLabels:true,onChange:info=>{
+  mark($("a_types"),info.angType);
+  $("a_read").innerHTML=`<span class="a">α = ${info.rd.A}°</span> &nbsp; <span class="b">β = ${info.rd.B}°</span> &nbsp; <span class="g">γ = ${info.rd.C}°</span>`;
+}});
+const P3={spitz:{A:{x:110,y:360},B:{x:480,y:360},C:{x:250,y:100}},recht:{A:{x:110,y:360},B:{x:490,y:360},C:{x:205,y:195.46}},stumpf:{A:{x:70,y:360},B:{x:530,y:360},C:{x:210,y:270}}};
+document.querySelectorAll("#z3 [data-p]").forEach(b=>b.addEventListener("click",()=>b3.set(JSON.parse(JSON.stringify(P3[b.dataset.p])))));
+merkeToggle("a_btn","a_merke");
+b3.set(JSON.parse(JSON.stringify(P3.spitz)));
+
+/* ---------- Z4 ---------- */
+let task=null, sumShown=false;
+function drawCorner(rd){
+  const s=$("corner");s.innerHTML="";const P={x:160,y:150},r=95;
+  el("line",{x1:15,y1:P.y,x2:305,y2:P.y,stroke:"#111","stroke-width":3},s);
+  const pt=(deg,rr)=>({x:P.x+rr*Math.cos(deg*Math.PI/180),y:P.y-rr*Math.sin(deg*Math.PI/180)});
+  const parts=[["A",180-rd.A,180],["B",180-rd.A-rd.B,180-rd.A],["C",0,rd.C]];
+  for(const [k,f,t] of parts){const p1=pt(t,r),p2=pt(f,r);
+    el("path",{d:`M${P.x} ${P.y} L${p1.x} ${p1.y} A${r} ${r} 0 0 1 ${p2.x} ${p2.y} Z`,fill:FILL[k],stroke:COL[k],"stroke-width":2.5},s);
+    const m=pt((f+t)/2,62);txt(s,m.x,m.y,GR[k],{fill:COL[k],"font-weight":700,"font-size":22});}
+  el("circle",{cx:P.x,cy:P.y,r:4,fill:"#111"},s);
+  txt(s,160,166,"gestreckter Winkel = 180°",{"font-size":15,"dominant-baseline":"hanging"});
+}
+const b4=makeBoard($("svg4"),{angles:true,ticks:false,sideLabels:true,onChange:(info,B)=>{
+  const rd=info.rd, u=B.unknown;
+  const v=k=>u[k]?"?":rd[k]+"°";
+  const sum=Object.keys(u).length?"180°":(rd.A+rd.B+rd.C)+"°";
+  $("i_read").innerHTML=`<span class="a">α = ${v("A")}</span> &nbsp; <span class="b">β = ${v("B")}</span> &nbsp; <span class="g">γ = ${v("C")}</span><span id="i_sum"${sumShown?"":" hidden"}><br><span class="a">${v("A")}</span> + <span class="b">${v("B")}</span> + <span class="g">${v("C")}</span> = <b>${sum}</b></span>`;
+}});
+b4.set({A:{x:100,y:360},B:{x:500,y:360},C:{x:330,y:120}});
+$("i_sumbtn").addEventListener("click",e=>{sumShown=!sumShown;e.target.textContent=sumShown?"Summe verdecken":"Summe zeigen";b4.draw();});
+merkeToggle("i_btn","i_merke");
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+function newTask(){
+  const kind=rnd(0,3); let a,b,given,unk,sol;
+  if(kind===0){a=rnd(25,95);b=rnd(25,150-a);const g=180-a-b;given=`Gegeben: <span class="a">α = ${a}°</span>, <span class="b">β = ${b}°</span>. Gesucht: <span class="g">γ</span>`;unk={C:1};sol=`<span class="g">γ</span> = 180° − ${a}° − ${b}° = <b>${g}°</b>`;}
+  else if(kind===1){b=rnd(25,85);a=b;const g=180-2*b;given=`Gleichschenkliges Dreieck mit Basis c.<br>Gegeben: Basiswinkel <span class="b">β = ${b}°</span>. Gesucht: <span class="a">α</span>, <span class="g">γ</span>`;unk={A:1,C:1};sol=`<span class="a">α</span> = <span class="b">β</span> = ${b}° (Basiswinkel)<br><span class="g">γ</span> = 180° − 2 · ${b}° = <b>${g}°</b>`;}
+  else if(kind===2){const g=2*rnd(10,70);a=b=(180-g)/2;given=`Gleichschenkliges Dreieck mit Basis c.<br>Gegeben: <span class="g">γ = ${g}°</span>. Gesucht: <span class="a">α</span>, <span class="b">β</span>`;unk={A:1,B:1};sol=`<span class="a">α</span> = <span class="b">β</span> = (180° − ${g}°) : 2 = <b>${a}°</b>`;}
+  else{a=rnd(20,70);b=90;given=`Rechtwinkliges Dreieck mit <span class="b">β = 90°</span>.<br>Gegeben: <span class="a">α = ${a}°</span>. Gesucht: <span class="g">γ</span>`;unk={C:1};sol=`<span class="g">γ</span> = 180° − 90° − ${a}° = <b>${90-a}°</b>`;}
+  b4.unknown=unk;b4.locked=true;b4.fromAngles(a,b);
+  $("i_task").hidden=false;$("i_given").innerHTML=given;$("i_sol").innerHTML=sol;$("i_sol").hidden=true;$("i_solbtn").hidden=false;
+}
+$("t4_task").addEventListener("click",newTask);
+$("i_solbtn").addEventListener("click",()=>{$("i_sol").hidden=false;$("i_solbtn").hidden=true;b4.unknown={};b4.draw();});
+$("t4_free").addEventListener("click",()=>{b4.unknown={};b4.locked=false;$("i_task").hidden=true;b4.draw();});
+})();
+</script>
+
+
+<style>
+.erklaer-player{position:sticky;top:0;z-index:1000;background:#eaf5f1;border:2px solid #00805f;border-radius:10px;padding:12px 16px;box-shadow:0 3px 12px #00000012;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.erklaer-player button{font:inherit;font-weight:700;padding:9px 16px;border-radius:7px;border:2px solid #00805f;background:#00805f;color:white;cursor:pointer}
+.erklaer-player button.pause{background:#bd202b;border-color:#bd202b;color:#fff}
+.erklaer-player button.pause:disabled{opacity:.45;cursor:not-allowed}
+.erklaer-player button.stop{background:white;color:#075d48}
+.erklaer-player label{display:flex;align-items:center;gap:8px;font-size:.95rem}
+.erklaer-player select{font-size:16px;padding:6px;border:1px solid #637b73;border-radius:6px;background:white}
+.erklaer-status{flex-basis:100%;font-size:.92rem;color:#25493e;min-height:1.3em}
+.erklaer-fokus{outline:4px solid #f5b942!important;outline-offset:3px;transition:outline .2s}
+@media(max-width:650px){.erklaer-player{position:sticky;top:0;border-radius:0;padding:8px;gap:6px}.erklaer-player button{padding:8px 9px;font-size:14px}.erklaer-player label{font-size:13px}.erklaer-status{font-size:12px;min-height:0}}
+@supports (-webkit-touch-callout:none){html,body{overflow-x:hidden;-webkit-text-size-adjust:100%}.erklaer-player{width:100%;box-sizing:border-box}.erklaer-player button{touch-action:manipulation}.wrap{min-width:0}.board{min-width:0}}
+</style>
+<script>
+(function(){
+'use strict';
+const wrap=document.querySelector('.wrap'),bar=document.createElement('div');bar.className='erklaer-player';
+bar.innerHTML='<button id="erk-start" type="button">▶ Erklärung starten</button><button id="erk-pause" type="button" class="pause" disabled>⏸ Pause</button><button id="erk-stop" type="button" class="stop" disabled>■ Beenden</button><label for="erk-tempo">Sprechtempo <select id="erk-tempo"><option value="0.85">Langsam</option><option value="0.95" selected>Normal</option><option value="1.1">Etwas schneller</option><option value="1.25">Schnell</option></select></label><div class="erklaer-status" id="erk-status" role="status" aria-live="polite">Wähle Erklärung starten oder direkt eines der Kapitel Z1 bis Z4.</div>';
+document.body.insertBefore(bar,document.body.firstChild);
+const start=document.getElementById('erk-start'),pause=document.getElementById('erk-pause'),stop=document.getElementById('erk-stop'),status=document.getElementById('erk-status'),tempo=document.getElementById('erk-tempo');
+const synth=window.speechSynthesis;
+let lauf=0,aktiv=false,pausiert=false,focusEl=null,internalTab=false,currentChapter=1;
+const names=['Winkelarten','Dreiecke nach Seiten','Dreiecke nach Winkeln','Innenwinkelsumme'];
+function voice(){if(!synth)return null;const vs=synth.getVoices().filter(v=>v.lang.toLowerCase().startsWith('de'));return vs.find(v=>/google deutsch/i.test(v.name))||vs.find(v=>/google/i.test(v.name))||vs.find(v=>/natural|online/i.test(v.name))||vs[0]||null;}
+function sleep(ms,id){return new Promise(resolve=>{let remaining=ms,last=performance.now();function tick(){if(id!==lauf||!aktiv){resolve();return;}const now=performance.now();if(!pausiert)remaining-=now-last;last=now;if(remaining<=0){resolve();return;}setTimeout(tick,Math.min(60,remaining));}tick();});}
+async function ready(id){while(id===lauf&&aktiv&&pausiert)await new Promise(r=>setTimeout(r,60));return id===lauf&&aktiv;}
+function mark(el){if(focusEl)focusEl.classList.remove('erklaer-fokus');focusEl=typeof el==='string'?document.querySelector(el):el;if(focusEl)focusEl.classList.add('erklaer-fokus');}
+function klick(selector){const el=document.querySelector(selector);if(el)el.click();return el;}
+function tab(id){internalTab=true;klick('nav [data-tab="'+id+'"]');internalTab=false;mark('#'+id+' .board');}
+function sprich(text,id){return new Promise(resolve=>{if(id!==lauf||!aktiv){resolve();return;}if(!synth){status.textContent='Auf diesem Gerät ist keine automatische Sprachausgabe verfügbar.';resolve();return;}
+ synth.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='de-DE';u.rate=Number(tempo.value);u.pitch=1;const v=voice();if(v)u.voice=v;
+ let doneFlag=false,remaining=Math.max(9000,text.length*190),last=performance.now();
+ function done(){if(doneFlag)return;doneFlag=true;clearInterval(watch);resolve();}
+ u.onend=done;u.onerror=done;
+ const watch=setInterval(()=>{if(id!==lauf||!aktiv){done();return;}const now=performance.now();if(!pausiert)remaining-=now-last;last=now;if(remaining<=0)done();},80);
+ try{synth.speak(u);if(pausiert)synth.pause();}catch(e){done();}
+ });}
+async function schritt(text,action,id,delay=450){if(!await ready(id))return;if(action)action();await sleep(delay,id);if(!await ready(id))return;await sprich(text,id);await sleep(400,id);}
+function rangeAuf(){const btn=document.getElementById('w_merke');if(btn.textContent.includes('aufdecken'))btn.click();}
+function merkeAuf(id){const btn=document.getElementById(id);if(btn&&btn.textContent.includes('aufdecken'))btn.click();}
+function summeAuf(){const btn=document.getElementById('i_sumbtn');if(btn.textContent.includes('zeigen'))btn.click();}
+const chapters=[
+async function(id){
+ tab('z1');status.textContent='Kapitel 1 von 4 · Winkelarten';
+ await schritt('Wir beginnen mit den Winkelarten. Ein Winkel entsteht aus zwei Schenkeln mit einem gemeinsamen Scheitelpunkt. Seine Größe messen wir in Grad.',()=>klick('[data-w="40"]'),id);
+ await schritt('Vierzig Grad: Das ist ein spitzer Winkel. Ein spitzer Winkel ist größer als null Grad und kleiner als neunzig Grad.',()=>{klick('[data-w="40"]');rangeAuf();mark('#w_types');},id);
+ await schritt('Bei genau neunzig Grad sprechen wir von einem rechten Winkel. Du erkennst ihn hier auch an der Markierung mit dem Punkt im Winkelbogen.',()=>{klick('[data-w="90"]');mark('#svg1');},id);
+ await schritt('Hundertdreißig Grad sind mehr als neunzig und weniger als hundertachtzig Grad. Das ist ein stumpfer Winkel.',()=>klick('[data-w="130"]'),id);
+ await schritt('Bei hundertachtzig Grad entsteht ein gestreckter Winkel.',()=>klick('[data-w="180"]'),id);
+ await schritt('Ein Winkel von zweihundertfünfzig Grad heißt überstumpfer Winkel. Er ist größer als hundertachtzig, aber kleiner als dreihundertsechzig Grad.',()=>klick('[data-w="250"]'),id);
+ await schritt('Dreihundertsechzig Grad entsprechen einer ganzen Umdrehung. Das ist ein Vollwinkel.',()=>klick('[data-w="360"]'),id);
+
+},
+async function(id){
+ tab('z2');status.textContent='Kapitel 2 von 4 · Dreiecke nach Seiten';
+ await schritt('Nun ordnen wir Dreiecke nach ihren Seitenlängen. Bei einem unregelmäßigen Dreieck sind alle drei Seiten unterschiedlich lang.',()=>{klick('#z2 [data-p="unregel"]');mark('#s_types');},id);
+ await schritt('Ein gleichschenkliges Dreieck hat mindestens zwei gleich lange Seiten. Die beiden gleich langen Seiten heißen Schenkel. Die dritte Seite nennen wir Basis. Die beiden Basiswinkel sind gleich groß.',()=>klick('#z2 [data-p="schenk"]'),id);
+ await schritt('Bei einem gleichseitigen Dreieck sind alle drei Seiten gleich lang. Deshalb sind auch alle drei Innenwinkel gleich groß, nämlich jeweils sechzig Grad.',()=>klick('#z2 [data-p="seitig"]'),id);
+ await schritt('Achte auch auf die Bezeichnungen: Die Seite a liegt gegenüber vom Eckpunkt A, die Seite b gegenüber von B und die Seite c gegenüber von C.',()=>{merkeAuf('s_btn');mark('#s_merke');},id);
+
+},
+async function(id){
+ tab('z3');status.textContent='Kapitel 3 von 4 · Dreiecke nach Winkeln';
+ await schritt('Dreiecke lassen sich außerdem nach ihren Innenwinkeln einteilen. In einem spitzwinkligen Dreieck sind alle drei Winkel kleiner als neunzig Grad.',()=>{klick('#z3 [data-p="spitz"]');mark('#a_types');},id);
+ await schritt('Ein rechtwinkliges Dreieck besitzt einen Winkel von genau neunzig Grad. Die anderen beiden Winkel sind spitz.',()=>{klick('#z3 [data-p="recht"]');mark('#svg3');},id);
+ await schritt('Ein stumpfwinkliges Dreieck hat einen Winkel, der größer als neunzig Grad ist. Die beiden übrigen Winkel sind spitz.',()=>klick('#z3 [data-p="stumpf"]'),id);
+ await schritt('Merke dir: Der größte Innenwinkel entscheidet, ob ein Dreieck spitzwinklig, rechtwinklig oder stumpfwinklig ist.',()=>{merkeAuf('a_btn');mark('#a_merke');},id);
+
+},
+async function(id){
+ tab('z4');status.textContent='Kapitel 4 von 4 · Innenwinkelsumme';
+ await schritt('Zum Schluss geht es um die Innenwinkelsumme. In jedem Dreieck ergeben die drei Innenwinkel zusammen immer hundertachtzig Grad. Das gilt unabhängig von der Form des Dreiecks.',()=>{klick('#t4_free');summeAuf();mark('#i_read');},id);
+ await schritt('Dafür schreiben wir: Alpha plus Beta plus Gamma gleich hundertachtzig Grad.',()=>{merkeAuf('i_btn');mark('#i_merke');},id);
+ await schritt('Wir schauen uns jetzt eine Beispielaufgabe an. Zwei Winkel sind gegeben. Ein fehlender Winkel lässt sich berechnen, indem wir die bekannten Winkel von hundertachtzig Grad abziehen.',()=>{klick('#t4_task');mark('#i_task');},id);
+ if(id!==lauf)return;
+ const given=document.getElementById('i_given').textContent.replace(/\s+/g,' ').trim();
+ await schritt('Unsere Aufgabe lautet: '+given.replace(/α/g,'Alpha').replace(/β/g,'Beta').replace(/γ/g,'Gamma').replace(/°/g,' Grad.'),null,id);
+ await schritt('Wir decken die Lösung auf. Entscheidend ist immer die Gleichung: Alpha plus Beta plus Gamma gleich hundertachtzig Grad.',()=>{klick('#i_solbtn');mark('#i_sol');},id);
+ await schritt('Jetzt bist du dran. Beende die Erklärung und probiere die vier Bereiche selbst aus. Du kannst Winkel und Eckpunkte verschieben und bei der Innenwinkelsumme weitere Aufgaben erzeugen.',()=>mark('#z4 .board'),id);
+
+},
+ ];
+async function film(id,from){for(let c=from;c<=4;c++){if(!await ready(id))return;currentChapter=c;await chapters[c-1](id);if(id!==lauf||!aktiv)return;}if(id===lauf){aktiv=false;pausiert=false;start.disabled=false;pause.disabled=true;stop.disabled=true;pause.textContent='⏸ Pause';status.textContent='Erklärung abgeschlossen. Du kannst selbst üben oder ein Kapitel erneut wählen.';mark(null);}}
+function beenden(){lauf++;aktiv=false;pausiert=false;try{synth&&synth.cancel();synth&&synth.resume();}catch(e){}start.disabled=false;pause.disabled=true;stop.disabled=true;pause.textContent='⏸ Pause';mark(null);status.textContent='Erklärung beendet. Das Tafelbild kann selbstständig bedient werden.';}
+function starten(ab){beenden();aktiv=true;pausiert=false;start.disabled=true;pause.disabled=false;stop.disabled=false;currentChapter=ab;const id=++lauf;status.textContent='Kapitel '+ab+' von 4 · '+names[ab-1];film(id,ab).catch(e=>{console.error(e);beenden();status.textContent='Die Erklärung konnte nicht vollständig abgespielt werden.';});}
+start.addEventListener('click',()=>starten(Number(document.querySelector('nav button[aria-selected="true"]')?.dataset.tab.slice(1))||1));
+pause.addEventListener('click',()=>{if(!aktiv)return;pausiert=!pausiert;if(pausiert){try{synth&&synth.pause();}catch(e){}pause.textContent='▶ Fortsetzen';status.textContent='Pausiert · Kapitel '+currentChapter+' · '+names[currentChapter-1];}else{try{synth&&synth.resume();}catch(e){}pause.textContent='⏸ Pause';status.textContent='Kapitel '+currentChapter+' von 4 · '+names[currentChapter-1];}});
+stop.addEventListener('click',beenden);
+// Manuelles Kapitelwechseln beginnt die zugehörige Erklärung von vorne, sofern die Wiedergabe läuft.
+document.querySelectorAll('nav [data-tab]').forEach(btn=>btn.addEventListener('click',()=>{if(internalTab)return;const c=Number(btn.dataset.tab.slice(1));if(aktiv)starten(c);else{currentChapter=c;status.textContent='Kapitel '+c+' · '+names[c-1]+' – mit „Erklärung starten“ abspielen.';}}));
+window.addEventListener('pagehide',()=>{try{synth&&synth.cancel();}catch(e){}});
+if(synth){synth.getVoices();synth.addEventListener&&synth.addEventListener('voiceschanged',voice);}
+})();
+</script>
+</body>
+</html>

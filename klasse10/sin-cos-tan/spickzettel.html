@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spickzettel · Sinus, Kosinus und Tangens</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff;color:#000;font-family:Arial,"Liberation Sans",Helvetica,sans-serif}
+body{padding:14px;font-size:15px;line-height:1.35}
+.wrap{max-width:1100px;margin:0 auto}
+.kopf{background:#C62828;color:#fff;padding:10px 16px}
+.kopf small{display:block;font-size:.72em;letter-spacing:.14em;text-transform:uppercase}
+.kopf h1{margin:2px 0 0;font-size:1.6em}
+.raster{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.sp{display:flex;flex-direction:column;gap:12px}
+.box{border:2px solid #C62828}
+.box h2{margin:0;font-size:1em;font-weight:700;color:#000;background:#FDE7E7;border-bottom:2px solid #C62828;padding:4px 10px}
+.in{padding:8px 10px}
+.in p{margin:.3em 0}
+.H{color:#C62828;font-weight:700}.G{color:#1565C0;font-weight:700}.A{color:#2E7D32;font-weight:700}.W{color:#C2410C;font-weight:700}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .15em;line-height:1.15}
+.frac>span:first-child{border-bottom:2px solid #000;padding:0 .2em .1em}.frac>span:last-child{padding-top:.1em}
+.formeln{display:flex;flex-direction:column;gap:6px;font-size:1.08em}
+.dreieck{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.dreieck svg{width:230px;height:auto}
+.schema{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.start{border:2px solid #000;padding:5px 10px;font-weight:700}
+.pfeil{font-size:1.2em;line-height:1}
+.aeste{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%}
+.ast{display:flex;flex-direction:column;align-items:center;gap:3px}
+.ast .q{border:1.5px solid #000;padding:4px 5px;font-size:.88em;width:100%}
+.erg{font-weight:700;padding:3px 10px;border-radius:4px;color:#fff}
+.erg{background:#333}
+table{border-collapse:collapse;width:100%}
+th,td{border:1.5px solid #000;padding:3px 7px;text-align:left}
+th{background:#F2F2F2}
+.taste{display:inline-block;border:1.5px solid #000;border-bottom-width:3px;border-radius:4px;padding:0 .35em;font-size:.85em;font-weight:700;background:#F2F2F2}
+.weg{display:flex;flex-wrap:wrap;align-items:center;gap:4px;font-size:.9em}
+.weg span.s{border:1.5px solid #000;padding:2px 6px}
+.falle{border:2px dashed #C62828;padding:8px 10px}
+.falle b:first-child{color:#C62828}
+.fuss{text-align:right;font-style:italic;color:#6F6F6F;font-size:.75em;margin:10px 0 0}
+@media (max-width:760px){.raster{grid-template-columns:1fr}}
+@media print{body{padding:0;font-size:12.5px}.box,.falle{break-inside:avoid}@page{size:A4;margin:12mm}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kopf"><small>Spickzettel · Trigonometrie</small><h1>Sinus, Kosinus und Tangens</h1></div>
+<div class="raster">
+<div class="sp">
+  <section class="box"><h2>Die Seiten am Winkel α</h2><div class="in dreieck">
+    <svg viewBox="0 0 300 180" role="img" aria-label="Rechtwinkliges Dreieck ABC mit rechtem Winkel bei C">
+      <path d="M30 150 L72 150 A42 42 0 0 0 64.4 125.9 Z" fill="#FBEADF" stroke="#C2410C" stroke-width="2.5"/>
+      <path d="M190 37 L170.6 50.9 A24 24 0 0 0 205.4 59.4 Z" fill="#e9e9e9" stroke="#000" stroke-width="1.2"/><circle cx="191" cy="49" r="2.5"/>
+      <line x1="30" y1="150" x2="270" y2="150" stroke="#C62828" stroke-width="5" stroke-linecap="round"/>
+      <line x1="270" y1="150" x2="190" y2="37" stroke="#1565C0" stroke-width="5" stroke-linecap="round"/>
+      <line x1="30" y1="150" x2="190" y2="37" stroke="#2E7D32" stroke-width="5" stroke-linecap="round"/>
+      <text x="88" y="141" font-size="15" font-weight="700" fill="#C2410C">α</text>
+      <text x="16" y="160" font-size="16" font-weight="700">A</text><text x="276" y="160" font-size="16" font-weight="700">B</text><text x="184" y="28" font-size="16" font-weight="700">C</text>
+      <text x="150" y="172" font-size="15" fill="#C62828" font-style="italic" font-weight="700" text-anchor="middle">c</text>
+      <text x="240" y="90" font-size="15" fill="#1565C0" font-style="italic" font-weight="700">a</text>
+      <text x="98" y="86" font-size="15" fill="#2E7D32" font-style="italic" font-weight="700">b</text>
+    </svg>
+    <div>
+      <p><span class="H">Hypotenuse c</span><br>gegenüber dem rechten Winkel</p>
+      <p><span class="G">Gegenkathete a</span><br>gegenüber vom Winkel α</p>
+      <p><span class="A">Ankathete b</span><br>liegt am Winkel α an</p>
+    </div></div></section>
+
+  <section class="box"><h2>Die drei Formeln</h2><div class="in formeln">
+    <div>sin α = <span class="frac"><span class="G">Gegenkathete</span><span class="H">Hypotenuse</span></span> = <span class="frac"><span>a</span><span>c</span></span></div>
+    <div>cos α = <span class="frac"><span class="A">Ankathete</span><span class="H">Hypotenuse</span></span> = <span class="frac"><span>b</span><span>c</span></span></div>
+    <div>tan α = <span class="frac"><span class="G">Gegenkathete</span><span class="A">Ankathete</span></span> = <span class="frac"><span>a</span><span>b</span></span></div>
+  </div></section>
+
+  <section class="box"><h2>Welche Formel?</h2><div class="in schema">
+    <div class="start">Welche zwei Seiten kommen vor? (gegeben und gesucht)</div>
+    <div class="pfeil">↓</div>
+    <div class="aeste">
+      <div class="ast"><div class="q"><span class="G">Gegenkathete</span> und <span class="H">Hypotenuse</span></div><div class="pfeil">↓</div><div class="erg s">sin</div></div>
+      <div class="ast"><div class="q"><span class="A">Ankathete</span> und <span class="H">Hypotenuse</span></div><div class="pfeil">↓</div><div class="erg c">cos</div></div>
+      <div class="ast"><div class="q"><span class="G">Gegenkathete</span> und <span class="A">Ankathete</span></div><div class="pfeil">↓</div><div class="erg t">tan</div></div>
+    </div></div></section>
+</div>
+<div class="sp">
+  <section class="box"><h2>So rechnen wir</h2><div class="in">
+    <table>
+      <tr><th>gesucht</th><th>Beispiel</th></tr>
+      <tr><td>Seite im Zähler</td><td>sin 35° = <span class="frac"><span>a</span><span>8 cm</span></span> → a = 8 cm · sin 35° ≈ 4,6 cm</td></tr>
+      <tr><td>Seite im Nenner</td><td>sin 40° = <span class="frac"><span>6 cm</span><span>c</span></span> → c = 6 cm : sin 40° ≈ 9,3 cm</td></tr>
+      <tr><td>Winkel</td><td>sin α = <span class="frac"><span>3 cm</span><span>5 cm</span></span> → α = sin⁻¹(<span class="frac"><span>3</span><span>5</span></span>) ≈ 37°</td></tr>
+    </table>
+    <p>Taschenrechner auf <span class="taste">D</span> (CAS: 360°). Winkel: Bruch eingeben, <span class="taste">=</span> <span class="taste">SHIFT</span> <span class="taste">SIN</span> <span class="taste">Ans</span> <span class="taste">=</span></p>
+  </div></section>
+
+  <section class="box"><h2>So runden wir</h2><div class="in">
+    <table>
+      <tr><th>Größe</th><th>runden auf</th><th>Beispiel</th></tr>
+      <tr><td>Winkel</td><td>ganze Grad</td><td>36,87° ≈ 37°</td></tr>
+      <tr><td>cm</td><td>mm (1 Stelle)</td><td>4,589 cm ≈ 4,6 cm</td></tr>
+      <tr><td>m</td><td>cm (2 Stellen)</td><td>6,527 m ≈ 6,53 m</td></tr>
+      <tr><td>km</td><td>m (3 Stellen)</td><td>0,5868 km ≈ 0,587 km</td></tr>
+    </table>
+    <p>Zwischenergebnisse <b>nicht</b> runden. Einheit immer dazuschreiben.</p>
+  </div></section>
+
+  <section class="box"><h2>Steigung in Prozent</h2><div class="in">
+    <p>12 % = 12 m Höhe auf 100 m <b>waagerecht</b> → tan α = 0,12 → α ≈ 7°</p>
+  </div></section>
+
+  <section class="box"><h2>Sachaufgaben</h2><div class="in weg">
+    <span class="s">Skizze</span>→<span class="s">rechten Winkel markieren</span>→<span class="s">Gegebenes und Gesuchtes eintragen</span>→<span class="s">Seiten zum Winkel benennen</span>→<span class="s">sin, cos oder tan</span>→<span class="s">rechnen</span>→<span class="s">Antwortsatz</span>
+  </div></section>
+
+  <div class="falle"><b>Achtung, Falle:</b> Gegenkathete und Ankathete hängen vom Winkel ab!<br>
+    Im Dreieck ABC (rechter Winkel bei C) ist a die Gegenkathete von α, aber die Ankathete von β: cos β = <span class="frac"><span>a</span><span>c</span></span><br>
+    Und bei der Steigung werden die 100 m waagerecht gemessen, nicht entlang der Straße.</div>
+</div>
+</div>
+<p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p>
+</div>
+</body>
+</html>
