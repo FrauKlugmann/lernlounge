@@ -1,337 +1,257 @@
 <!doctype html>
-<html lang="de">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Der Dreisatz – Erklärvideo</title>
-<style>
-/* Layout: weißes Blatt wie das Tafelbild Vervielfachen; links proportional, rechts antiproportional, jede Seite mit eigenem Schritt-Knopf */
-:root{
-  --papier:#ffffff; --tinte:#000000; --grau:#F2F2F2; --leise:#6F6F6F;
-  --smaragd:#00805F; --smaragd-hell:#D3F2E5;
-  --prop:#1565C0; --prop-hell:#E8EFFB; --anti:#C2410C; --anti-hell:#FBEADF;
-  --schrift:Arial,Helvetica,"Liberation Sans",sans-serif;
-  color-scheme:light;
-}
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Erklärvideo – Der Dreisatz</title><style>
+:root{--papier:#fff;--tinte:#000;--grau:#F2F2F2;--leise:#6F6F6F;--smaragd:#00805F;--smaragd-hell:#D3F2E5;
+ --prop:#1565C0;--prop-hell:#E8EFFB;--anti:#C2410C;--anti-hell:#FBEADF;--rot:#B3261E;
+ --schrift:Arial,Helvetica,"Liberation Sans",sans-serif;color-scheme:light}
 *{box-sizing:border-box}
-html{background:var(--papier)}
-body{margin:0;background:var(--papier);color:var(--tinte);font-family:var(--schrift);font-size:clamp(15px,1.45vw,22px);line-height:1.3;
-  padding-block:18px 24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.blatt{max-width:1300px;margin:0 auto;display:flex;flex-direction:column;gap:1em}
-.titel{background:var(--smaragd);color:#fff;font-weight:700;text-align:center;font-size:1.5em;padding:.4em .5em;margin:0}
-.zwei{display:grid;grid-template-columns:1fr 1fr;gap:1em}
-@media (max-width:760px){.zwei{grid-template-columns:1fr}}
-.kasten{border:2px solid var(--c);display:flex;flex-direction:column}
-.kasten>h2{margin:0;font-size:1em;background:var(--ch);border-bottom:2px solid var(--c);padding:.35em .7em;color:var(--c)}
-.innen{padding:.6em .8em .8em;display:flex;flex-direction:column;gap:.55em;flex:1}
+html{background:#fff}
+body{margin:0;background:#fff;color:#000;font-family:var(--schrift);font-size:clamp(15px,1.45vw,22px);line-height:1.3;padding:18px 16px 24px;
+ -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.blatt{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:.8em}
+.titel{background:var(--smaragd);color:#fff;font-weight:700;text-align:center;font-size:1.5em;padding:.35em .5em;margin:0}
+.kopf{display:flex;justify-content:space-between;align-items:center;gap:1em;flex-wrap:wrap}
+.ziel{margin:0;font-weight:700;color:var(--smaragd);font-size:1.05em}
+.kasten{border:2px solid var(--c);break-inside:avoid}
+.kasten>h2{margin:0;font-size:1em;background:var(--ch);border-bottom:2px solid var(--c);padding:.3em .7em;color:var(--c)}
+.innen{padding:.55em .8em .7em;display:flex;flex-direction:column;gap:.55em}
 .aufgabe{margin:0;font-size:1.05em}
-.regel{margin:0;font-weight:700;color:var(--c)}
-svg.ds{width:100%;height:auto;display:block}
-svg.ds text{font-family:var(--schrift)}
-.s{transition:opacity .35s}
-.s.aus{opacity:0}
-.merk{border:2px solid var(--c);color:var(--c);font-weight:700;padding:.25em .6em;align-self:center;transition:opacity .35s}
-.merk.aus{opacity:0}
-.text{min-height:2.7em;margin:0;font-size:1em;background:var(--grau);padding:.4em .7em;border-left:5px solid var(--c)}
-.antwort{margin:0;font-weight:700;font-size:1.05em;border-top:2px solid var(--c);padding-top:.4em;transition:opacity .35s}
-.antwort.aus{opacity:0}
-.leiste{display:flex;gap:.6em;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:auto}
-.zaehler{color:var(--leise);font-size:.85em}
-.knoepfe{display:flex;gap:.5em}
-button{font:inherit;font-size:.9em;background:var(--papier);color:var(--tinte);border:2px solid var(--c);padding:.35em .9em;cursor:pointer}
-button.vor{background:var(--c);color:#fff;font-weight:700}
-button:disabled{opacity:.35;cursor:default}
+.zeile{margin:0;display:flex;align-items:baseline;flex-wrap:wrap;gap:.3em}
+.zeile b{color:var(--c)}
+input{font:inherit;color:#000;background:transparent;border:0;border-bottom:1.5px solid #9a9a9a;padding:0 .2em;text-align:center;outline:none;border-radius:0}
+input:focus{background:#FFF8D6}
+input.ix{color:var(--rot);font-weight:700}
+input.w1{width:7em}input.w2{width:9em}input.wz{width:3.6em}
+input.lang{flex:1;min-width:12em;text-align:left}
+.schema{position:relative;align-self:center}
+.schema svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.feld{position:absolute}
+.feld input{width:100%;height:100%;font-size:1.5em;border:1.5px dashed #b9b9b9;text-align:center;padding:0}
+.feld.etikett input{font-size:.8em;border:0;border-bottom:1.5px solid #b9b9b9;color:#555}
+.feld.op input{font-size:1.15em;font-weight:700;color:var(--c);border-color:var(--c);border-style:dashed}
+.feld.kopfz input{font-size:.95em;font-weight:700;border:0}
+.feld.kreis::after{content:"";position:absolute;inset:-.45em -.55em;border:2.5px dashed #000;border-radius:50%;pointer-events:none}
+.feld.gross input{font-size:1.3em;border:0}
+.merk{border:2px dashed var(--c);background:#fff;padding:.3em .7em;font-weight:700;color:var(--c);display:flex;flex-wrap:wrap;gap:.3em;align-items:baseline}
+.merk input{color:var(--c);font-weight:700;border-bottom-color:var(--c)}
+.rechen{display:flex;align-items:baseline;gap:.35em;flex-wrap:wrap;font-size:1.2em;align-self:center;border:2px solid #000;background:#fafafa;padding:.2em .8em}
+.rechen input{width:3.4em}
+.werkzeuge{display:flex;gap:.5em;flex-wrap:wrap}
+button{font:inherit;font-size:.85em;background:#fff;color:#000;border:2px solid var(--c,var(--smaragd));padding:.3em .8em;cursor:pointer}
+button.an{background:var(--c);color:#fff;font-weight:700}
+button.warn{background:var(--rot);border-color:var(--rot);color:#fff;font-weight:700}
 button:focus-visible{outline:3px solid var(--smaragd);outline-offset:2px}
-.oben{display:flex;justify-content:flex-end}
-.oben button{--c:var(--smaragd)}
+.kreuz{display:none}.kreuz.an{display:inline}
 .fuss{text-align:right;font-style:italic;color:var(--leise);font-size:.65em;margin:0}
-@media (prefers-reduced-motion:reduce){.s,.merk,.antwort{transition:none}}
-.lernfilm{position:sticky;top:0;z-index:2;border:2px solid #00805F;background:#F0FAF6;padding:.8em 1em;display:flex;flex-direction:column;gap:.55em}
-.lernfilm .steuerung{display:flex;gap:.5em;flex-wrap:wrap;align-items:center}
-.lernfilm button{font:inherit;color:var(--tinte);min-height:44px;font-weight:700;padding:.45em .85em;border:2px solid #00805F;background:white;cursor:pointer}
-.lernfilm button.start{background:#00805F;color:white}
-.lernfilm button:disabled{opacity:.45;cursor:not-allowed}
-.lernfilm .hinweis{font-size:.8em;color:#555}
-</style>
-<style>
-/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
-.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
-.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
-.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
-.ll-zurueck:hover{background:#f1edfb}
-.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
-.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
-.ll-spick:hover{background:#951f19}
-.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
-.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
-.ll-fenster[hidden]{display:none}
-.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
-.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
-.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+@page{size:A4;margin:12mm 15mm 12mm 25mm}
+@media print{
+ body{font-size:11.5pt;padding:0}
+ .schema{font-size:1.3em;margin:1mm 0}
+ .schema.breit{font-size:1.08em}
+ .innen{gap:3.2mm}
+ .blatt{max-width:none;gap:4mm}
+ .werkzeuge,.knopf-oben{display:none!important}
+ input:focus{background:transparent}
+ .fuss{margin-top:2mm}
+}
+</style><style id="video-style">
+.videoctl{position:sticky;top:0;z-index:12;background:#fff;padding:6px 8px;border:1.5px solid #00805F;border-radius:8px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:6px 0 8px;font:15px Arial,sans-serif}
+.videoctl button{font:inherit;font-weight:bold;border:1.5px solid #00805F;background:#fff;color:#000;border-radius:7px;padding:7px 12px;cursor:pointer}
+.videoctl button:disabled{opacity:.4;cursor:default}
+.videoctl .go{background:#00805F;color:#fff}.videoctl .go.warn{background:#C62828;border-color:#C62828}
+.videoctl .hint{color:#444;flex-basis:100%}
+.videoctl select{font:inherit;padding:5px;border:1.5px solid #00805F;border-radius:6px;background:#fff;max-width:16em}
+.videoctl .status{color:#555;font-size:13px}
+.speaking{background:#FFF2BD!important;box-shadow:0 0 0 3px #E9B72B!important;border-radius:4px}
+svg .seite.vglow{animation:vglow .9s ease-in-out infinite}
+@keyframes vglow{50%{stroke-width:10}}
+input.f,.kasten{scroll-margin-top:150px}
+@media print{.videoctl{display:none!important}}
 </style>
 </head>
-<body>
-<main class="blatt">
-<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a></div>
-  <h1 class="titel">Der Dreisatz</h1>
-  <div class="oben"><button type="button" id="reset">Alles von vorn</button></div>
-  <div class="zwei" id="seiten"></div>
-  <p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude und ChatGPT.</p>
-</main>
-
-<script>
+<body><main class="blatt page" id="z1">
+<h1 class="titel">Der Dreisatz</h1>
+<div class="kopf"><p class="ziel">Z1 · Zuordnungen mit dem Dreisatz lösen</p><button type="button" id="leeren" class="knopf-oben">Seite leeren</button></div>
+<section class="kasten" style="--c:var(--prop);--ch:var(--prop-hell)">
+<h2>Proportionale Zuordnung · Musterbeispiel</h2><div class="innen">
+<p class="aufgabe">4 Hefte kosten 6 €. Wie viel kosten 7 Hefte?</p>
+<p class="zeile"><b>Je mehr</b><input data-k="z1-0" data-l="Hefte" class="f w1" aria-label="Lücke"><b>, desto</b><input data-k="z1-1" data-l="höher der Preis" class="f w2" aria-label="Lücke"><b>.</b></p>
+<div class="schema" style="width:30.0em;height:10.3em"><svg viewBox="0 0 300.0 103.0"><defs><marker id="mtprop" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1565C0"/></marker></defs><rect x="80.0" y="0" width="140.0" height="22.0" fill="#F2F2F2" stroke="#000" stroke-width="2"/><rect x="80.0" y="22.0" width="70.0" height="26.0" fill="none" stroke="#000" stroke-width="2"/><rect x="150.0" y="22.0" width="70.0" height="26.0" fill="none" stroke="#000" stroke-width="2"/><rect x="80.0" y="48.00000000000001" width="70.0" height="26.0" fill="none" stroke="#000" stroke-width="2"/><rect x="150.0" y="48.00000000000001" width="70.0" height="26.0" fill="none" stroke="#000" stroke-width="2"/><rect x="80.0" y="74.0" width="70.0" height="26.0" fill="none" stroke="#000" stroke-width="2"/><rect x="150.0" y="74.0" width="70.0" height="26.0" fill="none" stroke="#000" stroke-width="2"/><line x1="150.0" y1="0" x2="150.0" y2="22.0" stroke="#000" stroke-width="2"/><path d="M76.0,37.5 C38.0,37.5 38.0,58.50000000000001 70.0,58.50000000000001" fill="none" stroke="#1565C0" stroke-width="3" stroke-linecap="round" marker-end="url(#mtprop)"/><path d="M224.0,37.5 C262.0,37.5 262.0,58.50000000000001 230.0,58.50000000000001" fill="none" stroke="#1565C0" stroke-width="3" stroke-linecap="round" marker-end="url(#mtprop)"/><path d="M76.0,63.50000000000001 C38.0,63.50000000000001 38.0,84.50000000000001 70.0,84.50000000000001" fill="none" stroke="#1565C0" stroke-width="3" stroke-linecap="round" marker-end="url(#mtprop)"/><path d="M224.0,63.50000000000001 C262.0,63.50000000000001 262.0,84.50000000000001 230.0,84.50000000000001" fill="none" stroke="#1565C0" stroke-width="3" stroke-linecap="round" marker-end="url(#mtprop)"/></svg><div class="feld kopfz" style="left:8.3em;top:0.3em;width:6.4em;height:1.6em"><input data-k="z1-2" data-l="Anzahl Hefte" class="f" aria-label="Feld"></div><div class="feld kopfz" style="left:15.3em;top:0.3em;width:6.4em;height:1.6em"><input data-k="z1-3" data-l="Preis in €" class="f" aria-label="Feld"></div><div class="feld num gross" style="left:9.0em;top:2.5500000000000003em;width:5.0em;height:1.9000000000000001em"><input data-k="z1-4" data-l="4" class="f" aria-label="Feld"></div><div class="feld num gross" style="left:16.0em;top:2.5500000000000003em;width:5.0em;height:1.9000000000000001em"><input data-k="z1-5" data-l="6" class="f" aria-label="Feld"></div><div class="feld num gross" style="left:9.0em;top:5.15em;width:5.0em;height:1.9000000000000001em"><input data-k="z1-6" data-l="1" class="f" aria-label="Feld"></div><div class="feld num gross" style="left:16.0em;top:5.15em;width:5.0em;height:1.9000000000000001em"><input data-k="z1-7" data-l="1,50" class="f" aria-label="Feld"></div><div class="feld num gross" style="left:9.0em;top:7.75em;width:5.0em;height:1.9000000000000001em"><input data-k="z1-8" data-l="7" class="f" aria-label="Feld"></div><div class="feld num gross" style="left:16.0em;top:7.75em;width:5.0em;height:1.9000000000000001em"><input data-k="z1-9" data-l="10,50" class="f" aria-label="Feld"></div><div class="feld op" style="left:1.3em;top:4.0em;width:3.0em;height:1.6em"><input data-k="z1-10" data-l=": 4" class="f" aria-label="Feld"></div><div class="feld op" style="left:25.7em;top:4.0em;width:3.0em;height:1.6em"><input data-k="z1-11" data-l=": 4" class="f" aria-label="Feld"></div><div class="feld op" style="left:1.3em;top:6.600000000000001em;width:3.0em;height:1.6em"><input data-k="z1-12" data-l="· 7" class="f" aria-label="Feld"></div><div class="feld op" style="left:25.7em;top:6.600000000000001em;width:3.0em;height:1.6em"><input data-k="z1-13" data-l="· 7" class="f" aria-label="Feld"></div></div>
+<div class="merk">Merke: Proportional – rechts <input data-k="z1-14" data-l="dasselbe" class="f w2" aria-label="Lücke"> rechnen wie links.</div>
+<p class="zeile"><b>Antwort:</b><input data-k="z1-15" data-l="7 Hefte kosten 10,50 €." class="f lang" aria-label="Antwortsatz"></p>
+</div></section>
+<section class="kasten" style="--c:var(--anti);--ch:var(--anti-hell)">
+<h2>Antiproportionale Zuordnung · Musterbeispiel</h2><div class="innen">
+<p class="aufgabe">3 Bagger brauchen 12 Tage. Wie lange brauchen 4 Bagger?</p>
+<p class="zeile"><b>Je mehr</b><input data-k="z1-16" data-l="Bagger" class="f w1" aria-label="Lücke"><b>, desto</b><input data-k="z1-17" data-l="weniger Tage" class="f w2" aria-label="Lücke"><b>.</b></p>
+<div class="schema" style="width:30.0em;height:10.3em"><svg viewBox="0 0 300.0 103.0"><defs><marker id="mtanti" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C2410C"/></marker></defs><rect x="80.0" y="0" width="140.0" height="22.0" fill="#F2F2F2" stroke="#000" stroke-width="2"/><rect x="80.0" y="22.0" width="70.0" height="26.0" fill="none" stroke="#000" stroke-width="2"/><rect x="150.0" y="22.0" width="70.0" height="26.0" fill="none" stroke="#000" stroke-width="2"/><rect x="80.0" y="48.00000000000001" width="70.0" height="26.0" fill="none" stroke="#000" stroke-width="2"/><rect x="150.0" y="48.00000000000001" width="70.0" height="26.0" fill="none" stroke="#000" stroke-width="2"/><rect x="80.0" y="74.0" width="70.0" height="26.0" fill="none" stroke="#000" stroke-width="2"/><rect x="150.0" y="74.0" width="70.0" height="26.0" fill="none" stroke="#000" stroke-width="2"/><line x1="150.0" y1="0" x2="150.0" y2="22.0" stroke="#000" stroke-width="2"/><path d="M76.0,37.5 C38.0,37.5 38.0,58.50000000000001 70.0,58.50000000000001" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round" marker-end="url(#mtanti)"/><path d="M224.0,37.5 C262.0,37.5 262.0,58.50000000000001 230.0,58.50000000000001" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round" marker-end="url(#mtanti)"/><path d="M76.0,63.50000000000001 C38.0,63.50000000000001 38.0,84.50000000000001 70.0,84.50000000000001" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round" marker-end="url(#mtanti)"/><path d="M224.0,63.50000000000001 C262.0,63.50000000000001 262.0,84.50000000000001 230.0,84.50000000000001" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round" marker-end="url(#mtanti)"/></svg><div class="feld kopfz" style="left:8.3em;top:0.3em;width:6.4em;height:1.6em"><input data-k="z1-18" data-l="Anzahl Bagger" class="f" aria-label="Feld"></div><div class="feld kopfz" style="left:15.3em;top:0.3em;width:6.4em;height:1.6em"><input data-k="z1-19" data-l="Zeit in Tagen" class="f" aria-label="Feld"></div><div class="feld num gross" style="left:9.0em;top:2.5500000000000003em;width:5.0em;height:1.9000000000000001em"><input data-k="z1-20" data-l="3" class="f" aria-label="Feld"></div><div class="feld num gross" style="left:16.0em;top:2.5500000000000003em;width:5.0em;height:1.9000000000000001em"><input data-k="z1-21" data-l="12" class="f" aria-label="Feld"></div><div class="feld num gross" style="left:9.0em;top:5.15em;width:5.0em;height:1.9000000000000001em"><input data-k="z1-22" data-l="1" class="f" aria-label="Feld"></div><div class="feld num gross" style="left:16.0em;top:5.15em;width:5.0em;height:1.9000000000000001em"><input data-k="z1-23" data-l="36" class="f" aria-label="Feld"></div><div class="feld num gross" style="left:9.0em;top:7.75em;width:5.0em;height:1.9000000000000001em"><input data-k="z1-24" data-l="4" class="f" aria-label="Feld"></div><div class="feld num gross" style="left:16.0em;top:7.75em;width:5.0em;height:1.9000000000000001em"><input data-k="z1-25" data-l="9" class="f" aria-label="Feld"></div><div class="feld op" style="left:1.3em;top:4.0em;width:3.0em;height:1.6em"><input data-k="z1-26" data-l=": 3" class="f" aria-label="Feld"></div><div class="feld op" style="left:25.7em;top:4.0em;width:3.0em;height:1.6em"><input data-k="z1-27" data-l="· 3" class="f" aria-label="Feld"></div><div class="feld op" style="left:1.3em;top:6.600000000000001em;width:3.0em;height:1.6em"><input data-k="z1-28" data-l="· 4" class="f" aria-label="Feld"></div><div class="feld op" style="left:25.7em;top:6.600000000000001em;width:3.0em;height:1.6em"><input data-k="z1-29" data-l=": 4" class="f" aria-label="Feld"></div></div>
+<div class="merk">Merke: Antiproportional – rechts die <input data-k="z1-30" data-l="Umkehraufgabe" class="f w2" aria-label="Lücke">.</div>
+<p class="zeile"><b>Antwort:</b><input data-k="z1-31" data-l="4 Bagger brauchen 9 Tage." class="f lang" aria-label="Antwortsatz"></p>
+</div></section>
+<p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p>
+</main><script>
 (function(){
-  const SEITEN=[
-    {id:'p',name:'Proportionale Zuordnung',c:'var(--prop)',ch:'var(--prop-hell)',farbe:'#1565C0',
-     aufgabe:'4 Hefte kosten 6 €. Wie viel kosten 7 Hefte?',
-     regel:'Je mehr Hefte, desto mehr muss ich bezahlen.',
-     kx:'Anzahl Hefte',ky:'Preis in €',
-     werte:[['4','6'],['1','1,5'],['7','10,5']],
-     links:[': 4','· 7'],rechts:[': 4','· 7'],
-     merk:'Rechts dasselbe rechnen wie links.',
-     antwort:'Antwort: 7 Hefte kosten 10,50 €.',
-     texte:['Lies die Aufgabe: Je mehr Hefte, desto mehr muss ich bezahlen – die Zuordnung ist proportional.',
-            'Schreibe das gegebene Wertepaar in die erste Zeile: 4 Hefte kosten 6 €.',
-            'Links auf 1 herunterrechnen: 4 : 4 = 1.',
-            'Rechts dasselbe rechnen: 6 : 4 = 1,5. Ein Heft kostet 1,50 €.',
-            'Links von 1 auf 7 hochrechnen: 1 · 7 = 7.',
-            'Rechts wieder dasselbe: 1,5 · 7 = 10,5.',
-            'Zum Schluss schreibst du einen Antwortsatz.']},
-    {id:'a',name:'Antiproportionale Zuordnung',c:'var(--anti)',ch:'var(--anti-hell)',farbe:'#C2410C',
-     aufgabe:'3 Bagger brauchen 12 Tage. Wie lange brauchen 4 Bagger?',
-     regel:'Je mehr Bagger, desto weniger Tage.',
-     kx:'Anzahl Bagger',ky:'Zeit in Tagen',
-     werte:[['3','12'],['1','36'],['4','9']],
-     links:[': 3','· 4'],rechts:['· 3',': 4'],
-     merk:'Rechts die Umkehrrechnung.',
-     antwort:'Antwort: 4 Bagger brauchen 9 Tage.',
-     texte:['Lies die Aufgabe: Je mehr Bagger, desto weniger Tage – die Zuordnung ist antiproportional.',
-            'Schreibe das gegebene Wertepaar in die erste Zeile: 3 Bagger brauchen 12 Tage.',
-            'Links auf 1 herunterrechnen: 3 : 3 = 1.',
-            'Rechts die Umkehrrechnung: aus „: 3“ wird „· 3“. 12 · 3 = 36. Ein Bagger braucht 36 Tage.',
-            'Links von 1 auf 4 hochrechnen: 1 · 4 = 4.',
-            'Rechts wieder die Umkehrrechnung: aus „· 4“ wird „: 4“. 36 : 4 = 9.',
-            'Zum Schluss schreibst du einen Antwortsatz.']}
-  ];
-  const MAX=6;
-  // Geometrie der Dreisatztabelle
-  const TX=130,CW=170,HH=50,RH=60,W=TX*2+CW*2,H=HH+3*RH+10;
-
-  function bogen(seite,k,lab,farbe,schritt){
-    const y1=HH+k*RH+RH/2+4,y2=y1+RH-8,links=seite==='l';
-    const x=links?TX-8:TX+2*CW+8,d=links?-1:1;
-    const tx=x+d*44;
-    return `<g class="s" data-s="${schritt}">
-      <path d="M${x},${y1} C${x+d*40},${y1} ${x+d*40},${y2} ${x+d*5},${y2}" fill="none" stroke="${farbe}" stroke-width="3" stroke-linecap="round"/>
-      <polygon points="${x+d*14},${y2-7} ${x+d*14},${y2+7} ${x},${y2}" fill="${farbe}"/>
-      <text x="${tx}" y="${(y1+y2)/2+8}" font-size="24" font-weight="700" fill="${farbe}" text-anchor="${links?'end':'start'}">${lab}</text></g>`;
-  }
-  function svg(S){
-    let s=`<svg class="ds" viewBox="0 0 ${W} ${H}" role="img" aria-label="Dreisatztabelle ${S.name}">`;
-    s+=`<rect x="${TX}" y="0" width="${2*CW}" height="${HH}" fill="#F2F2F2" stroke="#000" stroke-width="2"/>`;
-    s+=`<text x="${TX+CW/2}" y="${HH/2+7}" font-size="19" font-weight="700" text-anchor="middle">${S.kx}</text>`;
-    s+=`<text x="${TX+1.5*CW}" y="${HH/2+7}" font-size="19" font-weight="700" text-anchor="middle">${S.ky}</text>`;
-    for(let r=0;r<3;r++){const y=HH+r*RH;s+=`<rect x="${TX}" y="${y}" width="${CW}" height="${RH}" fill="#fff" stroke="#000" stroke-width="2"/><rect x="${TX+CW}" y="${y}" width="${CW}" height="${RH}" fill="#fff" stroke="#000" stroke-width="2"/>`}
-    // Werte: Zeile 1 in Schritt 1, Zeile 2 links Schritt 2 / rechts 3, Zeile 3 links 4 / rechts 5
-    const sch=[[1,1],[2,3],[4,5]];
-    S.werte.forEach((w,r)=>{const y=HH+r*RH+RH/2+10;
-      s+=`<text class="s" data-s="${sch[r][0]}" x="${TX+CW/2}" y="${y}" font-size="28" ${r===0?'font-weight="700"':''} text-anchor="middle">${w[0]}</text>`;
-      s+=`<text class="s" data-s="${sch[r][1]}" x="${TX+1.5*CW}" y="${y}" font-size="28" ${r===0?'font-weight="700"':''} text-anchor="middle">${w[1]}</text>`;});
-    s+=bogen('l',0,S.links[0],S.farbe,2)+bogen('r',0,S.rechts[0],S.farbe,3)+bogen('l',1,S.links[1],S.farbe,4)+bogen('r',1,S.rechts[1],S.farbe,5);
-    return s+'</svg>';
-  }
-  const zustand={};
-  SEITEN.forEach(S=>{
-    zustand[S.id]=0;
-    const k=document.createElement('section');k.className='kasten';k.style.setProperty('--c',S.c);k.style.setProperty('--ch',S.ch);
-    k.innerHTML=`<h2>${S.name}</h2><div class="innen">
-      <p class="aufgabe">${S.aufgabe}</p>
-      <p class="regel">${S.regel}</p>
-      ${svg(S)}
-      <div class="merk aus" id="merk-${S.id}">${S.merk}</div>
-      <p class="text" id="text-${S.id}" aria-live="polite"></p>
-      <p class="antwort aus" id="antw-${S.id}">${S.antwort}</p>
-      <div class="leiste"><span class="zaehler" id="z-${S.id}"></span>
-        <div class="knoepfe"><button type="button" id="zur-${S.id}">◀ Zurück</button><button type="button" class="vor" id="vor-${S.id}">Weiter ▶</button></div></div>
-    </div>`;
-    document.getElementById('seiten').appendChild(k);
-    document.getElementById('vor-'+S.id).onclick=()=>setze(S,zustand[S.id]+1);
-    document.getElementById('zur-'+S.id).onclick=()=>setze(S,zustand[S.id]-1);
-  });
-  function setze(S,n){
-    n=Math.max(0,Math.min(MAX,n));zustand[S.id]=n;
-    const box=document.getElementById('seiten').children[SEITEN.indexOf(S)];
-    box.querySelectorAll('.s').forEach(el=>el.classList.toggle('aus',+el.dataset.s>n));
-    document.getElementById('merk-'+S.id).classList.toggle('aus',n<3);
-    document.getElementById('antw-'+S.id).classList.toggle('aus',n<6);
-    document.getElementById('text-'+S.id).textContent=S.texte[n];
-    document.getElementById('z-'+S.id).textContent=n===0?'Start':`Schritt ${n} von ${MAX}`;
-    document.getElementById('zur-'+S.id).disabled=startBtn.disabled||n===0;
-    document.getElementById('vor-'+S.id).disabled=startBtn.disabled||n===MAX;
-  }
-  const sprechtexte={
-    p:[
-      'Beim Dreisatz rechnest du zuerst auf eins und dann auf die gesuchte Anzahl. Wir beginnen mit den Heften. Vier Hefte kosten sechs Euro. Wie viel kosten sieben Hefte? Bei gleichem Stückpreis kosten doppelt so viele Hefte doppelt so viel. Die Zuordnung ist proportional.',
-      'Trage das gegebene Wertepaar in die erste Zeile ein: links vier Hefte, rechts sechs Euro.',
-      'Rechne links auf ein Heft herunter. Vier geteilt durch vier ergibt eins.',
-      'Bei der proportionalen Zuordnung rechnest du rechts dasselbe. Sechs Euro geteilt durch vier sind ein Euro und fünfzig Cent pro Heft.',
-      'Jetzt rechnest du links von einem auf sieben Hefte hoch. Dazu multiplizierst du mit sieben.',
-      'Multipliziere auch rechts mit sieben. Ein Euro und fünfzig Cent mal sieben ergibt zehn Euro und fünfzig Cent.',
-      'Der Antwortsatz lautet: Sieben Hefte kosten zehn Euro und fünfzig Cent.'
-    ],
-    a:[
-      'Jetzt zu den Baggern. Drei Bagger brauchen zwölf Tage. Wie lange brauchen vier Bagger? Wenn alle gleich schnell arbeiten und die Arbeit gleich bleibt, brauchen doppelt so viele Bagger halb so lange. Die Zuordnung ist antiproportional.',
-      'In die erste Zeile kommen links drei Bagger und rechts zwölf Tage.',
-      'Rechne links wieder auf eins herunter. Drei geteilt durch drei ergibt einen Bagger.',
-      'Ein Bagger braucht dreimal so lange wie drei Bagger. Links teilst du durch drei, rechts multiplizierst du mit drei. Zwölf mal drei ergibt sechsunddreißig Tage.',
-      'Rechne links von einem auf vier Bagger hoch. Dazu multiplizierst du mit vier.',
-      'Vier Bagger brauchen ein Viertel der Zeit eines Baggers. Deshalb teilst du rechts durch vier. Sechsunddreißig geteilt durch vier ergibt neun Tage.',
-      'Vier Bagger brauchen neun Tage. Merke dir: Links rechnest du bei beiden Aufgaben zuerst auf eins. Rechts rechnest du bei proportionalen Zuordnungen genauso und bei antiproportionalen Zuordnungen mit der Umkehrrechnung.'
-    ]
-  };
-  const film=document.createElement('section');
-  film.className='lernfilm';
-  film.setAttribute('aria-label','Gesprochene Erklärung');
-  film.innerHTML=`<strong>🎙️ Gesprochene Erklärung</strong>
-    <div class="steuerung"><button type="button" class="start" id="film-start">▶ Erklärung starten</button>
-    <button type="button" id="film-pause" disabled>⏸ Pause</button>
-    <button type="button" id="film-stop" disabled>■ Beenden</button>
-    <label for="film-tempo">Sprechtempo:</label><select id="film-tempo"><option value="0.85">Langsam</option><option value="0.95" selected>Normal</option><option value="1.1">Schnell</option></select></div>
-    <div class="hinweis" id="film-hinweis" role="status">Die Erklärung wird automatisch vorgelesen. Zum Starten bitte auf ▶ klicken.</div>`;
-  document.querySelector('.oben').before(film);
-  const startBtn=film.querySelector('#film-start'),stopBtn=film.querySelector('#film-stop');
-  const pauseBtn=film.querySelector('#film-pause');
-  const hinweis=film.querySelector('#film-hinweis');
-  const synth=('speechSynthesis' in window)?window.speechSynthesis:null;
-  let bevorzugteStimme=null;
-  function ladeStimme(){
-    if(!synth)return;
-    const stimmen=synth.getVoices();
-    // Google Deutsch wird bevorzugt, sofern diese Stimme auf dem Endgerät verfügbar ist.
-    bevorzugteStimme=stimmen.find(v=>v.lang.toLowerCase().startsWith('de') && /google.*deutsch|google.*german/i.test(v.name))
-      || stimmen.find(v=>v.lang.toLowerCase().startsWith('de') && /google/i.test(v.name))
-      || stimmen.find(v=>v.lang.toLowerCase()==='de-de')
-      || stimmen.find(v=>v.lang.toLowerCase().startsWith('de')) || null;
-  }
-  ladeStimme();
-  if(synth)synth.addEventListener('voiceschanged',ladeStimme);
-  let filmLauf=0;
-  let pausiert=false;
-  let fortsetzen=null;
-
-  function warteAufFortsetzen(){
-    if(pausiert)return new Promise(resolve=>{fortsetzen=resolve;});
-  }
-  function loesePause(){
-    pausiert=false;
-    pauseBtn.textContent='⏸ Pause';
-    fortsetzen?.();
-    fortsetzen=null;
-  }
-  function setzeBedienung(laeuft){
-    startBtn.disabled=laeuft;
-    pauseBtn.disabled=!laeuft;
-    stopBtn.disabled=!laeuft;
-    SEITEN.forEach(S=>setze(S,zustand[S.id]));
-  }
-  const warte=ms=>new Promise(resolve=>setTimeout(resolve,ms));
-  function spreche(text,id){
-    if(!synth)return warte(Math.max(1800,text.length*65));
-    return new Promise(resolve=>{
-      if(id!==filmLauf){resolve();return;}
-      let fertig=false;
-      let fallback;
-      const ende=()=>{
-        if(fertig)return;
-        fertig=true;
-        clearTimeout(fallback);
-        resolve();
-      };
-      const u=new SpeechSynthesisUtterance(text);
-      u.lang='de-DE';u.rate=Number(film.querySelector('#film-tempo').value);u.pitch=1;
-      ladeStimme();
-      if(bevorzugteStimme)u.voice=bevorzugteStimme;
-      u.onend=ende;u.onerror=ende;
-      // Solange die Stimme pausiert oder noch spricht, bleibt der Schritt aktiv.
-      function pruefeSprechende(){
-        if(id===filmLauf&&(pausiert||synth.speaking||synth.pending)){
-          fallback=setTimeout(pruefeSprechende,1000);
-          return;
-        }
-        ende();
-      }
-      fallback=setTimeout(pruefeSprechende,Math.max(5000,text.length*170));
-      synth.speak(u);
-    });
-  }
-  function beende(){
-    filmLauf++;
-    loesePause();
-    if(synth){
-      synth.cancel();
-      if(synth.paused)synth.resume();
-    }
-    setzeBedienung(false);
-  }
-  pauseBtn.addEventListener('click',()=>{
-    if(pausiert){
-      synth.resume();
-      loesePause();
-      hinweis.textContent='Die Erklärung läuft.';
-    }else{
-      pausiert=true;
-      synth.pause();
-      pauseBtn.textContent='▶ Fortsetzen';
-      hinweis.textContent='Die Erklärung ist pausiert.';
-    }
-  });
-  stopBtn.addEventListener('click',()=>{beende();hinweis.textContent='Erklärung beendet. Du kannst jetzt selbst mit dem Tafelbild arbeiten.';});
-  startBtn.addEventListener('click',async()=>{
-    if(!synth){hinweis.textContent='Dieser Browser unterstützt keine automatische Sprachausgabe.';return;}
-    hinweis.textContent='Die Erklärung läuft. Du kannst sie pausieren oder beenden.';
-    beende();const id=filmLauf;
-    SEITEN.forEach(S=>setze(S,0));
-    setzeBedienung(true);
-    for(const [index,S] of SEITEN.entries()){
-      if(id!==filmLauf)return;
-      if(pausiert)await warteAufFortsetzen();
-      if(id!==filmLauf)return;
-      const box=document.getElementById('seiten').children[index];
-      if(window.matchMedia('(max-width:760px)').matches){
-        box.style.scrollMarginTop=(film.offsetHeight+12)+'px';
-        box.scrollIntoView({block:'start'});
-      }
-      for(const [n,text] of sprechtexte[S.id].entries()){
-        if(id!==filmLauf)return;
-        if(pausiert)await warteAufFortsetzen();
-        if(id!==filmLauf)return;
-        setze(S,n);
-        await spreche(text,id);
-        if(id!==filmLauf)return;
-        await warte(350);
-      }
-    }
-    if(id!==filmLauf)return;
-    if(pausiert)await warteAufFortsetzen();
-    if(id!==filmLauf)return;
-    setzeBedienung(false);
-    hinweis.textContent='Fertig! Du kannst die Schritte jetzt selbst durchgehen.';
-  });
-  SEITEN.forEach(S=>setze(S,0));
-  document.getElementById('reset').onclick=()=>{
-    beende();
-    SEITEN.forEach(S=>setze(S,0));
-    hinweis.textContent='Zum Starten bitte auf „Erklärung starten“ klicken.';
-  };
+ const alle=()=>[...document.querySelectorAll('input')];
+ document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'||e.target.tagName!=='INPUT')return;
+  e.preventDefault();const l=alle(),i=l.indexOf(e.target);if(l[i+1])l[i+1].focus();else e.target.blur();});
+ document.addEventListener('input',e=>{const t=e.target;if(t.tagName==='INPUT')t.classList.toggle('ix',t.value.trim().toLowerCase()==='x');});
+ // Kreuzpfeil
+ document.querySelectorAll('[data-kreuz]').forEach(b=>b.onclick=()=>{
+  const g=document.getElementById(b.dataset.kreuz);const an=!g.classList.contains('an');
+  g.classList.toggle('an',an);b.classList.toggle('an',an);});
+ // Einkreisen: Knopf an, dann ein Zahlenfeld antippen
+ let modus=null;
+ document.querySelectorAll('[data-kreis]').forEach(b=>b.onclick=()=>{
+  if(modus===b){modus=null;b.classList.remove('an');return;}
+  if(modus)modus.classList.remove('an');modus=b;b.classList.add('an');});
+ document.addEventListener('pointerdown',e=>{
+  if(!modus)return;const f=e.target.closest('.feld.num');if(!f)return;
+  const box=modus.closest('.kasten');if(!box.contains(f))return;
+  e.preventDefault();f.classList.toggle('kreis');modus.classList.remove('an');modus=null;},true);
+ // Seite leeren mit Sicherheitsklick
+ const r=document.getElementById('leeren');let t=null;
+ r.onclick=()=>{
+  if(!r.classList.contains('warn')){r.classList.add('warn');r.textContent='Wirklich leeren? Nochmal tippen';t=setTimeout(()=>{r.classList.remove('warn');r.textContent='Seite leeren';},3000);return;}
+  clearTimeout(t);alle().forEach(i=>{i.value='';i.classList.remove('ix');});
+  document.querySelectorAll('.kreis').forEach(f=>f.classList.remove('kreis'));
+  document.querySelectorAll('.kreuz.an').forEach(g=>g.classList.remove('an'));
+  document.querySelectorAll('button.an').forEach(b=>b.classList.remove('an'));modus=null;
+  r.classList.remove('warn');r.textContent='Seite leeren';};
 })();
-</script>
-<script>
-(function(){
-  function still(){try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}}
-  document.getElementById('ll-zurueck').addEventListener('click',still);
-  window.addEventListener('pagehide',still);
-})();
-</script>
-</body>
-</html>
+</script><script id="video-script">(()=>{
+const ROT="#C62828",BLAU="#1565C0",GRUEN="#2E7D32",FC={h:ROT,g:BLAU,a:GRUEN};
+const SKRIPT={z1:[
+{kap:'Einstieg', q:'.ziel', t:'Hallo! In diesem Video lernst du den Dreisatz. Mit dem Dreisatz löst du Aufgaben zu Zuordnungen. Du rechnest dabei in drei Schritten, deshalb heißt er Dreisatz. Wir schauen uns zwei Musterbeispiele an. Zuerst eine proportionale Zuordnung, danach eine antiproportionale Zuordnung.'},
+{kap:'Proportional: Aufgabe', q:'section:nth-of-type(1) .aufgabe', t:'Hier ist die erste Aufgabe. Vier Hefte kosten sechs Euro. Wie viel kosten sieben Hefte?'},
+{t:'Zuerst überlegen wir, welche Zuordnung das ist. Wenn du mehr Hefte kaufst, musst du auch mehr bezahlen. Also gilt: Je mehr Hefte, desto höher der Preis. Das ist eine proportionale Zuordnung.', f:['z1-0','z1-1']},
+{kap:'Proportional: Tabelle', t:'Jetzt legen wir eine Tabelle an. In die linke Spalte kommt die Anzahl der Hefte. In die rechte Spalte kommt der Preis in Euro.', f:['z1-2','z1-3']},
+{t:'Schritt eins: In die erste Zeile schreiben wir, was wir schon wissen. Vier Hefte kosten sechs Euro.', f:['z1-4','z1-5']},
+{t:'Schritt zwei: Wir rechnen auf ein Heft zurück. Von vier Heften kommen wir zu einem Heft, wenn wir durch vier teilen. Links schreiben wir deshalb an den Pfeil: geteilt durch vier. In die zweite Zeile kommt links die Eins.', f:['z1-10','z1-6']},
+{t:'Bei einer proportionalen Zuordnung rechnen wir rechts genau dasselbe wie links. Also teilen wir auch rechts durch vier. Sechs Euro geteilt durch vier sind ein Euro fünfzig. Ein Heft kostet also ein Euro fünfzig.', f:['z1-11','z1-7']},
+{t:'Schritt drei: Wir rechnen von einem Heft auf sieben Hefte hoch. Dafür multiplizieren wir mit sieben. Links schreiben wir an den Pfeil: mal sieben. In die letzte Zeile kommt links die Sieben.', f:['z1-12','z1-8']},
+{t:'Rechts rechnen wir wieder dasselbe, also auch mal sieben. Ein Euro fünfzig mal sieben sind zehn Euro fünfzig.', f:['z1-13','z1-9']},
+{kap:'Proportional: Merke', t:'Das merken wir uns: Bei einer proportionalen Zuordnung rechnest du rechts dasselbe wie links. Teilst du links durch vier, teilst du auch rechts durch vier. Multiplizierst du links mit sieben, multiplizierst du auch rechts mit sieben.', f:['z1-14']},
+{kap:'Proportional: Antwort', t:'Zum Schluss schreiben wir einen Antwortsatz. Sieben Hefte kosten zehn Euro fünfzig. Prüfe kurz, ob das sinnvoll ist. Sieben Hefte sind mehr als vier Hefte. Also müssen sie auch mehr kosten als sechs Euro. Das passt.', f:['z1-15']},
+{kap:'Antiproportional: Aufgabe', q:'section:nth-of-type(2) .aufgabe', t:'Jetzt kommt das zweite Beispiel. Drei Bagger brauchen zwölf Tage für eine Baustelle. Wie lange brauchen vier Bagger?'},
+{t:'Wieder überlegen wir zuerst, welche Zuordnung das ist. Wenn mehr Bagger gleichzeitig arbeiten, sind sie schneller fertig. Also gilt: Je mehr Bagger, desto weniger Tage. Das ist eine antiproportionale Zuordnung.', f:['z1-16','z1-17']},
+{kap:'Antiproportional: Tabelle', t:'Wir legen wieder eine Tabelle an. In die linke Spalte kommt die Anzahl der Bagger. In die rechte Spalte kommt die Zeit in Tagen.', f:['z1-18','z1-19']},
+{t:'Schritt eins: In die erste Zeile schreiben wir, was wir wissen. Drei Bagger brauchen zwölf Tage.', f:['z1-20','z1-21']},
+{t:'Schritt zwei: Wir rechnen auf einen Bagger zurück. Von drei Baggern kommen wir zu einem Bagger, wenn wir durch drei teilen. Links steht also: geteilt durch drei. In die zweite Zeile kommt links die Eins.', f:['z1-26','z1-22']},
+{t:'Jetzt aufgepasst! Bei einer antiproportionalen Zuordnung rechnen wir rechts die Umkehraufgabe. Die Umkehraufgabe von geteilt durch drei ist mal drei. Rechts steht also: mal drei. Zwölf mal drei sind sechsunddreißig. Ein Bagger allein braucht also sechsunddreißig Tage. Das ist logisch, denn ein Bagger allein braucht viel länger als drei Bagger.', f:['z1-27','z1-23']},
+{t:'Schritt drei: Wir rechnen von einem Bagger auf vier Bagger hoch. Links multiplizieren wir mit vier. In die letzte Zeile kommt links die Vier.', f:['z1-28','z1-24']},
+{t:'Rechts rechnen wir wieder die Umkehraufgabe. Die Umkehraufgabe von mal vier ist geteilt durch vier. Sechsunddreißig geteilt durch vier sind neun.', f:['z1-29','z1-25']},
+{kap:'Antiproportional: Merke', t:'Das merken wir uns: Bei einer antiproportionalen Zuordnung rechnest du rechts die Umkehraufgabe. Aus geteilt wird mal. Aus mal wird geteilt.', f:['z1-30']},
+{kap:'Antiproportional: Antwort', t:'Jetzt fehlt noch der Antwortsatz. Vier Bagger brauchen neun Tage. Prüfe wieder, ob das sinnvoll ist. Vier Bagger sind mehr als drei Bagger. Also müssen sie weniger Zeit brauchen als zwölf Tage. Neun Tage sind weniger. Das passt.', f:['z1-31']},
+{kap:'Zusammenfassung', t:'Fassen wir zusammen. Der Dreisatz hat drei Schritte. Erstens: Schreibe auf, was du weißt. Zweitens: Rechne auf eins zurück. Drittens: Rechne auf die gesuchte Menge hoch. Proportional rechnest du rechts dasselbe wie links. Antiproportional rechnest du rechts die Umkehraufgabe. Jetzt bist du dran! Übertrage beide Musterbeispiele vollständig in deinen Hefter.'}
+]};
+const synth=window.speechSynthesis;let stimme=null;
+function waehleStimme(){if(!synth)return;const v=synth.getVoices().filter(x=>/^de/i.test(x.lang));
+ stimme=v.find(x=>/natural/i.test(x.name)&&/de-DE/i.test(x.lang))||v.find(x=>/google deutsch/i.test(x.name))||v.find(x=>/anna|helena|petra|markus|yannick/i.test(x.name)&&/de-DE/i.test(x.lang))||v.find(x=>/de-DE/i.test(x.lang))||v[0]||null;}
+if(synth){waehleStimme();try{synth.addEventListener('voiceschanged',waehleStimme)}catch(e){synth.onvoiceschanged=waehleStimme}}
+const saetze=t=>t.match(/[^.!?]+[.!?]*/g).map(s=>s.trim()).filter(Boolean);
+let lauf=null,token=0,wachhund=null;
+function stopWachhund(){if(wachhund){clearTimeout(wachhund);wachhund=null;}}
+function sprich(liste,fertig){
+ const my=++token;let k=0;
+ const weiter=()=>{if(my!==token)return;stopWachhund();
+  if(k>=liste.length){fertig();return;}
+  const text=liste[k++];let u;
+  try{u=new SpeechSynthesisUtterance(text);u.lang='de-DE';u.rate=.92;if(stimme)u.voice=stimme;}catch(e){keineStimme();return;}
+  let gestartet=false;
+  u.onstart=()=>{if(my!==token)return;gestartet=true;stopWachhund();
+    wachhund=setTimeout(()=>{if(my===token){synth.cancel();weiter();}},text.length*110+5000);};
+  u.onend=()=>{if(my===token)weiter();};
+  u.onerror=e=>{if(my!==token)return;if(e&&(e.error==='interrupted'||e.error==='canceled'))return;weiter();};
+  synth.speak(u);
+  wachhund=setTimeout(()=>{if(my===token&&!gestartet)keineStimme();},6000);
+ };
+ weiter();
+}
+function keineStimme(){const r=lauf;stopAlles();if(r)status(r.id,'Keine Sprachausgabe. iPad: Stummschalter und Lautstärke prüfen. Computer: Chrome, Edge oder Safari verwenden.');}
+function abbrechen(){token++;stopWachhund();if(synth)synth.cancel();}
+const page=id=>document.getElementById(id);
+const feld=k=>document.querySelector('input.f[data-k="'+k+'"]');
+const fig=k=>document.querySelector('[data-fk="'+k+'"]');
+function linie(fk,s){const d=fig(fk);return d&&d.querySelector('.seite[data-s="'+s+'"]');}
+function boxMit(p,titel){return [...p.querySelectorAll('.kasten')].find(b=>b.querySelector('h2')?.textContent.trim()===titel);}
+let aktiv=[];
+function markiereAus(){aktiv.forEach(el=>el.classList.remove('speaking','vglow'));aktiv=[];}
+function markiere(el,cls){if(!el)return;el.classList.add(cls||'speaking');aktiv.push(el);}
+function wirkung(st){
+ (st.f||[]).forEach(k=>{const i=feld(k);if(i)i.value=i.dataset.l;});
+ if(st.farbe)Object.entries(st.farbe).forEach(([s,c])=>{const l=linie(st.fig,s);if(l){l.setAttribute('stroke',FC[c]);l.setAttribute('stroke-width',5);}});
+}
+function zeige(st,p){
+ markiereAus();wirkung(st);
+ (st.f||[]).forEach(k=>markiere(feld(k)));
+ (st.glow||[]).forEach(s=>markiere(linie(st.fig,s),'vglow'));
+ if(st.farbe)Object.keys(st.farbe).forEach(s=>markiere(linie(st.fig,s),'vglow'));
+ let ziel=null;
+ if(st.q){const el=p.querySelector(st.q);markiere(el);ziel=el;}
+ if(st.box){const b=boxMit(p,st.box);if(b){b.scrollIntoView({block:'start',behavior:'smooth'});ziel=null;}}
+ const f0=(st.f||[]).map(feld).find(Boolean);
+ ziel=ziel||(st.fig?fig(st.fig):null)||f0;
+ if(ziel)ziel.scrollIntoView({block:'center',behavior:'smooth'});
+}
+function status(id,t){const c=page(id)?.querySelector('.videoctl .status');if(c)c.textContent=t;}
+function knoepfe(){document.querySelectorAll('.videoctl').forEach(c=>{const an=lauf&&lauf.id===c.parentNode.id;
+ c.querySelector('.pause').textContent=an&&lauf.pausiert?'▶ Weiter':'⏸ Pause';
+ c.querySelector('.pause').disabled=!an;c.querySelector('.zur').disabled=!an;c.querySelector('.vor').disabled=!an;});}
+function schritt(){
+ const r=lauf;if(!r||r.pausiert)return;
+ if(r.i>=r.schritte.length){markiereAus();status(r.id,'Erklärung beendet');lauf=null;knoepfe();return;}
+ const st=r.schritte[r.i],p=page(r.id);
+ zeige(st,p);kapitelAnzeige(r);
+ status(r.id,'Schritt '+(r.i+1)+' von '+r.schritte.length);
+ sprich(saetze(st.t),()=>{if(lauf!==r)return;r.i++;schritt();});
+}
+function kapitelAnzeige(r){const sel=page(r.id).querySelector('.videoctl select');let k=0;
+ r.schritte.forEach((s,i)=>{if(s.kap&&i<=r.i)k=i;});sel.value=String(k);}
+function starte(id,ab){
+ abbrechen();markiereAus();
+ const schritte=SKRIPT[id];ab=ab||0;
+ schritte.slice(0,ab).forEach(wirkung);
+ lauf={id,schritte,i:ab,pausiert:false};knoepfe();
+ const los=()=>{if(lauf&&lauf.id===id)schritt();};
+ if(synth&&synth.speaking)setTimeout(los,80);else los();
+}
+function springe(n){const r=lauf;if(!r)return;abbrechen();
+ n=Math.max(0,Math.min(r.schritte.length-1,n));
+ if(n>r.i)r.schritte.slice(r.i,n).forEach(wirkung);
+ r.i=n;r.pausiert=false;knoepfe();setTimeout(schritt,80);}
+function pause(){const r=lauf;if(!r)return;
+ if(r.pausiert){r.pausiert=false;knoepfe();schritt();}
+ else{r.pausiert=true;abbrechen();status(r.id,'Pausiert – tippe auf ▶ Weiter');knoepfe();}}
+function stopAlles(){abbrechen();markiereAus();if(lauf){status(lauf.id,'Gestoppt');}lauf=null;knoepfe();}
+function eigeneEintraege(id){return [...page(id).querySelectorAll('input.f[data-l]')].some(i=>i.value.trim()!==''&&i.value.trim()!==i.dataset.l);}
+for(const p of document.querySelectorAll('.page')){
+ const id=p.id,sk=SKRIPT[id];if(!sk)continue;
+ const c=document.createElement('div');c.className='videoctl';
+ const opts=sk.map((s,i)=>s.kap?'<option value="'+i+'">'+s.kap+'</option>':'').join('');
+ c.innerHTML='<span class="hint">Tippe auf ▶ Start, um dir die Erklärung anzuhören.</span>'+
+  '<button class="go" type="button">▶ Start</button><button class="pause" type="button">⏸ Pause</button>'+
+  '<button class="zur" type="button" title="Einen Schritt zurück">◀ Zurück</button><button class="vor" type="button" title="Einen Schritt weiter">Vor ▶</button>'+
+  '<button class="stop" type="button">■ Stopp</button>'+
+  '<label class="kap">Abschnitt: <select>'+opts+'</select></label><span class="status" aria-live="polite"></span>';
+ p.insertBefore(c,p.firstChild);
+ const go=c.querySelector('.go'),sel=c.querySelector('select');
+ if(!synth||typeof SpeechSynthesisUtterance==='undefined'){c.querySelector('.status').textContent='Sprachausgabe in diesem Browser nicht verfügbar';}
+ let warn=null;
+ const startMitPruefung=ab=>{
+  if(!warn&&eigeneEintraege(id)){warn=setTimeout(()=>{warn=null;go.textContent='▶ Start';go.classList.remove('warn');},4000);
+   go.textContent='Deine Einträge werden überschrieben – nochmal tippen';go.classList.add('warn');go.dataset.ab=ab;return;}
+  clearTimeout(warn);warn=null;go.textContent='▶ Start';go.classList.remove('warn');delete go.dataset.ab;starte(id,+ab||0);};
+ go.onclick=()=>startMitPruefung(go.dataset.ab||0);
+ sel.onchange=()=>{if(lauf&&lauf.id===id)springe(+sel.value);else{go.dataset.ab=sel.value;startMitPruefung(sel.value);}};
+ c.querySelector('.pause').onclick=pause;
+ c.querySelector('.zur').onclick=()=>lauf&&springe(lauf.i-1);
+ c.querySelector('.vor').onclick=()=>lauf&&springe(lauf.i+1);
+ c.querySelector('.stop').onclick=stopAlles;
+}
+knoepfe();
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',stopAlles));
+window.addEventListener('pagehide',()=>{if(synth)synth.cancel();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&lauf&&!lauf.pausiert)pause();});
+})();</script>
+</body></html>
