@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spickzettel – Das Rechteck</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;font-size:17px;line-height:1.35}
+.wrap{max-width:1000px;margin:0 auto;padding:12px}
+.titel{background:#B3261E;color:#fff;text-align:center;padding:12px 10px 14px;border-radius:6px}
+.titel .klein{font-size:13px;letter-spacing:.18em;text-transform:uppercase;font-weight:700}
+.titel .gross{font-size:30px;font-weight:700;margin-top:2px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;align-items:start}
+.spalte{display:flex;flex-direction:column;gap:12px}
+.kasten{border:2px solid #B3261E;border-radius:6px;overflow:hidden;background:#fff;break-inside:avoid}
+.kasten h2{margin:0;background:#FBE3E1;color:#000;font-size:18px;font-weight:700;padding:6px 10px;border-bottom:2px solid #B3261E}
+.inhalt{padding:9px 10px}
+.u{color:#d9472b;font-weight:700}
+.a{color:#0f766e;font-weight:700}
+.schild{display:inline-block;color:#fff;font-weight:700;font-size:14px;padding:2px 9px;border-radius:12px;margin-right:6px}
+.schild.u{background:#d9472b;color:#fff}
+.schild.a{background:#14b8a6;color:#fff}
+.karte{border:2px solid #ccc;border-radius:6px;padding:6px 10px;margin-bottom:8px}
+.karte.u{border-color:#d9472b;background:#FDECE8;color:#000}
+.karte.a{border-color:#14b8a6;background:#E4F8F5;color:#000}
+.karte b.titel2{display:block;font-size:14px;margin-bottom:2px}
+.formel{background:#F2F2F2;border-radius:5px;padding:3px 9px;margin:3px 0;font-size:19px;font-weight:700;display:inline-block}
+.merk{border:2px dashed #B3261E;border-radius:6px;padding:7px 10px;font-weight:700;background:#fff8f7;margin-bottom:8px}
+.rechnung{font-size:16px;margin:3px 0}
+.pille{display:inline-block;border-radius:14px;padding:3px 12px;font-weight:700;font-size:15px;border:2px solid #555;background:#F2F2F2}
+.pille.u{background:#d9472b;border-color:#d9472b;color:#fff}
+.pille.a{background:#14b8a6;border-color:#14b8a6;color:#fff}
+.pfeil{text-align:center;font-size:20px;line-height:1;margin:2px 0;color:#555}
+.ast{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:4px}
+.zweig{border:2px solid #ccc;border-radius:6px;padding:6px 6px 8px;text-align:center;font-size:15px}
+.zweig.a{border-color:#14b8a6;background:#E4F8F5}
+.zweig.u{border-color:#d9472b;background:#FDECE8}
+.zweig.q{border-color:#555;background:#F6F6F6}
+.zweig .kopf{font-weight:700;margin-bottom:3px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+td,th{border:1px solid #000;padding:4px 7px;text-align:left}
+th{background:#F2F2F2}
+.falle{margin-top:12px;border:2px dashed #B3261E;border-radius:6px;background:#fff8f7;padding:9px 12px}
+.falle b.k{color:#B3261E}
+.falle .zeile{margin:4px 0}
+.falsch{color:#B3261E;font-weight:700}
+.richtig{color:#2e7d32;font-weight:700}
+.fuss{text-align:right;font-style:italic;color:#666;font-size:13px;margin-top:10px}
+svg{max-width:100%;height:auto}
+@media (max-width:700px){.grid{grid-template-columns:1fr}.ast{grid-template-columns:1fr}.titel .gross{font-size:24px}}
+@media print{.wrap{padding:0}body{font-size:14px}.kasten,.falle{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="titel">
+  <div class="klein">Spickzettel · Dreiecke und Vierecke</div>
+  <div class="gross">Das Rechteck</div>
+</div>
+
+<div class="grid">
+
+<!-- linke Spalte -->
+<div class="spalte">
+
+<div class="kasten">
+<h2>Umfang und Flächeninhalt</h2>
+<div class="inhalt">
+  <div style="display:flex;gap:10px;align-items:center">
+    <svg width="112" height="72" viewBox="0 0 132 84" style="flex:none" role="img" aria-label="Rechteck aus 5 mal 3 Kästchen, Rand rot">
+      <rect x="6" y="6" width="120" height="72" fill="#CCF1EC"/>
+      <g stroke="#14b8a6" stroke-width="1.2">
+        <line x1="30" y1="6" x2="30" y2="78"/><line x1="54" y1="6" x2="54" y2="78"/><line x1="78" y1="6" x2="78" y2="78"/><line x1="102" y1="6" x2="102" y2="78"/>
+        <line x1="6" y1="30" x2="126" y2="30"/><line x1="6" y1="54" x2="126" y2="54"/>
+      </g>
+      <rect x="6" y="6" width="120" height="72" fill="none" stroke="#d9472b" stroke-width="4"/>
+    </svg>
+    <div style="min-width:0">
+      <div class="karte u" style="margin:0 0 6px;font-size:15px"><span class="schild u">u</span><b>Umfang:</b> einmal ganz herum<br><span style="font-size:15px">Einheit: cm, m …</span></div>
+      <div class="karte a" style="margin:0;font-size:15px"><span class="schild a">A</span><b>Flächeninhalt:</b> Wie viele Quadrate passen hinein?<br><span style="font-size:15px">Einheit: cm², m² …</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="kasten">
+<h2>Formeln</h2>
+<div class="inhalt">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div>
+      <b>Rechteck</b><br>
+      <span class="formel"><span class="u">u</span> = 2 · (a + b)</span><br>
+      <span class="formel"><span class="a">A</span> = a · b</span>
+    </div>
+    <div>
+      <b>Quadrat</b><br>
+      <span class="formel"><span class="u">u</span> = 4 · a</span><br>
+      <span class="formel"><span class="a">A</span> = a · a</span>
+    </div>
+  </div>
+  <div class="merk" style="margin:9px 0 6px">Erst gleiche Einheiten, dann rechnen!</div>
+  <div class="rechnung">Schreibtisch 1,2 m und 60 cm → 60 cm = 0,6 m</div>
+  <div class="rechnung"><span class="u">u</span> = 2 · (1,2 m + 0,6 m) = 3,6 m</div>
+  <div class="rechnung"><span class="a">A</span> = 1,2 m · 0,6 m = 0,72 m²</div>
+  <div class="rechnung" style="font-size:14px;color:#555">Einheiten stehen in jeder Zeile mit.</div>
+</div>
+</div>
+
+<div class="kasten">
+<h2>Fehlende Seite – nur durch Überlegen</h2>
+<div class="inhalt">
+  <div style="text-align:center"><span class="pille">Was ist gegeben?</span></div>
+  <div class="pfeil">↙ &nbsp; &nbsp; &nbsp; ↓ &nbsp; &nbsp; &nbsp; ↘</div>
+  <div class="ast">
+    <div class="zweig a">
+      <div class="kopf">A und eine Seite</div>
+      6 cm · ? = 24 cm²
+      <div class="pfeil">↓</div>
+      24 cm² : 6 cm
+      <div class="pfeil">↓</div>
+      <span class="pille a">b = 4 cm</span>
+    </div>
+    <div class="zweig u">
+      <div class="kopf">u und eine Seite</div>
+      20 cm : 2 = 10 cm<br><span style="font-size:13px">(halber Umfang)</span>
+      <div class="pfeil">↓</div>
+      10 cm − 6 cm
+      <div class="pfeil">↓</div>
+      <span class="pille u">b = 4 cm</span>
+    </div>
+    <div class="zweig q">
+      <div class="kopf">Quadrat</div>
+      u = 36 m<br>36 m : 4
+      <div class="pfeil">↓</div>
+      <span class="pille u">a = 9 m</span>
+      <div style="height:6px"></div>
+      A = 49 m²<br>7 m · 7 m = 49 m²
+      <div class="pfeil">↓</div>
+      <span class="pille a">a = 7 m</span>
+    </div>
+  </div>
+  </div>
+</div>
+
+</div>
+
+<!-- rechte Spalte -->
+<div class="spalte">
+
+<div class="kasten">
+<h2>Flächeneinheiten-Treppe</h2>
+<div class="inhalt">
+  <svg viewBox="0 0 520 132" width="100%" role="img" aria-label="Treppe der Flächeneinheiten mm², cm², dm², m², a, ha, km², Umrechnungszahl 100">
+    <g font-family="Arial,sans-serif" font-size="17" font-weight="700" text-anchor="middle">
+      <g stroke="#000" stroke-width="2" fill="#F2F2F2">
+        <rect x="4" y="6" width="62" height="36" rx="4"/><rect x="78" y="6" width="62" height="36" rx="4"/><rect x="152" y="6" width="62" height="36" rx="4"/><rect x="226" y="6" width="62" height="36" rx="4"/>
+        <rect x="300" y="6" width="62" height="36" rx="4" fill="#FBE3E1"/><rect x="374" y="6" width="62" height="36" rx="4" fill="#FBE3E1"/><rect x="448" y="6" width="62" height="36" rx="4"/>
+      </g>
+      <text x="35" y="30">mm²</text><text x="109" y="30">cm²</text><text x="183" y="30">dm²</text><text x="257" y="30">m²</text>
+      <text x="331" y="30">a</text><text x="405" y="30">ha</text><text x="479" y="30">km²</text>
+    </g>
+    <g stroke="#000" stroke-width="2.2" fill="none">
+      <path d="M498 74 H26"/><path d="M36 67 L26 74 L36 81"/>
+      <path d="M26 102 H498"/><path d="M488 95 L498 102 L488 109"/>
+    </g>
+    <g font-family="Arial,sans-serif" font-size="16" text-anchor="middle">
+      <text x="262" y="64" font-weight="700">× 100 je Stufe</text>
+      <text x="262" y="126" font-weight="700">: 100 je Stufe</text>
+    </g>
+  </svg>
+  <div class="rechnung" style="margin-top:2px"><b>Bei Flächen wandert das Komma 2 Stellen</b> je Stufe.</div>
+  <div class="rechnung">3 m² = 300 dm² = 30 000 cm²</div>
+  <div class="rechnung">450 cm² = 4,5 dm²</div>
+  <div class="rechnung">5 000 m² = 50 a = 0,5 ha</div>
+</div>
+</div>
+
+<div class="kasten">
+<h2>Welche Einheit passt?</h2>
+<div class="inhalt">
+  <table>
+    <tr><th>Was?</th><th>Einheit</th><th>Vorstellung</th></tr>
+    <tr><td>Zimmer, Wohnung</td><td><b>m²</b></td><td>1 m² ≈ Tischplatte</td></tr>
+    <tr><td>Grundstück, Bauland, Kleingarten</td><td><b>a</b></td><td>1 a ≈ großes Klassenzimmer</td></tr>
+    <tr><td>Feld, Wald, Park, Sportanlage</td><td><b>ha</b></td><td>1 ha ≈ Fußballfeld</td></tr>
+    <tr><td>Stadt, Landkreis, Land</td><td><b>km²</b></td><td></td></tr>
+  </table>
+  <svg viewBox="0 0 400 170" width="100%" style="margin-top:8px" role="img" aria-label="Vergleich 1 a und 1 ha als Quadrate">
+    <g font-family="Arial,sans-serif" font-size="14" text-anchor="middle">
+      <rect x="20" y="130" width="16" height="16" fill="#E6C98B" stroke="#000" stroke-width="1.6"/>
+      <text x="28" y="164" font-weight="700">1 a</text>
+      <text x="62" y="140" text-anchor="start">10 m × 10 m</text>
+      <text x="62" y="156" text-anchor="start">= 100 m²</text>
+      <rect x="230" y="10" width="150" height="150" fill="#CFE8C4" stroke="#000" stroke-width="2.4"/>
+      <text x="305" y="78" font-weight="700" font-size="18">1 ha</text>
+      <text x="305" y="98">100 m × 100 m</text>
+      <text x="305" y="116">= 10 000 m²</text>
+    </g>
+  </svg>
+  <div class="rechnung" style="text-align:center;font-size:15px">„Hekt-ar“ = 100 Ar</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="falle">
+  <b class="k">Achtung, Falle:</b>
+  <div class="zeile"><span class="falsch">Falsch:</span> 3 m² = 30 dm² (Komma nur 1 Stelle) &nbsp;→&nbsp; <span class="richtig">Richtig:</span> 3 m² = 300 dm² (bei Flächen 2 Stellen)</div>
+  <div class="zeile"><span class="falsch">Falsch:</span> 2 m · 50 cm = 100 m² (Einheiten nicht angeglichen) &nbsp;→&nbsp; <span class="richtig">Richtig:</span> 2 m · 0,5 m = 1 m²</div>
+</div>
+
+<div class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</div>
+</div>
+</body>
+</html>

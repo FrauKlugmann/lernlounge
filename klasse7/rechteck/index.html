@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Das Rechteck – Interaktive Übungen</title>
+<script>
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  AUFGABENBLOCK – NUR AB HIER ÄNDERN                              ║
+   ║  Alles unterhalb von „ENDE AUFGABENBLOCK“ ist der feste Motor.   ║
+   ╚══════════════════════════════════════════════════════════════════╝
+   Kurzschrift in Texten:
+     [30]          Eingabefeld, Lösung 30 (Komma/Punkt egal)
+     [0,5|,5]      mehrere richtige Antworten mit |
+     {3/10}        Bruch;  {[30]/100}  Bruch mit Feld im Zähler
+     [=7/100]      Bruch frei eingeben (jeder gleichwertige Bruch zählt)
+     ((A|*B|C))    Auswahlknöpfe, * = richtig
+     [G:40] [W:10] [P:25 %]   Zahl zum Markieren (nur Art "markieren")
+     **fett**   <blau>…</blau>  <orange>…</orange>  <gruen>…</gruen>
+   Aufgabenarten: luecke, erweitern, hunderterfeld, faerben, tabelle,
+     vergleichen, auswahl, markieren, streifen, verhaeltnis, zuordnen,
+     richtigfalsch, sortieren, streifenbau, kreisbau   (jede kann zusätzlich bild:"<svg…>" haben)
+*/
+/* ─── Diagramm-Helfer (Teil des Motors, auch für feste Bilder in Aufgaben nutzbar) ─── */
+const DFARBEN=["#F4B6B0","#B7DFB9","#FFE08A","#CDBBE8","#A9DDE6"];
+const dEsc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const dZ=x=>String(Math.round(x*10)/10).replace(".",",");
+/* streifenSvg(namen, cm, {live, bis, texte}) – bis = Länge der Skala (Standard 10), texte = eigene Beschriftung je Teil */
+function streifenSvg(namen,cm,opt){
+  opt=opt||{};const x0=10,y0=22,h=40,pc=50,bis=opt.bis||10;const B=565+(bis-10)*pc;
+  let s='<svg viewBox="0 0 '+B+' 100" role="img" aria-label="Streifendiagramm" style="width:'+B+'px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  let x=0;
+  cm.forEach((c,i)=>{c=Math.max(0,c);const w=Math.max(0,Math.min(c,bis-x))*pc;
+    if(w>0){s+='<rect x="'+(x0+x*pc)+'" y="'+y0+'" width="'+w+'" height="'+h+'" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';
+      const n=(opt.texte?opt.texte[i]:namen[i])||"";if(n&&w>=n.length*7+8)s+='<text x="'+(x0+x*pc+w/2)+'" y="'+(y0+h/2+5)+'" text-anchor="middle" font-size="13">'+dEsc(n)+'</text>';}
+    x=Math.min(bis,x+c);});
+  s+='<rect x="'+x0+'" y="'+y0+'" width="'+10*pc+'" height="'+h+'" fill="none" stroke="#000" stroke-width="2"/>';
+  for(let k=0;k<=bis;k++)s+='<line x1="'+(x0+k*pc)+'" y1="'+(y0+h)+'" x2="'+(x0+k*pc)+'" y2="'+(y0+h+8)+'" stroke="#000" stroke-width="1.5"/><text x="'+(x0+k*pc)+'" y="'+(y0+h+23)+'" text-anchor="middle" font-size="13">'+k+'</text>';
+  s+='<text x="'+(x0+bis*pc+20)+'" y="'+(y0+h+23)+'" font-size="13">cm</text>';
+  const sum=cm.reduce((a,b)=>a+Math.max(0,b),0);
+  if(opt.live&&sum>10.0001)s+='<text x="10" y="12" font-size="13" fill="#C62828" font-weight="700">Zu lang! Der Streifen ist nur 10 cm lang.</text>';
+  return s+'</svg>';
+}
+/* kreisSvg(namen, grad, {winkel:false, texte}) – texte = eigene Beschriftung je Teil */
+function kreisSvg(namen,grad,opt){
+  opt=opt||{};const cx=225,cy=125,r=100;const P=a=>[cx+r*Math.sin(a*Math.PI/180),cy-r*Math.cos(a*Math.PI/180)];
+  let s='<svg viewBox="0 0 450 250" role="img" aria-label="Kreisdiagramm" style="width:450px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#fff" stroke="#000" stroke-width="2"/>';
+  let a=0;const lab=[];
+  grad.forEach((g,i)=>{g=Math.max(0,g);const b=Math.min(360,a+g);
+    if(b-a>0.0001){
+      if(b-a>=359.999)s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';
+      else{const p1=P(a),p2=P(b);s+='<path d="M'+cx+' '+cy+' L'+p1[0].toFixed(2)+' '+p1[1].toFixed(2)+' A'+r+' '+r+' 0 '+((b-a)>180?1:0)+' 1 '+p2[0].toFixed(2)+' '+p2[1].toFixed(2)+' Z" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';}
+      lab.push([i,(a+b)/2,b-a]);}
+    a=b;});
+  lab.forEach(([i,m,w])=>{const sn=Math.sin(m*Math.PI/180),cs=Math.cos(m*Math.PI/180);const px=cx+(r+10)*sn,py=cy-(r+10)*cs;
+    const an=sn>0.15?"start":sn<-0.15?"end":"middle";const dy=cs>0.9?-3:cs<-0.9?14:4;
+    const t=opt.texte?opt.texte[i]:(namen[i]||"")+(opt.winkel===false?"":" · "+dZ(grad[i])+"°");
+    s+='<text x="'+px.toFixed(1)+'" y="'+(py+dy).toFixed(1)+'" text-anchor="'+an+'" font-size="13">'+dEsc(t)+'</text>';});
+  return s+'</svg>';
+}
+
+/* ─── Zusatz-Helfer Rechteck (Woche 1) ─── */
+const RF={rand:"#d9472b",flaeche:"#CCF1EC",kaestchen:"#14b8a6"};
+/* rechter Winkel: runder Bogen mit Punkt */
+function rwBogen(x,y,dx,dy,r){r=r||11;
+  const x1=x+dx*r,y1=y,x2=x,y2=y+dy*r,sw=(dx*dy>0)?0:1;
+  const mx=x+dx*r*0.42,my=y+dy*r*0.42;
+  return '<path d="M'+x1+' '+y1+' A'+r+' '+r+' 0 0 '+sw+' '+x2+' '+y2+'" fill="none" stroke="#000" stroke-width="1.4"/><circle cx="'+mx+'" cy="'+my+'" r="1.8" fill="#000"/>';}
+/* Rechteck-Zeichnung mit Beschriftung a (unten) und b (rechts); quadrat: Doppelstriche */
+function rechteckSvg(w,h,opt){opt=opt||{};const x=30,y=14,W=w,H=h;
+  let s='<svg viewBox="0 0 '+(W+80)+' '+(H+50)+'" width="'+(W+80)+'" role="img" aria-label="Rechteck">';
+  s+='<rect x="'+x+'" y="'+y+'" width="'+W+'" height="'+H+'" fill="#fff" stroke="#000" stroke-width="2"/>';
+  s+=rwBogen(x,y,1,1)+rwBogen(x+W,y,-1,1)+rwBogen(x,y+H,1,-1)+rwBogen(x+W,y+H,-1,-1);
+  if(opt.quadrat){const t=(cx,cy,hor)=>hor?'<line x1="'+(cx-3)+'" y1="'+(cy-6)+'" x2="'+(cx-3)+'" y2="'+(cy+6)+'" stroke="#000" stroke-width="1.6"/><line x1="'+(cx+3)+'" y1="'+(cy-6)+'" x2="'+(cx+3)+'" y2="'+(cy+6)+'" stroke="#000" stroke-width="1.6"/>':'<line x1="'+(cx-6)+'" y1="'+(cy-3)+'" x2="'+(cx+6)+'" y2="'+(cy-3)+'" stroke="#000" stroke-width="1.6"/><line x1="'+(cx-6)+'" y1="'+(cy+3)+'" x2="'+(cx+6)+'" y2="'+(cy+3)+'" stroke="#000" stroke-width="1.6"/>';
+    s+=t(x+W/2,y,true)+t(x+W/2,y+H,true)+t(x,y+H/2,false)+t(x+W,y+H/2,false);}
+  s+='<text x="'+(x+W/2)+'" y="'+(y+H+24)+'" text-anchor="middle" font-size="17" font-style="italic" font-family="Arial">'+(opt.a||"a")+'</text>';
+  if(!opt.quadrat)s+='<text x="'+(x+W+10)+'" y="'+(y+H/2+6)+'" font-size="17" font-style="italic" font-family="Arial">'+(opt.b||"b")+'</text>';
+  return s+'</svg>';}
+/* Zahl als Text mit Leerzeichen-Tausendern */
+function zt(str){let[i,f]=String(str).split(",");i=i.replace(/\B(?=(\d{3})+(?!\d))/g," ");return i+(f?","+f:"");}
+/* Komma um k Stellen nach rechts (k<0: nach links) – rechnet mit Ziffern, ohne Rundungsfehler */
+function kommaSchieben(str,k){str=String(str).replace(/\s| /g,"").replace(".",",");if(!/^\d*(,\d*)?$/.test(str)||str===""||str===",")return null;
+  let[i,f=""]=str.split(",");if(i==="")i="0";let d=i+f,pos=i.length+k;
+  if(pos<=0){d="0".repeat(1-pos)+d;pos=1;}if(pos>d.length)d=d+"0".repeat(pos-d.length);
+  const I=d.slice(0,pos).replace(/^0+(?=\d)/,""),F=d.slice(pos).replace(/0+$/,"");return I+(F?","+F:"");}
+
+/* Entdecker 1: Rechteck aus Einheitsquadraten */
+const ENTDECKER1='<div class="ent"><div class="regler"><label>a = <b class="wa">5</b> cm<input type="range" class="ra" min="1" max="10" value="5" aria-label="Seite a"></label>'+
+ '<label>b = <b class="wb">3</b> cm<input type="range" class="rb" min="1" max="10" value="3" aria-label="Seite b"></label></div>'+
+ '<div class="entbild"></div><div class="entwerte"><p><span class="lr">▬</span> Rand: <b>u = <span class="wu"></span> cm</b></p><p><span class="lf">■</span> Kästchen: <b>A = <span class="wA"></span> cm²</b></p><p class="klein">Jedes Kästchen ist ein Quadrat mit 1 cm Seitenlänge, also 1 cm² groß.</p></div></div>';
+function initEntdecker1(K){const ra=K.querySelector(".ra"),rb=K.querySelector(".rb"),bild=K.querySelector(".entbild");
+  const zeichne=()=>{const a=+ra.value,b=+rb.value,s=26,x0=34,y0=10,N=10;
+    let g='<svg viewBox="0 0 '+(x0+N*s+12)+' '+(y0+N*s+40)+'" width="'+(x0+N*s+12)+'" role="img" aria-label="Rechteck auf Karopapier">';
+    for(let i=0;i<=N;i++){g+='<line x1="'+(x0+i*s)+'" y1="'+y0+'" x2="'+(x0+i*s)+'" y2="'+(y0+N*s)+'" stroke="#d6d6d6"/><line x1="'+x0+'" y1="'+(y0+i*s)+'" x2="'+(x0+N*s)+'" y2="'+(y0+i*s)+'" stroke="#d6d6d6"/>';}
+    const yT=y0+(N-b)*s;
+    for(let c=0;c<a;c++)for(let r=0;r<b;r++)g+='<rect x="'+(x0+c*s+1.5)+'" y="'+(yT+r*s+1.5)+'" width="'+(s-3)+'" height="'+(s-3)+'" fill="'+RF.flaeche+'" stroke="'+RF.kaestchen+'" stroke-width="1"/>';
+    g+='<rect x="'+x0+'" y="'+yT+'" width="'+(a*s)+'" height="'+(b*s)+'" fill="none" stroke="'+RF.rand+'" stroke-width="4"/>';
+    g+='<text x="'+(x0+a*s/2)+'" y="'+(y0+N*s+26)+'" text-anchor="middle" font-size="16" font-family="Arial">a = '+a+' cm</text>';
+    g+='<text x="'+(x0-6)+'" y="'+(yT+b*s/2+5)+'" text-anchor="end" font-size="16" font-family="Arial">b</text>';
+    bild.innerHTML=g+'</svg>';
+    K.querySelector(".wa").textContent=a;K.querySelector(".wb").textContent=b;
+    K.querySelector(".wu").textContent=2*(a+b);K.querySelector(".wA").textContent=a*b;};
+  ra.addEventListener("input",zeichne);rb.addEventListener("input",zeichne);zeichne();}
+
+/* Entdecker 2: Fläche bleibt 24 cm² */
+const TEILER=[1,2,3,4,6,8,12,24];
+const ENTDECKER2='<div class="ent"><div class="regler"><label>a = <b class="wa">4</b> cm<input type="range" class="ra" min="0" max="7" value="3" aria-label="Seite a"></label>'+
+ '<p class="klein">b passt sich von selbst an, damit immer 24 Kästchen hineinpassen.</p></div>'+
+ '<div class="entbild"></div><div class="entwerte"><p>b = <b><span class="wb"></span> cm</b></p><p><span class="lf">■</span> <b>A = 24 cm²</b> (bleibt gleich)</p><p><span class="lr">▬</span> Rand: <b>u = <span class="wu"></span> cm</b></p></div></div>';
+function initEntdecker2(K){const ra=K.querySelector(".ra"),bild=K.querySelector(".entbild");
+  const zeichne=()=>{const a=TEILER[+ra.value],b=24/a,s=13,x0=20,y0=8,N=24;
+    let g='<svg viewBox="0 0 '+(x0+N*s+10)+' '+(y0+N*s+34)+'" width="'+(x0+N*s+10)+'" role="img" aria-label="Rechteck mit 24 Kästchen">';
+    for(let i=0;i<=N;i++){g+='<line x1="'+(x0+i*s)+'" y1="'+y0+'" x2="'+(x0+i*s)+'" y2="'+(y0+N*s)+'" stroke="#e2e2e2"/><line x1="'+x0+'" y1="'+(y0+i*s)+'" x2="'+(x0+N*s)+'" y2="'+(y0+i*s)+'" stroke="#e2e2e2"/>';}
+    const yT=y0+(N-b)*s;
+    for(let c=0;c<a;c++)for(let r=0;r<b;r++)g+='<rect x="'+(x0+c*s+1)+'" y="'+(yT+r*s+1)+'" width="'+(s-2)+'" height="'+(s-2)+'" fill="'+RF.flaeche+'" stroke="'+RF.kaestchen+'" stroke-width=".8"/>';
+    g+='<rect x="'+x0+'" y="'+yT+'" width="'+(a*s)+'" height="'+(b*s)+'" fill="none" stroke="'+RF.rand+'" stroke-width="3.5"/>';
+    g+='<text x="'+(x0+Math.max(a*s/2,30))+'" y="'+(y0+N*s+24)+'" text-anchor="middle" font-size="16" font-family="Arial">a = '+a+' cm</text>';
+    bild.innerHTML=g+'</svg>';
+    K.querySelector(".wa").textContent=a;K.querySelector(".wb").textContent=b;K.querySelector(".wu").textContent=2*(a+b);};
+  ra.addEventListener("input",zeichne);zeichne();}
+
+/* Interaktive Einheiten-Treppe */
+const STUFEN=["mm²","cm²","dm²","m²","a","ha","km²"];
+const TREPPE='<div class="treppe"><div class="tr-bild"></div>'+
+ '<div class="tr-steuer"><label>Zahl: <input type="text" class="tr-zahl" value="3" inputmode="decimal" autocomplete="off" aria-label="Zahl"></label> <b class="tr-einheit">m²</b>'+
+ '<div class="tr-knoepfe"><button type="button" class="knopf tr-ab">◀ eine Stufe kleiner</button><button type="button" class="knopf tr-auf">eine Stufe größer ▶</button></div>'+
+ '<p class="tr-anzeige"></p><p class="tr-info klein"></p><p class="klein">Du kannst auch direkt auf eine Stufe tippen, um mit einer neuen Einheit zu beginnen.</p></div></div>';
+function initTreppe(K){const z=K.querySelector(".tr-zahl"),bild=K.querySelector(".tr-bild"),anz=K.querySelector(".tr-anzeige"),info=K.querySelector(".tr-info");
+  let st=3,alt=null;
+  const male=()=>{const w=64,h=26,x0=6,yb=7*h+30;let g='<svg viewBox="0 0 '+(x0+7*w+10)+' '+(yb+8)+'" width="'+(x0+7*w+10)+'" role="img" aria-label="Einheiten-Treppe">';
+    STUFEN.forEach((e,i)=>{const x=x0+i*w,y=yb-(i+1)*h;const an=i===st;
+      g+='<g class="tr-stufe" data-i="'+i+'" style="cursor:pointer"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+((i+1)*h)+'" fill="'+(an?"#14b8a6":"#E6F7F4")+'" stroke="#00805F" stroke-width="1.5"/>'+
+        '<text x="'+(x+w/2)+'" y="'+(y+18)+'" text-anchor="middle" font-size="16" font-weight="bold" font-family="Arial" fill="'+(an?"#fff":"#000")+'">'+e+'</text></g>';
+      if(i<6)g+='<text x="'+(x+w)+'" y="'+(y-h-4)+'" text-anchor="middle" font-size="11" font-family="Arial" fill="#555">· 100</text>';});
+    bild.innerHTML=g+'</svg>';
+    bild.querySelectorAll(".tr-stufe").forEach(s=>s.addEventListener("click",()=>{st=+s.dataset.i;alt=null;anz.innerHTML="";info.textContent="";zeige();}));};
+  const zeige=()=>{K.querySelector(".tr-einheit").textContent=STUFEN[st];K.querySelector(".tr-ab").disabled=st===0;K.querySelector(".tr-auf").disabled=st===6;male();};
+  const gehe=d=>{const v=kommaSchieben(z.value,0);if(v===null){info.textContent="Bitte eine Zahl eingeben, z. B. 3 oder 4,5.";return;}
+    const n=st+d;if(n<0||n>6)return;const neu=kommaSchieben(v,-2*d);
+    anz.innerHTML='<b>'+zt(v)+' '+STUFEN[st]+' = '+zt(neu)+' '+STUFEN[n]+'</b>';
+    info.textContent=d<0?"Kleinere Einheit → die Zahl wird 100-mal so groß. Das Komma wandert 2 Stellen nach rechts.":"Größere Einheit → die Zahl wird 100-mal so klein. Das Komma wandert 2 Stellen nach links.";
+    st=n;z.value=neu;zeige();};
+  K.querySelector(".tr-ab").addEventListener("click",()=>gehe(-1));K.querySelector(".tr-auf").addEventListener("click",()=>gehe(1));
+  z.addEventListener("input",()=>{anz.innerHTML="";info.textContent="";});
+  zeige();}
+
+const SHOP='<div class="shop"><div class="shop-kopf">🛒 Online-Shop</div><div class="shop-innen"><b>Schreibtisch „Pixel“, weiß</b><br><span class="preis">129,99 €</span>'+
+ '<p class="shop-det"><b>Produktdetails</b><br>Material: Holz, beschichtet<br>Breite: 140 cm<br>Tiefe: 70 cm<br>Höhe: 75 cm<br>Gewicht: 24 kg<br>Lieferung: 3 bis 5 Werktage</p></div></div>';
+
+function karte(kopf,titel,preis,zeilen){return '<div class="shop"><div class="shop-kopf">'+kopf+'</div><div class="shop-innen"><b>'+titel+'</b><br><span class="preis">'+preis+'</span><p class="shop-det">'+zeilen.join("<br>")+'</p></div></div>';}
+const TEPPICH=karte("🛒 Online-Shop","Kurzflor-Teppich „Cozy“, grau","59,99 €",["<b>Produktdetails</b>","Material: Polyester","Größe: 160 cm × 230 cm","Florhöhe: 12 mm","Gewicht: 5 kg","Für Fußbodenheizung geeignet"]);
+const MATTE=karte("🛒 Online-Shop","XXL-Gaming-Mauspad „Neon“","24,99 €",["<b>Produktdetails</b>","Maße: 90 cm × 40 cm","Dicke: 4 mm","Kanten: rundum vernäht","Unterseite: rutschfest","Waschbar bei 30 °C"]);
+const ANZEIGE=karte("🏡 Immobilien-Anzeige","Baugrundstück in ruhiger Lage","84 000 €",["<b>Beschreibung</b>","Form: rechteckig","Breite: 20 m","Länge: 35 m","Voll erschlossen","Bebauung: Einfamilienhaus","Schule und Bus in der Nähe"]);
+const BLATT = {
+  thema: "Das Rechteck",
+  erstellt: "November 2026",
+  uebungen: [
+    { reiter: "Z1 und Z2 Umfang und Flächeninhalt", titel: "Umfang und Flächeninhalt von Rechtecken", aufgaben: [
+      { art: "eigen", name: "Entdecker", auftrag: "Verschiebe die Regler. Beobachte, wie sich der Rand und die Kästchen verändern.", html: ENTDECKER1, init: initEntdecker1,
+        nach: "<p><b>a)</b> Stelle a = 6 cm und b = 2 cm ein. u = [16] cm und A = [12] cm²</p>"+
+              "<p><b>b)</b> Stelle a = 4 cm und b = 4 cm ein. Diese besondere Form heißt ((Dreieck|*Quadrat|Kreis)). u = [16] cm und A = [16] cm²</p>"+
+              "<p><b>c)</b> Vergleiche a) und b): Beide haben den gleichen ((*Umfang|Flächeninhalt)), aber einen anderen ((Umfang|*Flächeninhalt)).</p>" },
+      { art: "tabelle", name: "Gleicher Umfang: u = 20 cm", auftrag: "Baue mit dem Entdecker aus Aufgabe 1 Rechtecke, die alle einen Umfang von 20 cm haben. Ergänze die Tabelle.",
+        kopf: ["a", "b", "u", "A"],
+        zeilen: [["1 cm","[9] cm","20 cm","[9] cm²"],["2 cm","[8] cm","20 cm","[16] cm²"],["3 cm","[7] cm","20 cm","[21] cm²"],["4 cm","[6] cm","20 cm","[24] cm²"],["5 cm","[5] cm","20 cm","[25] cm²"]],
+        nach: "<p>Den größten Flächeninhalt hat das ((Rechteck 1 cm × 9 cm|Rechteck 4 cm × 6 cm|*Quadrat 5 cm × 5 cm)).</p>" },
+      { art: "auswahl", name: "Umfang oder Flächeninhalt?", auftrag: "Was wird hier gebraucht? Tippe an.", optionen: ["Umfang","Flächeninhalt"],
+        items: [["Eine Lichterkette rund um das Fenster","Umfang"],["Eine Schutzfolie für das Handy-Display","Flächeninhalt"],["Absperrband rund um den Bolzplatz","Umfang"],
+                ["Kunstrasen für den Bolzplatz","Flächeninhalt"],["Farbe, um eine Wand im Jugendzimmer zu streichen","Flächeninhalt"],["Ein LED-Streifen rund um den Bildschirm","Umfang"],
+                ["Eine Tischdecke für den Esstisch","Flächeninhalt"],["Kantenband rund um eine Tischplatte","Umfang"]] },
+      { art: "auswahl", name: "Die richtige Einheit", auftrag: "Tippe die passende Einheit an.",
+        items: [["Umfang des Handys: 44","cm",["cm","cm²"]],["Flächeninhalt des Handy-Displays: 105","cm²",["cm","cm²"]],["Flächeninhalt deines Zimmers: 12","m²",["m","m²"]],
+                ["Länge des Zauns um den Bolzplatz: 140","m",["m","m²"]],["Flächeninhalt einer Briefmarke: 6","cm²",["cm","cm²"]],["Umfang eines Posters: 2","m",["m","m²"]]] },
+      { art: "tabelle", name: "Berechnen: gleiche Einheiten", auftrag: "Berechne den Umfang u und den Flächeninhalt A.", bild: rechteckSvg(120,70),
+        kopf: ["", "a", "b", "u", "A"],
+        zeilen: [["Rechteck","8 cm","5 cm","[26] cm","[40] cm²"],["Rechteck","12 m","3 m","[30] m","[36] m²"],["Rechteck","20 mm","9 mm","[58] mm","[180] mm²"],["Quadrat","7 cm","7 cm","[28] cm","[49] cm²"]] },
+      { art: "tabelle", name: "Berechnen: Kommazahlen", auftrag: "Berechne den Umfang u und den Flächeninhalt A.", bild: rechteckSvg(80,80,{quadrat:true}),
+        kopf: ["", "a", "b", "u", "A"],
+        zeilen: [["Rechteck","2,5 cm","4 cm","[13] cm","[10] cm²"],["Rechteck","1,5 m","6 m","[15] m","[9] m²"],["Rechteck","3,2 cm","5 cm","[16,4] cm","[16] cm²"],["Quadrat","0,5 m","0,5 m","[2] m","[0,25] m²"]] },
+      { art: "luecke", name: "Erst gleiche Einheiten", auftrag: "Rechne die Längen um.", spalten: 3,
+        items: ["60 cm = [0,6] m","1,5 m = [150] cm","45 mm = [4,5] cm","2 m = [20] dm","8 dm = [80] cm","350 cm = [3,5] m"] },
+      { art: "tabelle", name: "Berechnen: verschiedene Einheiten", stern: true, auftrag: "Die Seiten haben verschiedene Einheiten. Berechne u und A in der angegebenen Einheit.",
+        kopf: ["", "a", "b", "u", "A"],
+        zeilen: [["Rechteck","1,5 m","40 cm","[3,8] m","[0,6] m²"],["Rechteck","2 dm","8 cm","[56] cm","[160] cm²"],["Rechteck","3 m","80 cm","[7,6] m","[2,4] m²"],["Quadrat","25 cm","25 cm","[1] m","[625] cm²"]] },
+      { art: "luecke", name: "Schreibtisch aus dem Online-Shop", stern: true, auftrag: "Lies die Maße aus der Produktbeschreibung ab. Nicht jede Angabe brauchst du.", bild: SHOP,
+        items: [ { s: "Wie groß ist die Tischplatte? Gib den Flächeninhalt in m² an.", z: ["A = [0,98] m²","[satz:0,98:m²]"] },
+                 { s: "Rund um die Tischplatte soll ein LED-Streifen geklebt werden. Wie lang muss er sein? Gib das Ergebnis in m an.", z: ["u = [4,2] m","[satz:4,2:m]"] },
+                 { s: "LED-Streifen gibt es mit 3 m und mit 5 m Länge. Welchen brauchst du?", z: ["((3 m|*5 m))"] } ] },
+      { art: "luecke", name: "Teppich aus dem Online-Shop", stern: true, auftrag: "Lies die Maße aus der Produktbeschreibung ab. Nicht jede Angabe brauchst du.", bild: TEPPICH,
+        items: [ { s: "Wie viel m² Boden bedeckt der Teppich?", z: ["A = [3,68] m²","[satz:3,68:m²]"] },
+                 { s: "Dein Zimmer ist 12 m² groß. Wie viel m² Boden bleiben ohne Teppich frei?", z: ["[8,32] m²"] } ] },
+      { art: "luecke", name: "Gaming-Mauspad aus dem Online-Shop", stern: true, auftrag: "Lies die Maße aus der Produktbeschreibung ab. Nicht jede Angabe brauchst du.", bild: MATTE,
+        items: [ { s: "Wie groß ist das Mauspad? Gib den Flächeninhalt in cm² an.", z: ["A = [3600|3 600] cm²","[satz:3600:cm²]"] },
+                 { s: "Die Kanten sind rundum vernäht. Wie lang ist die Naht? Gib das Ergebnis in cm an.", z: ["u = [260] cm","[satz:260:cm]"] },
+                 { s: "Passt das Mauspad auf den Schreibtisch „Pixel“ aus Aufgabe 9?", z: ["((*ja|nein))"] } ] },
+      { art: "luecke", name: "Finde den Fehler", stern: true,
+        auftrag: "Lena berechnet den Flächeninhalt eines Teppichs. Er ist 2 m lang und 50 cm breit. Sie schreibt: A = 2 m · 50 cm = 100 m²",
+        items: [ { s: "Was hat Lena falsch gemacht?", z: ["((Sie hat die Formel für den Umfang benutzt.|*Sie hat die Einheiten nicht angeglichen.|Sie hat falsch multipliziert.))"] },
+                 { s: "Rechne richtig.", z: ["A = [1] m²"] },
+                 { s: "Prüfe Lenas Ergebnis mit deiner Vorstellung: 100 m² ist ungefähr so groß wie", z: ["((eine Tischplatte|*ein großes Klassenzimmer|ein Fußballfeld))"] } ] },
+      { art: "luecke", name: "Der Bolzplatz", stern: true, auftrag: "Der rechteckige Bolzplatz an deiner Schule ist 40 m lang und 25 m breit.",
+        items: [ { s: "Der Hausmeister baut einen neuen Zaun rund um den Platz. Wie lang wird der Zaun?", z: ["u = [130] m","[satz:130:m]"] },
+                 { s: "Der Platz bekommt neuen Kunstrasen. Wie viel m² Kunstrasen werden gebraucht?", z: ["A = [1000|1 000] m²","[satz:1000:m²]"] } ] }
+    ]},
+    { reiter: "Z3 Fehlende Seiten und Flächeneinheiten", titel: "Fehlende Seiten und Flächeneinheiten", aufgaben: [
+      { art: "eigen", name: "Entdecker: Die Fläche bleibt 24 cm²", auftrag: "Verschiebe den Regler. Das Rechteck hat immer 24 Kästchen. Beobachte b und den Umfang.", html: ENTDECKER2, init: initEntdecker2 },
+      { art: "tabelle", name: "Immer 24 cm²", auftrag: "Ergänze die Tabelle mithilfe des Entdeckers.",
+        kopf: ["a", "b", "A", "u"],
+        zeilen: [["1 cm","[24] cm","24 cm²","[50] cm"],["2 cm","[12] cm","24 cm²","[28] cm"],["3 cm","[8] cm","24 cm²","[22] cm"],["4 cm","[6] cm","24 cm²","[20] cm"]],
+        nach: "<p>Je ähnlicher a und b sind, desto ((größer|*kleiner)) ist der Umfang.</p>" },
+      { art: "luecke", name: "Fehlende Seite aus dem Flächeninhalt", auftrag: "Berechne die fehlende Seite b des Rechtecks.", spalten: 2, bild: rechteckSvg(120,70,{b:"b = ?"}),
+        items: ["A = 30 cm², a = 5 cm → b = [6] cm","A = 48 m², a = 8 m → b = [6] m","A = 36 cm², a = 4 cm → b = [9] cm","A = 7 m², a = 2 m → b = [3,5] m"] },
+      { art: "luecke", name: "Fehlende Seite aus dem Umfang", auftrag: "Berechne die fehlende Seite b des Rechtecks.", spalten: 2, bild: rechteckSvg(120,70,{b:"b = ?"}),
+        items: ["u = 30 cm, a = 10 cm → b = [5] cm","u = 18 m, a = 5 m → b = [4] m","u = 50 cm, a = 15 cm → b = [10] cm","u = 11 m, a = 3 m → b = [2,5] m"] },
+      { art: "luecke", name: "Fehlende Seite beim Quadrat", auftrag: "Berechne die Seitenlänge a des Quadrats.", spalten: 2, bild: rechteckSvg(80,80,{quadrat:true,a:"a = ?"}),
+        items: ["u = 28 cm → a = [7] cm","u = 100 m → a = [25] m","A = 64 cm² → a = [8] cm","A = 81 m² → a = [9] m"] },
+      { art: "eigen", name: "Die Einheiten-Treppe", auftrag: "Gib eine Zahl ein und gehe auf der Treppe nach oben oder unten. Beobachte das Komma.", html: TREPPE, init: initTreppe,
+        nach: "<p><b>a)</b> Von einer Stufe zur nächsten ist die Umrechnungszahl immer [100].</p>"+
+              "<p><b>b)</b> Gehst du zu einer kleineren Einheit, wandert das Komma 2 Stellen nach ((links|*rechts)).</p>"+
+              "<p><b>c)</b> Bei Längen (mm, cm, dm, m) wandert das Komma nur [1] Stelle.</p>" },
+      { art: "luecke", name: "Umrechnen: benachbarte Einheiten", auftrag: "Rechne in die angegebene Einheit um.", spalten: 2,
+        items: ["4 m² = [400] dm²","6 dm² = [600] cm²","2 a = [200] m²","900 mm² = [9] cm²","500 m² = [5] a","3,5 dm² = [350] cm²","250 cm² = [2,5] dm²","8 ha = [800] a"] },
+      { art: "luecke", name: "Umrechnen: über mehrere Stufen", stern: true, auftrag: "Rechne in die angegebene Einheit um. Gehe Stufe für Stufe.", spalten: 2,
+        items: ["2 m² = [20000] cm²","60 000 cm² = [6] m²","5 ha = [50000] m²","1,5 m² = [15000] cm²","7 500 m² = [0,75] ha","2 km² = [200] ha","35 000 mm² = [3,5] dm²","0,4 ha = [4000] m²"] },
+      { art: "luecke", name: "Gib sinnvoll an", auftrag: "Rechne in eine Einheit um, mit der man sich die Größe gut vorstellen kann.", spalten: 1,
+        items: ["Fußboden eines Zimmers: 150 000 cm² = [15] m²","Display eines Tablets: 30 000 mm² = [300] cm²","Kleingarten: 40 000 dm² = [4] a","Weizenfeld: 80 000 m² = [8] ha","Stadtgebiet: 7 500 ha = [75] km²"] },
+      { art: "auswahl", name: "Welche Einheit passt?", auftrag: "Welche Einheit ist sinnvoll? Tippe an.", optionen: ["m²","a","ha","km²"],
+        items: [["Kinderzimmer","m²"],["Kleingarten","a"],["Weizenfeld","ha"],["Wald","ha"],["Stadt","km²"],["Baugrundstück für ein Haus","a"],["Klassenzimmer","m²"],["Bundesland","km²"]] },
+      { art: "luecke", name: "Finde den Fehler", stern: true, auftrag: "Prüfe die Rechnungen. Ist sie richtig oder falsch? Wenn sie falsch ist, verbessere sie.",
+        items: [ { s: "Max schreibt: 3 m² = 30 dm²", z: ["((richtig|*falsch))","Richtig ist: 3 m² = [300] dm²"] },
+                 { s: "Jana schreibt: 450 cm² = 45 dm²", z: ["((richtig|*falsch))","Richtig ist: 450 cm² = [4,5] dm²"] },
+                 { s: "Was haben beide falsch gemacht?", z: ["((Sie haben die falsche Treppenstufe genommen.|*Sie haben mit 10 statt mit 100 umgerechnet.|Sie hätten multiplizieren statt dividieren müssen.))"] } ] },
+      { art: "luecke", name: "Auf dem Land und im Forst", stern: true, auftrag: "Rechne und schreibe einen Antwortsatz.",
+        items: [ { s: "Ein Landwirt hat ein rechteckiges Feld. Es ist 400 m lang und 250 m breit. Wie groß ist das Feld in m² und in ha?", z: ["A = [100000] m² = [10] ha","[satz:10:ha]"] },
+                 { s: "Familie Kaya kauft ein rechteckiges Baugrundstück, 25 m breit und 32 m lang. Wie groß ist es in m² und in a?", z: ["A = [800] m² = [8] a","[satz:8:a]"] },
+                 { s: "Ein Waldstück im Forst ist 3 ha groß. Wie viel m² sind das?", z: ["[30000] m²","[satz:30000:m²]"] } ] },
+      { art: "luecke", name: "Grundstück aus der Anzeige", stern: true, auftrag: "Lies die Maße aus der Anzeige ab. Nicht jede Angabe brauchst du.", bild: ANZEIGE,
+        items: [ { s: "Wie groß ist das Grundstück in m² und in a?", z: ["A = [700] m² = [7] a","[satz:7:a]"] },
+                 { s: "Rund um das Grundstück soll ein Zaun gebaut werden. Wie lang wird er?", z: ["u = [110] m","[satz:110:m]"] },
+                 { s: "Das Nachbargrundstück ist 6 a groß. Welches Grundstück ist größer, und um wie viel m²?", z: ["Größer ist ((*das Grundstück aus der Anzeige|das Nachbargrundstück)), und zwar um [100] m²."] } ] },
+      { art: "luecke", name: "Wie lang ist es?", stern: true, auftrag: "Berechne die fehlende Seite und schreibe einen Antwortsatz.",
+        items: [ { s: "Dein Kinderzimmer ist 14 m² groß und 3,5 m breit. Wie lang ist es?", z: ["Länge = [4] m","[satz:4:m]"] },
+                 { s: "Um einen rechteckigen Bolzplatz kommt ein Zaun von 160 m Länge. Der Platz ist 30 m breit. Wie lang ist er?", z: ["Länge = [50] m","[satz:50:m]"] } ] }
+    ]}
+  ]
+};
+
+/* ═════════════════════════ ENDE AUFGABENBLOCK ═════════════════════════ */
+</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+/* ─── Motor: Aussehen (Arbeitsblattvorlage) ─── */
+:root{color-scheme:light}*{box-sizing:border-box}html{background:#fff}
+body{margin:0;background:#fff;color:#000;font-family:Arial,"Liberation Sans",Helvetica,sans-serif;font-size:18px;line-height:1.4;
+  padding-block:16px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+[hidden]{display:none!important}
+.wrap{max-width:980px;margin:0 auto}
+.oben{color:#6F6F6F;font-size:.8em;margin:0 0 .3em}
+.titel{background:#00805F;color:#fff;font-weight:700;text-align:center;padding:.35em .5em;margin:0;font-size:1.4em}
+.fortschritt{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5em;margin:0 0 .4em;font-size:.9em}
+.kasten{border:2px solid #00805F;margin-top:.9em}
+.kasten>h2{margin:0;font-size:1em;background:#D3F2E5;border-bottom:2px solid #00805F;padding:.3em .7em}
+.kasten.fertig>h2::after{content:"  ✓";color:#00805F}
+.innen{padding:.5em .8em .7em}
+.innen p{margin:.35em 0}
+.auftrag{font-weight:700}
+.gross{font-size:1.1em}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .15em;line-height:1.15}
+.frac .fz{border-bottom:2px solid currentColor;padding:0 .15em .1em}.frac .fn{padding-top:.1em}
+.ein{font:inherit;height:1.7em;text-align:center;border:1.5px solid #000;border-radius:0;background:#fff;color:inherit;padding:0;vertical-align:middle}
+.ein.echo{background:#fff;color:#000}
+.ein:focus{outline:none;background:#FFF3B0}
+.ein.antw{width:100%;max-width:44em;text-align:left;padding:0 .5em;box-sizing:border-box}
+.antw-z{margin:.4em 0 1em}
+.ok{border-color:#2e7d32!important;background:#E5F4E6!important;border-width:2.5px!important}
+.falsch{border-color:#C62828!important;background:#FDE7E7!important;border-width:2.5px!important}
+.raster1,.raster2,.raster3,.raster4{display:grid;gap:.7em 1.4em}
+.raster1{grid-template-columns:1fr}
+.raster2{grid-template-columns:repeat(2,minmax(0,1fr))}.raster3{grid-template-columns:repeat(3,minmax(0,1fr))}.raster4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.erw{display:flex;align-items:center;gap:.2em;font-size:1.05em}
+.erwm{display:flex;flex-direction:column;align-items:center;margin:0 .2em}.erwm .lab{font-size:.8em;white-space:nowrap}
+.fig{display:flex;flex-direction:column;align-items:center;gap:.4em}.fig>b{align-self:flex-start}
+.zeile{white-space:nowrap}
+.g100{display:grid;grid-template-columns:repeat(10,1fr);width:9em;aspect-ratio:1;max-width:100%;border:1.5px solid #000}
+.g100 i{border:.5px solid #666;display:block}.g100 i.an{background:#7fb89a}
+.malen{width:13em;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+.malbox{display:flex;flex-wrap:wrap;gap:1em;align-items:center}
+.scroll{overflow-x:auto}
+.tab{border-collapse:collapse;font-size:inherit}
+.tab th,.tab td{border:1.5px solid #000;padding:.3em .8em;text-align:center;min-width:6.5em}
+.tab th{background:#F2F2F2}.tab td.nr{min-width:0;border:0;font-weight:700}.tab th.nr{background:none;border:0;min-width:0}
+.vgl{display:flex;align-items:center;gap:.5em;font-size:1.1em}
+.wahl,.auswahl{display:inline-flex;flex-wrap:wrap;gap:.3em;vertical-align:middle}
+.wahl button,.auswahl button{font:inherit;min-width:2.2em;height:1.9em;border:1.5px solid #000;background:#fff;color:#000;border-radius:0;cursor:pointer;padding:0 .4em}
+.auswahl button{font-size:.9em}
+.wahl button.an,.auswahl button.an{background:#FFE873}
+.wahl.ok button.an,.auswahl.ok button.an{background:#E5F4E6;border-color:#2e7d32;border-width:2.5px}
+.wahl.falsch button.an,.auswahl.falsch button.an{background:#FDE7E7;border-color:#C62828;border-width:2.5px}
+.sit{line-height:1.9}
+.mk{font-weight:700;padding:.05em .3em;border:1.5px dashed #999;cursor:pointer;user-select:none;-webkit-user-select:none}
+.mk[data-r="G"]{color:#1565C0;border:2px solid #1565C0;background:#E3EEFB}
+.mk[data-r="W"]{color:#C2410C;border:2px solid #C2410C;background:#FBEADF}
+.mk[data-r="P"]{color:#2e7d32;border:2px solid #2e7d32;background:#E5F4E6}
+.mk.falsch{outline:3px solid #C62828;outline-offset:1px}
+.Gt{color:#1565C0}.Wt{color:#C2410C}.Pt{color:#2e7d32}
+.gw{display:flex;flex-wrap:wrap;gap:.6em 1.6em}
+.wegz{display:flex;flex-wrap:wrap;align-items:center;gap:.5em;margin:.4em 0}.wegz>b{min-width:3em}
+.km{white-space:nowrap}
+.bildbox{display:flex;flex-wrap:wrap;gap:1em 1.6em;align-items:flex-start}.bildbox>.bild{flex:0 0 auto;max-width:100%}.bildbox>.rest{flex:1 1 16em;min-width:0}
+.bild svg{max-width:100%;height:auto;display:block}
+/* Prozentstreifen */
+.streifen{margin:.5em 0 1em;max-width:30em}
+.str-oben,.str-mitte{position:relative;min-height:2.2em}
+.str-oben>span,.str-mitte>span{position:absolute;left:0;bottom:.15em;white-space:nowrap}
+.str-mitte>span{top:.2em;bottom:auto}
+.str-bar{display:flex;height:1.7em;border:2px solid #1565C0;background:#9FC2EC}
+.str-w{background:#F2A672;border-right:2px solid #C2410C}
+.str-klammer{display:block;width:100%;height:14px}
+.str-g{text-align:center}
+/* Verhältnisgleichung */
+.vgl-gl{display:flex;flex-wrap:wrap;align-items:center;gap:.4em 1em;font-size:1.1em;margin:.3em 0}
+.vgl-gl .pfeil{color:#6F6F6F}
+.vgl-gl .frac .fz{border-bottom-color:#000}
+.Gt .ein{color:#1565C0}.Wt .ein{color:#C2410C}.Pt .ein{color:#2e7d32}
+.dgm{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:.3em 1.5em;margin-bottom:.6em}.dgm p{margin:.3em 0}
+.sw{display:inline-block;width:1em;height:1em;border:1.5px solid #000;vertical-align:-.15em}
+.live svg{max-width:100%;height:auto;display:block;margin:.5em 0}.summe{margin:.2em 0}
+.klein{font-size:.85em;color:#444}
+.gw>span:has(.antw-z){flex-basis:100%}.gw .antw-z .ein.antw{max-width:40em}
+.ent{display:flex;flex-wrap:wrap;gap:1em 1.6em;align-items:flex-start;margin:.4em 0 .6em}
+.regler{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:.6em 2em;align-items:center}
+.regler label{display:flex;align-items:center;gap:.6em;font-size:1.05em}
+.regler input[type=range]{width:14em;max-width:60vw;height:2em;accent-color:#00805F}
+.entbild svg{max-width:100%;height:auto;display:block}
+.entwerte{flex:1 1 12em}.entwerte p{margin:.3em 0;font-size:1.1em}
+.lr{color:#d9472b;font-weight:700}.lf{color:#14b8a6}
+.treppe{display:flex;flex-wrap:wrap;gap:1em 1.6em;align-items:flex-start;margin:.4em 0 .6em}
+.tr-bild svg{max-width:100%;height:auto;display:block}
+.tr-steuer{flex:1 1 16em}.tr-zahl{font:inherit;width:7em;height:1.8em;border:1.5px solid #000;text-align:center}
+.tr-knoepfe{display:flex;flex-wrap:wrap;gap:.5em;margin:.6em 0}.tr-knoepfe button:disabled{opacity:.4;cursor:default}
+.tr-anzeige{font-size:1.25em;min-height:1.4em;margin:.3em 0}
+.shop{border:1.5px solid #999;border-radius:8px;max-width:17em;font-size:.9em;overflow:hidden}
+.shop-kopf{background:#F2F2F2;padding:.3em .7em;font-weight:700;border-bottom:1px solid #ccc}
+.shop-innen{padding:.5em .7em}.shop .preis{color:#C62828;font-weight:700;font-size:1.2em}.shop-det{margin:.5em 0 0;line-height:1.5}
+/* Zuordnen */
+.zuo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.5em 2.5em;max-width:34em}
+.zuo .sp{display:flex;flex-direction:column;gap:.5em}
+.zuo button,.sort button{font:inherit;min-height:2.2em;border:1.5px solid #000;background:#fff;color:#000;border-radius:0;cursor:pointer;padding:.2em .6em;position:relative}
+.zuo button.wahl1{background:#FFE873}
+.zuo button[data-p]::before{content:attr(data-nr);position:absolute;left:-.1em;top:-.65em;font-size:.65em;font-weight:700;background:#000;color:#fff;border-radius:1em;min-width:1.5em;line-height:1.5em;text-align:center}
+.zuo button[data-p="0"]{background:#DDEBFA}.zuo button[data-p="1"]{background:#FCE3D3}.zuo button[data-p="2"]{background:#E0F2E1}
+.zuo button[data-p="3"]{background:#F1E4F7}.zuo button[data-p="4"]{background:#FFF1C4}.zuo button[data-p="5"]{background:#DDF3F3}
+.zuo button[data-p="6"]{background:#EDEDED}.zuo button[data-p="7"]{background:#F9DDE6}
+/* Sortieren */
+.sort{display:flex;flex-wrap:wrap;gap:.5em}
+.sort button[data-nr]::before{content:attr(data-nr);position:absolute;left:-.1em;top:-.65em;font-size:.65em;font-weight:700;background:#00805F;color:#fff;border-radius:1em;min-width:1.5em;line-height:1.5em;text-align:center}
+.sort button[data-nr]{background:#D3F2E5}
+.sortreihe{color:#444;min-height:1.4em}
+.pruefleiste{display:flex;flex-wrap:wrap;align-items:center;gap:.8em;margin-top:.7em}
+button.pruefen,button.knopf{font:inherit;font-size:.9em;background:#fff;color:#000;border:1.5px solid #00805F;padding:.3em 1em;cursor:pointer;border-radius:0;font-weight:700}
+button.pruefen:hover,button.knopf:hover{background:#D3F2E5}
+button.knopf.warnung{background:#00805F;color:#fff}
+button:focus-visible{outline:3px solid #00805F;outline-offset:2px}
+.ergebnis{font-weight:700}.ergebnis.gut{color:#2e7d32}.ergebnis.noch{color:#C62828}
+.fuss{text-align:right;font-style:italic;color:#6F6F6F;font-size:.7em;margin:1.2em 0 0}
+nav.reiter{display:flex;flex-wrap:wrap;gap:.4em;margin:0 0 .7em}
+nav.reiter button{font:inherit;font-size:.85em;border:2px solid #00805F;background:#fff;color:#000;padding:.35em .8em;cursor:pointer;border-radius:0}
+nav.reiter button b{margin-right:.35em}
+nav.reiter button[aria-selected="true"]{background:#00805F;color:#fff}
+@media (max-width:820px){.raster4{grid-template-columns:repeat(2,minmax(0,1fr))}.raster3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.raster2,.raster3{grid-template-columns:1fr}.zuo{gap:.5em 1.2em}}
+</style>
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a><button type="button" class="ll-spick" id="ll-spick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3 h9 l4 4 v14 h-13z M14 3 v5 h5 M9 12 h7 M9 16 h5"/></svg>Spickzettel</button></div>
+<p class="oben" id="oben"></p>
+<nav class="reiter" role="tablist" aria-label="Übungen" id="reiter"></nav>
+<div class="fortschritt"><span id="stand"></span><button type="button" class="knopf" id="neu">Neu beginnen</button></div>
+<div id="blaetter"></div>
+<p class="fuss" id="fuss"></p>
+</div>
+<script>
+/* ─── Motor: Technik (nicht ändern) ─── */
+(function(){
+"use strict";
+const ABC="abcdefghijklmnopqrstuvwxyz";
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+const deZahl=x=>{const r=Math.round(x*1e9)/1e9;return String(r).replace(".",",");};
+const wert=s=>{s=String(s).trim().replace(/\s/g,"");if(s.includes("/")){const[a,b]=s.split("/");return num(a)/num(b);}return num(s);};
+const num=s=>{const t=String(s).replace(/\s+/g,"").replace(",",".");return t!==""&&!isNaN(t)?parseFloat(t):NaN;};
+const norm=s=>String(s).replace(/\s+/g,"").replace(/\./g,",").replace(/%$/,"").toLowerCase();
+const mischen=a=>{const b=a.slice();if(b.length<2)return b;let n=0;do{for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}n++;}while(n<20&&b.every((x,i)=>x===a[i]));return b;};
+
+/* Kurzschrift → HTML */
+function feld(antw,label){
+  let fid="";antw=antw.replace(/#(\w+)\s*$/,(m,s)=>{fid=s;return "";});
+  const alle=antw.split("|").map(x=>x.trim());
+  const lang=Math.max(...alle.map(x=>x.length));
+  const zahl=alle.every(x=>/^[\d\s,.%+\-]*$/.test(x));
+  const w=zahl||lang<=2?Math.max(2.6,lang*.55+1.5).toFixed(1):Math.max(5,Math.min(9,lang*.5+1.5)).toFixed(1);
+  return '<input class="ein" data-a="'+esc(alle.join("|"))+'"'+(fid?' data-id="'+fid+'"':'')+' style="width:'+w+'em"'+(zahl?' inputmode="decimal"':'')+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+(label||"Antwort")+'">';
+}
+function inl(t){
+  t=String(t);const lager=[];const pack=h=>"\u0001"+(lager.push(h)-1)+"\u0002";
+  t=t.replace(/\(\((.*?)\)\)/g,(m,inh)=>{
+    const opt=inh.split("|").map(x=>x.trim());let soll="";
+    const kn=opt.map(o=>{let z=o;if(z.startsWith("*")){z=z.slice(1).trim();soll=z;}return z;});
+    const kl="auswahl";
+    return pack('<span class="'+kl+'" data-soll="'+esc(soll)+'">'+kn.map(z=>'<button type="button" data-z="'+esc(z)+'">'+inl(z)+'</button>').join("")+'</span>');
+  });
+  t=t.replace(/\[satz:([^:\]]+):([^\]]*)\]/g,(m,w,e)=>pack('<span class="antw-z" style="display:block;width:100%"><b>Antwortsatz:</b> <input type="text" class="ein antw" autocomplete="off" aria-label="Antwortsatz" data-w="'+esc(w)+'" data-e="'+esc(e)+'"></span>'));
+  t=t.replace(/\[([GWP]):([^\]]*)\]/g,(m,r,z)=>pack('<span class="mk" data-r="" data-soll="'+r+'">'+z+'</span>'));
+  t=t.replace(/\[=([^\]]*)\]/g,(m,v)=>pack('<span class="frac fin" data-v="'+wert(v)+'"><span class="fz"><input class="ein" style="width:2.8em" inputmode="numeric" autocomplete="off" aria-label="Zähler"></span><span class="fn"><input class="ein" style="width:2.8em" inputmode="numeric" autocomplete="off" aria-label="Nenner"></span></span>'));
+  t=t.replace(/\[@(\w+)\]/g,(m,id)=>pack('<input class="ein echo" readonly tabindex="-1" data-echo="'+id+'" style="width:4.8em" aria-label="Dein Wert von vorhin">'));
+  t=t.replace(/\[([^\[\]]*)\]/g,(m,a)=>pack(feld(a)));
+  t=t.replace(/\{([^{}]*)\}/g,(m,inh)=>{const i=inh.indexOf("/");if(i<0)return m;
+    return '<span class="frac"><span class="fz">'+inh.slice(0,i).trim()+'</span><span class="fn">'+inh.slice(i+1).trim()+'</span></span>';});
+  t=t.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+  t=t.replace(/<blau>/g,'<span class="Gt">').replace(/<orange>/g,'<span class="Wt">').replace(/<gruen>/g,'<span class="Pt">').replace(/<\/(blau|orange|gruen)>/g,"</span>");
+  for(let k=0;k<3;k++)t=t.replace(/\u0001(\d+)\u0002/g,(m,i)=>lager[+i]);
+  return t;
+}
+const nr=(i,a)=>a.nummern===false?"":"<b>"+ABC[i]+")</b> ";
+const raster=(a,std)=>"raster"+(a.spalten||std||1);
+
+/* Aufgabenarten */
+const ARTEN={
+  eigen(a){return a.html||"";},
+  luecke(a){
+    if(a.items.some(x=>typeof x==="object"))
+      return a.items.map((it,i)=>{if(typeof it==="string")return '<p>'+nr(i,a)+inl(it)+'</p>';
+        let h=it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':"";
+        const z=it.z==null?[]:it.z;
+        if(Array.isArray(z))h+='<p class="gw">'+z.map(x=>'<span>'+inl(x)+'</span>').join("")+'</p>';else h+='<p>'+inl(z)+'</p>';
+        return h;}).join("");
+    const sp=a.spalten||1;
+    return '<div class="'+raster(a)+(a.gross?" gross":"")+'">'+a.items.map((x,i)=>'<div'+(sp>1?' class="km"':'')+'>'+nr(i,a)+inl(x)+'</div>').join("")+'</div>';
+  },
+  erweitern(a){
+    const ziel=a.ziel||100;
+    return '<div class="'+raster(a,4)+'">'+a.items.map((b,i)=>{const[z,n]=String(b).split("/").map(Number);const f=ziel/n;
+      return '<div class="erw">'+nr(i,a)+inl("{"+z+"/"+n+"}")+'<span class="erwm"><span class="lab">· '+feld(deZahl(f),"Faktor")+'</span><span>=</span></span>'+inl("{["+deZahl(z*f)+"]/"+ziel+"}")+'</div>';}).join("")+'</div>';
+  },
+  hunderterfeld(a){
+    return '<div class="'+raster(a,3)+'">'+a.items.map((it,i)=>{const n=typeof it==="object"?it.an:it;
+      const z=typeof it==="object"&&it.z?it.z:"{["+n+"]/100} = ["+deZahl(n/100)+"] = ["+n+"] %";
+      let g='<div class="g100">';for(let k=0;k<100;k++)g+='<i'+(k<n?' class="an"':'')+'></i>';g+='</div>';
+      return '<div class="fig">'+(a.nummern===false?"":"<b>"+ABC[i]+")</b>")+g+'<div class="zeile">'+inl(z)+'</div></div>';}).join("")+'</div>';
+  },
+  faerben(a){
+    let g='<div class="g100 malen" data-soll="'+a.soll+'">';for(let k=0;k<100;k++)g+='<i></i>';
+    return '<div class="malbox">'+g+'</div><p class="zaehler">Gefärbt: <b>0</b> Kästchen</p></div>';
+  },
+  tabelle(a){
+    const n=a.nummern!==false;
+    let h='<div class="scroll"><table class="tab"><tr>'+(n?'<th class="nr"></th>':'')+a.kopf.map(k=>'<th>'+inl(k)+'</th>').join("")+'</tr>';
+    a.zeilen.forEach((z,i)=>{h+='<tr>'+(n?'<td class="nr">'+ABC[i]+')</td>':'')+z.map(c=>'<td>'+inl(c)+'</td>').join("")+'</tr>';});
+    return h+'</table></div>';
+  },
+  vergleichen(a){
+    return '<div class="'+raster(a,2)+'">'+a.items.map(([l,s,r])=>'<div class="vgl"><span>'+inl(l)+'</span><span class="wahl" data-soll="'+esc(s)+'"><button type="button" data-z="<">&lt;</button><button type="button" data-z="=">=</button><button type="button" data-z=">">&gt;</button></span><span>'+inl(r)+'</span></div>').join("")+'</div>';
+  },
+  auswahl(a){
+    return a.items.map(([t,r,opt])=>{const o=opt||a.optionen;
+      return '<div class="wegz">'+inl(t)+inl("(("+o.map(x=>(x===r?"*":"")+x).join("|")+"))")+'</div>';}).join("");
+  },
+  markieren(a){
+    return a.items.map((t,i)=>'<p class="sit">'+nr(i,a)+inl(t)+'</p>').join("");
+  },
+  streifen(a){
+    return a.items.map((it,i)=>{const p=Math.max(0,Math.min(100,it.anteil));
+      return (it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':(a.items.length>1&&a.nummern!==false?'<p>'+nr(i,a)+'</p>':''))+
+      '<div class="streifen"><div class="str-oben"><span class="Wt">W = '+inl(it.W)+'</span></div>'+
+      '<div class="str-bar"><div class="str-w" style="width:'+p+'%"></div></div>'+
+      '<div class="str-mitte"><span class="Pt">p % = '+inl(it.p)+'</span></div>'+
+      '<svg class="str-klammer" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path d="M1 1 Q1 7 8 7 L44 7 Q50 7 50 13 Q50 7 56 7 L92 7 Q99 7 99 1" fill="none" stroke="#1565C0" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>'+
+      '<div class="str-g Gt">G = '+inl(it.G)+' ≙ 100 %</div></div>';}).join("");
+  },
+  verhaeltnis(a){
+    return a.items.map((it,i)=>{
+      const x=it.x||"W";const ans=it.ansatz!==false;
+      const teil=k=>{const v=deZahl(it[k]);if(k===x)return ans?"[x]":"x";return ans?"["+v+"]":v;};
+      const fr=(o,u)=>'<span class="frac"><span class="fz">'+o+'</span><span class="fn">'+u+'</span></span>';
+      const bs=deZahl(it.bas||100);
+      const gi=k=>'<input class="ein gl" data-pos="'+k+'" style="width:3.6em" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Feld der Verhältnisgleichung">';
+      const tok=k=>k===x?"x":deZahl(it[k]);
+      const sol=JSON.stringify([tok("G"),bs,tok("W"),tok("p")]);
+      const glei=ans?fr(gi(0),gi(1)+" %")+" = "+fr(gi(2),gi(3)+" %"):fr(inl(teil("G")),bs+" %")+" = "+fr(inl(teil("W")),inl(teil("p"))+" %");
+      const ein=it.einheit?" "+it.einheit:"";
+      const id=it.id?"#"+it.id:"";
+      const erg='x = '+inl("["+deZahl(it[x])+(ein?"|"+deZahl(it[x])+ein:"")+id+"]")+(x==="p"?"":ein);
+      return (it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':'<p>'+nr(i,a)+'</p>')+
+        '<div class="vgl-gl"'+(ans?' data-gl="1" data-sol="'+esc(sol)+'"':'')+'><span>'+glei+'</span></div>'+
+        '<p>'+erg+'</p>'+(it.antwort?'<p class="antw-z"><b>Antwortsatz:</b> <input type="text" class="ein antw" autocomplete="off" aria-label="Antwortsatz" data-w="'+deZahl(it[x])+'" data-e="'+(it.einheit||"")+'"></p>':'');}).join("")+(a.nach?"":"");
+  },
+  streifenbau(a){
+    const rows=a.daten.map((d,i)=>'<tr data-n="'+esc(d[0])+'"><td style="text-align:left"><i class="sw" style="background:'+DFARBEN[i%5]+'"></i> '+esc(d[0])+'</td><td>'+deZahl(d[1])+' %</td><td>'+feld(deZahl(d[1]/10),"Länge")+' cm</td></tr>').join("");
+    return '<div class="scroll"><table class="tab"><tr><th>Bereich</th><th>p %</th><th>Länge</th></tr>'+rows+'</table></div><div class="live" data-typ="streifen"></div>';
+  },
+  kreisbau(a){
+    const rows=a.daten.map((d,i)=>'<tr data-n="'+esc(d[0])+'"><td style="text-align:left"><i class="sw" style="background:'+DFARBEN[i%5]+'"></i> '+esc(d[0])+'</td><td>'+deZahl(d[1])+' %</td><td>'+feld(String(Math.round(d[1]*3.6)),"Winkel")+'°</td></tr>').join("");
+    return '<div class="scroll"><table class="tab"><tr><th>Bereich</th><th>p %</th><th>Winkel</th></tr>'+rows+'</table></div><div class="live" data-typ="kreis"></div>';
+  },
+  zuordnen(a){
+    const re=mischen(a.paare.map((p,i)=>i));
+    return '<div class="zuo">'+a.paare.map((p,i)=>'<button type="button" data-s="l" data-i="'+i+'">'+inl(p[0])+'</button>'+
+      '<button type="button" data-s="r" data-i="'+re[i]+'">'+inl(a.paare[re[i]][1])+'</button>').join("")+'</div>';
+  },
+  richtigfalsch(a){
+    return a.items.map(([t,r],i)=>'<div class="wegz"><span>'+nr(i,a)+inl(t)+'</span>'+inl(r?"((*richtig|falsch))":"((richtig|*falsch))")+'</div>').join("");
+  },
+  sortieren(a){
+    const m=mischen(a.items.map((x,i)=>i));
+    return '<div class="sort" data-n="'+a.items.length+'">'+m.map(i=>'<button type="button" data-i="'+i+'">'+inl(a.items[i])+'</button>').join("")+'</div><p class="sortreihe"></p>';
+  }
+};
+const AUFTRAG={streifenbau:"Rechne die Länge aus und trage sie ein. Dein Streifen wächst unter der Tabelle.",
+  kreisbau:"Rechne den Winkel aus (ganze Grad) und trage ihn ein. Dein Kreis wächst unter der Tabelle.",
+  vergleichen:"Tippe auf &lt;, = oder &gt;.",
+  markieren:'Tippe jede fett gedruckte Zahl an: 1× <b class="Gt">blau = G</b>, 2× <b class="Wt">orange = W</b>, 3× <b class="Pt">grün = p %</b>.',
+  zuordnen:"Was gehört zusammen? Tippe links und dann rechts an.",
+  richtigfalsch:"Richtig oder falsch? Tippe an.",
+  sortieren:"Tippe die Zahlen der Größe nach an. Beginne mit der kleinsten.",
+  verhaeltnis:"Stelle die Verhältnisgleichung auf. Schreibe x für die gesuchte Größe. Trage dann das Ergebnis ein.",
+  faerben:"Tippe Kästchen an oder wische darüber."};
+
+function baueAufgabe(a,n){
+  let inh=ARTEN[a.art]?ARTEN[a.art](a):'<p style="color:#C62828">Unbekannte Aufgabenart: '+esc(a.art)+'</p>';
+  if(a.bild)inh=a.bildoben?'<div class="bild">'+a.bild+'</div>'+inh:'<div class="bildbox"><div class="bild">'+a.bild+'</div><div class="rest">'+inh+'</div></div>';
+  const auf=a.auftrag!=null?inl(a.auftrag):(AUFTRAG[a.art]||"");
+  const ohne=a.art==="eigen"&&!a.nach;
+  return '<section class="kasten"'+(ohne?'':' data-aufgabe')+'><h2>Aufgabe '+n+(a.name?' · '+esc(a.name):'')+(a.stern?' ★':'')+'</h2><div class="innen">'+
+    (auf?'<p class="auftrag">'+auf+'</p>':'')+inh+(a.nach?inl(a.nach):'')+
+    (ohne?'':'<div class="pruefleiste"><button type="button" class="pruefen">Prüfen</button><span class="ergebnis" aria-live="polite"></span></div>')+'</div></section>';
+}
+function baueBlatt(u,i){
+  const s=document.createElement("section");s.className="blatt";s.id="uebung"+(i+1);s.hidden=true;
+  s.innerHTML='<div class="titel">'+esc(u.titel)+'</div>'+u.aufgaben.map((a,k)=>baueAufgabe(a,k+1)).join("");
+  binde(s);const K=s.querySelectorAll("section.kasten");u.aufgaben.forEach((a,k)=>{if(typeof a.init==="function")a.init(K[k]);});return s;
+}
+
+/* Bedienung */
+function binde(B){
+  B.querySelectorAll(".wahl,.auswahl").forEach(g=>g.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    g.querySelectorAll("button").forEach(x=>x.classList.toggle("an",x===b));g.classList.remove("ok","falsch");})));
+  B.querySelectorAll(".mk").forEach(m=>m.addEventListener("click",()=>{const o=["","G","W","P"];m.dataset.r=o[(o.indexOf(m.dataset.r)+1)%4];m.classList.remove("falsch");}));
+  B.querySelectorAll(".g100.malen").forEach(g=>{
+    let modus=null;const z=g.closest(".innen").querySelector(".zaehler b");
+    const upd=()=>{if(z)z.textContent=g.querySelectorAll("i.an").length;g.classList.remove("ok","falsch");};
+    const zelle=e=>{const el=document.elementFromPoint(e.clientX,e.clientY);return el&&el.parentNode===g?el:null;};
+    g.addEventListener("pointerdown",e=>{const c=zelle(e);if(!c)return;modus=!c.classList.contains("an");c.classList.toggle("an",modus);g.setPointerCapture(e.pointerId);e.preventDefault();upd();});
+    g.addEventListener("pointermove",e=>{if(modus===null)return;const c=zelle(e);if(c&&c.classList.contains("an")!==modus){c.classList.toggle("an",modus);upd();}});
+    ["pointerup","pointercancel"].forEach(n=>g.addEventListener(n,()=>modus=null));
+  });
+  B.querySelectorAll(".zuo").forEach(Z=>{
+    let gew=null;
+    const farbe=()=>{const L=[...Z.querySelectorAll('[data-s="l"]')];let k=0;
+      Z.querySelectorAll("button").forEach(b=>{delete b.dataset.p;delete b.dataset.nr;b.classList.remove("ok","falsch");});
+      L.forEach(l=>{if(l.dataset.mit!=null&&l.dataset.mit!==""){const r=Z.querySelector('[data-s="r"][data-i="'+l.dataset.mit+'"]');
+        l.dataset.p=r.dataset.p=k%8;l.dataset.nr=r.dataset.nr=++k;}});};
+    Z.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+      const seite=b.dataset.s;
+      // schon verbunden → lösen
+      if(seite==="l"&&b.dataset.mit){b.dataset.mit="";gew=null;Z.querySelectorAll(".wahl1").forEach(x=>x.classList.remove("wahl1"));farbe();return;}
+      if(seite==="r"){const l=Z.querySelector('[data-s="l"][data-mit="'+b.dataset.i+'"]');if(l&&!(gew&&gew.dataset.s==="l")){l.dataset.mit="";farbe();return;}}
+      if(!gew||gew.dataset.s===seite){Z.querySelectorAll(".wahl1").forEach(x=>x.classList.remove("wahl1"));gew=b;b.classList.add("wahl1");return;}
+      const l=seite==="l"?b:gew,r=seite==="r"?b:gew;
+      Z.querySelectorAll('[data-s="l"]').forEach(x=>{if(x.dataset.mit===r.dataset.i)x.dataset.mit="";});
+      l.dataset.mit=r.dataset.i;gew.classList.remove("wahl1");gew=null;farbe();
+    }));
+  });
+  B.querySelectorAll(".sort").forEach(S=>{
+    const reihe=[];const txt=S.nextElementSibling;
+    const zeig=()=>{S.querySelectorAll("button").forEach(b=>{const p=reihe.indexOf(b);b.classList.remove("ok","falsch");if(p<0)delete b.dataset.nr;else b.dataset.nr=p+1;});
+      txt.innerHTML=reihe.length?"Deine Reihenfolge: "+reihe.map(b=>b.innerHTML).join(" &lt; "):"";};
+    S._reihe=reihe;
+    S.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const p=reihe.indexOf(b);if(p<0)reihe.push(b);else reihe.splice(p,1);zeig();}));
+  });
+  B.querySelectorAll(".live").forEach(L=>{const T=L.closest(".innen");
+    const upd=()=>{const R=[...T.querySelectorAll("tr[data-n]")];const namen=R.map(r=>r.dataset.n);
+      const v=R.map(r=>{const x=num(r.querySelector("input").value);return isNaN(x)||x<0?0:x;});
+      if(L.dataset.typ==="streifen")L.innerHTML=streifenSvg(namen,v,{live:true});
+      else{const s=v.reduce((p,q)=>p+q,0);L.innerHTML=kreisSvg(namen,v)+'<p class="summe">Summe der Winkel: <b>'+dZ(s)+'</b>° '+(Math.abs(s-360)<1e-9?"✓":"(soll 360° sein)")+'</p>';}};
+    T.addEventListener("input",upd);upd();});
+  B.querySelectorAll("[data-aufgabe]").forEach(k=>k.querySelector(".pruefen").addEventListener("click",()=>pruefe(k)));
+}
+document.addEventListener("input",e=>{if(e.target.tagName==="INPUT")e.target.classList.remove("ok","falsch");});
+document.addEventListener("input",e=>{const id=e.target.dataset&&e.target.dataset.id;if(!id)return;const B=e.target.closest(".blatt");if(B)B.querySelectorAll('.echo[data-echo="'+id+'"]').forEach(el=>el.value=e.target.value);});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("ein")){e.preventDefault();const k=e.target.closest("[data-aufgabe]");if(k)pruefe(k);}});
+
+function EREG(e){if(!e)return null;const B="(^|[^a-zäöüß])",Z="(?![a-zäöüß²2])",W={mm:"millimeter",cm:"zentimeter",dm:"dezimeter",m:"meter",km:"kilometer"};
+  if(e==="€")return /€|euro/i;
+  if(e==="ha")return new RegExp(B+"ha"+Z+"|hektar","i");
+  if(e==="a")return new RegExp(B+"a"+Z+"|"+B+"ar"+Z,"i");
+  if(/²$/.test(e)){const g=e.slice(0,-1);return new RegExp(B+g+"(²|2|\\^2)|quadrat"+W[g],"i");}
+  if(W[e])return new RegExp(B+e+Z+"|"+B+W[e],"i");
+  return new RegExp(e.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"i");}
+const tausend=v=>String(v).trim().replace(/^(\d{1,3})((?:\.\d{3})+)(,\d+)?$/,(m,a,b,c)=>a+b.replace(/\./g,"")+(c||""));
+function pruefe(k){
+  let r=0,n=0;const setz=(el,ok)=>{el.classList.toggle("ok",ok);el.classList.toggle("falsch",!ok);if(ok)r++;};
+  k.querySelectorAll("input[data-a]").forEach(i=>{n++;const ok=i.dataset.a.split("|").some(a=>{const x=num(tausend(i.value)),y=num(a);
+    return (!isNaN(x)&&!isNaN(y)&&Math.abs(x-y)<1e-9)||(i.value.trim()!==""&&norm(i.value)===norm(a));});setz(i,ok);});
+  k.querySelectorAll("input.antw").forEach(i=>{n++;const t=i.value.trim(),w=parseFloat(i.dataset.w.replace(",","."));
+    const zs=(t.replace(/(\d)[\s\u202F.](?=\d{3}\b)/g,"$1").match(/\d+(?:[.,]\d+)?/g)||[]).map(z=>parseFloat(z.replace(",",".")));
+    const E=EREG(i.dataset.e);
+    const ok=t.split(/\s+/).length>=3&&zs.some(z=>Math.abs(z-w)<1e-9)&&(!i.dataset.e||(E?E.test(t):t.toLowerCase().includes(i.dataset.e.toLowerCase())));setz(i,ok);});
+  k.querySelectorAll(".fin").forEach(f=>{n++;const[a,b]=f.querySelectorAll("input");const x=num(a.value),y=num(b.value);
+    const ok=!isNaN(x)&&!isNaN(y)&&y!==0&&Math.abs(x/y-parseFloat(f.dataset.v))<1e-9;[a,b].forEach(i=>{i.classList.toggle("ok",ok);i.classList.toggle("falsch",!ok);});if(ok)r++;});
+  k.querySelectorAll(".wahl,.auswahl").forEach(g=>{n++;const an=g.querySelector("button.an");setz(g,!!an&&an.dataset.z===g.dataset.soll);});
+  k.querySelectorAll(".mk").forEach(m=>{n++;const ok=m.dataset.r===m.dataset.soll;m.classList.toggle("falsch",!ok);if(ok)r++;});
+  k.querySelectorAll(".g100.malen").forEach(g=>{n++;setz(g,g.querySelectorAll("i.an").length===+g.dataset.soll);});
+  k.querySelectorAll(".zuo").forEach(Z=>Z.querySelectorAll('[data-s="l"]').forEach(l=>{n++;const ok=l.dataset.mit===l.dataset.i;
+    const rr=l.dataset.mit?Z.querySelector('[data-s="r"][data-i="'+l.dataset.mit+'"]'):null;
+    l.classList.toggle("ok",ok);l.classList.toggle("falsch",!ok);if(rr){rr.classList.toggle("ok",ok);rr.classList.toggle("falsch",!ok);}if(ok)r++;}));
+  k.querySelectorAll(".sort").forEach(S=>{const R=S._reihe;S.querySelectorAll("button").forEach(b=>{n++;const p=R.indexOf(b);setz(b,p>=0&&+b.dataset.i===p);});});
+  /* Verhältnisgleichung: jede richtig aufgestellte Gleichung zählt (Seiten tauschen, Brüche umdrehen, über Kreuz) */
+  k.querySelectorAll(".vgl-gl[data-gl]").forEach(E=>{n++;const [G,B,W,P]=JSON.parse(E.dataset.sol);
+    const AR=[[G,B,W,P],[W,P,G,B],[B,G,P,W],[P,W,B,G],[G,W,B,P],[B,P,G,W],[W,G,P,B],[P,B,W,G]];
+    const f=[...E.querySelectorAll("input.gl")].map(i=>i.value.trim().replace(/%/g,"").replace(/\s+/g,"").toLowerCase());
+    const gl=(a,b)=>{if(a==="x"||b==="x")return a===b;const u=num(a),v=num(b);return !isNaN(u)&&!isNaN(v)&&Math.abs(u-v)<1e-9;};
+    const ok=AR.some(r=>r.every((v,i)=>gl(f[i],String(v).toLowerCase())));
+    E.querySelectorAll("input.gl").forEach(i=>{i.classList.toggle("ok",ok);i.classList.toggle("falsch",!ok);});if(ok)r++;});
+  const e=k.querySelector(".ergebnis");
+  if(r===n){e.textContent="Super, alles richtig! ("+r+" von "+n+")";e.className="ergebnis gut";k.classList.add("fertig");}
+  else{e.textContent=r+" von "+n+" richtig. Verbessere die rot markierten Stellen.";e.className="ergebnis noch";k.classList.remove("fertig");}
+  stand();
+}
+function stand(){const B=document.querySelector(".blatt:not([hidden])");if(!B)return;const alle=B.querySelectorAll("[data-aufgabe]").length,f=B.querySelectorAll("[data-aufgabe].fertig").length;
+  document.getElementById("stand").textContent=f+" von "+alle+" Aufgaben geschafft"+(f===alle?" – klasse!":"");}
+
+/* Aufbau der Seite */
+document.title="Übungen "+BLATT.thema.replace(/\s*–\s*/," ");
+document.getElementById("oben").textContent="Interaktive Arbeitsblätter · "+BLATT.thema;
+document.getElementById("fuss").textContent="Erstellt von Marion Klugmann ("+BLATT.erstellt+") mit freundlicher Unterstützung von Claude.";
+const nav=document.getElementById("reiter"),box=document.getElementById("blaetter");
+BLATT.uebungen.forEach((u,i)=>{
+  const t=document.createElement("button");t.type="button";t.setAttribute("role","tab");t.dataset.b="uebung"+(i+1);
+  t.innerHTML="<b>Übung "+(i+1)+"</b>"+esc(u.reiter||"");nav.appendChild(t);box.appendChild(baueBlatt(u,i));
+});
+const tabs=[...nav.querySelectorAll("button")];
+let aktiv="uebung1";
+function zeige(id){if(!document.getElementById(id))id="uebung1";aktiv=id;tabs.forEach(t=>t.setAttribute("aria-selected",t.dataset.b===id));
+  document.querySelectorAll(".blatt").forEach(b=>b.hidden=b.id!==id);stand();}
+tabs.forEach(t=>t.addEventListener("click",()=>{if(location.hash!=="#"+t.dataset.b)location.hash=t.dataset.b;else zeige(t.dataset.b);window.scrollTo({top:0});}));
+window.addEventListener("hashchange",()=>zeige(location.hash.slice(1)));
+const btn=document.getElementById("neu");let tm=null;
+btn.addEventListener("click",()=>{
+  if(!btn.classList.contains("warnung")){btn.classList.add("warnung");btn.textContent="Wirklich?";tm=setTimeout(()=>{btn.classList.remove("warnung");btn.textContent="Neu beginnen";},3000);return;}
+  clearTimeout(tm);btn.classList.remove("warnung");btn.textContent="Neu beginnen";
+  const alt=document.getElementById(aktiv),i=+aktiv.slice(6)-1,neu=baueBlatt(BLATT.uebungen[i],i);neu.hidden=false;alt.replaceWith(neu);
+  stand();window.scrollTo({top:0,behavior:"smooth"});
+});
+zeige(location.hash.slice(1));
+})();
+</script>
+<div class="ll-fenster" id="ll-fenster" hidden><div class="ll-box" role="dialog" aria-modal="true" aria-label="Spickzettel"><button type="button" class="ll-zu" id="ll-zu" aria-label="Spickzettel schließen">✕ Schließen</button><iframe id="ll-frame" title="Spickzettel"></iframe></div></div>
+<script>
+(function(){
+  var o=document.getElementById('ll-fenster'),f=document.getElementById('ll-frame'),b=document.getElementById('ll-spick');
+  function zu(){o.hidden=true;document.body.style.overflow='';b.focus();}
+  b.addEventListener('click',function(){if(!f.getAttribute('src'))f.src='spickzettel.html';o.hidden=false;document.body.style.overflow='hidden';document.getElementById('ll-zu').focus();});
+  document.getElementById('ll-zu').addEventListener('click',zu);
+  o.addEventListener('click',function(e){if(e.target===o)zu();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!o.hidden)zu();});
+  var z=document.getElementById('ll-zurueck'),t=null;
+  function eingetragen(){return Array.prototype.some.call(document.querySelectorAll('input,textarea'),function(i){return i.id!=='date'&&i.type!=='hidden'&&i.value.trim()!=='';});}
+  z.addEventListener('click',function(e){
+    if(z.classList.contains('ll-warn')||!eingetragen())return;
+    e.preventDefault();z.classList.add('ll-warn');z.textContent='Wirklich? Deine Eingaben gehen verloren.';
+    clearTimeout(t);t=setTimeout(function(){z.classList.remove('ll-warn');z.textContent='← Lern-Lounge';},4000);
+  });
+})();
+</script>
+</body>
+</html>

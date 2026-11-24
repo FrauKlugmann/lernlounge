@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spickzettel · Das Parallelogramm</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;font-size:17px;line-height:1.35}
+  .wrap{max-width:1000px;margin:0 auto;padding:14px}
+  .titel{background:#B3261E;color:#fff;text-align:center;padding:12px 10px 14px;border-radius:6px}
+  .titel small{display:block;font-size:14px;letter-spacing:.2em;text-transform:uppercase}
+  .titel b{display:block;font-size:30px;margin-top:2px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;align-items:start}
+  .spalte{display:flex;flex-direction:column;gap:14px}
+  .klein{max-width:78%;margin:0 auto}
+  @media (max-width:700px){.grid{grid-template-columns:1fr}}
+  .kasten{border:2px solid #B3261E;border-radius:6px;overflow:hidden;background:#fff}
+  .kasten h2{margin:0;background:#FBE3E1;color:#000;font-size:18px;padding:7px 12px;border-bottom:2px solid #B3261E}
+  .inhalt{padding:10px 12px}
+  svg{display:block;width:100%;height:auto}
+  .formel{background:#F2F2F2;border-radius:6px;text-align:center;font-size:26px;font-weight:bold;padding:8px;margin:6px 0}
+  .formel .a{color:#0B6E6E}
+  .merk{border:2px dashed #888;border-radius:6px;padding:6px 10px;margin:8px 0;font-size:16px}
+  .rechnung{background:#F2F2F2;border-radius:6px;padding:7px 10px;margin:6px 0;font-size:17px}
+  .rechnung b{color:#0B6E6E}
+  .pill{display:inline-block;border-radius:14px;padding:2px 12px;font-weight:bold;color:#fff;font-size:15px}
+  .tuerkis{background:#0B6E6E}.rot{background:#B3261E}
+  .falle{margin-top:14px;border:2px dashed #B3261E;background:#fff8f7;border-radius:6px;padding:10px 14px}
+  .falle h2{margin:0 0 4px;font-size:18px;color:#B3261E}
+  .fuss{margin-top:12px;text-align:right;font-style:italic;color:#666;font-size:14px}
+  @media print{.wrap{max-width:none;padding:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="titel"><small>Spickzettel · Dreiecke und Vierecke</small><b>Das Parallelogramm</b></div>
+
+  <div class="grid">
+<div class="spalte">
+    <div class="kasten">
+      <h2>1 · Wer ist ein Parallelogramm?</h2>
+      <div class="inhalt">
+        <svg viewBox="0 0 360 290" role="img" aria-label="Oberbegriffe: Quadrat, Rechteck und Raute sind Parallelogramme">
+          <defs><marker id="pf" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#333"/></marker></defs>
+          <g stroke="#333" stroke-width="2.5" marker-end="url(#pf)" fill="none">
+            <line x1="180" y1="72" x2="180" y2="46"/>
+            <line x1="110" y1="152" x2="150" y2="108"/>
+            <line x1="250" y1="152" x2="210" y2="108"/>
+            <line x1="150" y1="232" x2="110" y2="190"/>
+            <line x1="210" y1="232" x2="250" y2="190"/>
+          </g>
+          <g font-family="Arial" font-size="17" text-anchor="middle" font-weight="bold">
+            <rect x="120" y="8" width="120" height="36" rx="18" fill="#eee" stroke="#555" stroke-width="2"/><text x="180" y="32">Viereck</text>
+            <rect x="55" y="74" width="250" height="36" rx="18" fill="#CDEFEA" stroke="#0B6E6E" stroke-width="3"/><text x="180" y="98">Parallelogramm</text>
+            <rect x="35" y="154" width="150" height="36" rx="18" fill="#CDEFEA" stroke="#0B6E6E" stroke-width="2"/><text x="110" y="178">Rechteck</text>
+            <rect x="215" y="154" width="110" height="36" rx="18" fill="#CDEFEA" stroke="#0B6E6E" stroke-width="2"/><text x="270" y="178">Raute</text>
+            <rect x="120" y="234" width="120" height="36" rx="18" fill="#CDEFEA" stroke="#0B6E6E" stroke-width="2"/><text x="180" y="258">Quadrat</text>
+          </g>
+        </svg>
+        <div class="merk">Pfeil heißt „ist ein“. Parallelogramm: <b>zwei Paare</b> paralleler Seiten. Ein Trapez (nur ein Paar) gehört nicht dazu.</div>
+      </div>
+    </div>
+    <div class="kasten">
+      <h2>3 · Flächeninhalt</h2>
+      <div class="inhalt">
+        <div class="formel"><span class="a">A</span> = g · h</div>
+        <svg viewBox="0 0 380 150" role="img" aria-label="Dreieck abschneiden und ansetzen ergibt ein Rechteck">
+          <polygon points="20,125 160,125 220,45 80,45" fill="#CDEFEA" stroke="#0B6E6E" stroke-width="3.5" stroke-linejoin="round"/>
+          <polygon points="20,125 80,125 80,45" fill="#FFD9A8" stroke="#C2410C" stroke-width="3" stroke-linejoin="round"/>
+          <polygon points="160,125 220,125 220,45" fill="none" stroke="#C2410C" stroke-width="3" stroke-dasharray="6 4"/>
+          <path d="M70 38 Q150 4 215 36" fill="none" stroke="#C2410C" stroke-width="3"/>
+          <path d="M207 26 L216 37 L203 40" fill="none" stroke="#C2410C" stroke-width="3"/>
+          <g font-family="Arial" font-size="17" font-weight="bold"><text x="238" y="92" fill="#333">→ Rechteck</text></g>
+        </svg>
+        <div class="merk">Dreieck abschneiden, auf der anderen Seite ansetzen: <b>Rechteck mit g und h</b>, gleicher Flächeninhalt.</div>
+        <div class="rechnung"><b>g = 7 cm, h = 4 cm, schräge Seite 5 cm</b><br>A = 7 cm · 4 cm = <b>28 cm²</b></div>
+        <div class="rechnung"><b>Einheiten zuerst gleich machen:</b><br>g = 1,5 m, h = 60 cm = 0,6 m<br>A = 1,5 m · 0,6 m = <b>0,9 m²</b></div>
+      </div>
+    </div>
+</div>
+<div class="spalte">
+    <div class="kasten">
+      <h2>2 · Die Höhe h</h2>
+      <div class="inhalt">
+        <svg viewBox="0 0 300 165" role="img" aria-label="Parallelogramm mit Grundseite g und Höhe h">
+          <polygon points="30,135 210,135 270,45 90,45" fill="#CDEFEA" stroke="#0B6E6E" stroke-width="4" stroke-linejoin="round"/>
+          <line x1="90" y1="45" x2="90" y2="135" stroke="#B3261E" stroke-width="3" stroke-dasharray="7 5"/>
+          <path d="M108 135 A18 18 0 0 0 90 117" fill="none" stroke="#000" stroke-width="2.5"/><circle cx="98" cy="127" r="2.5"/>
+          <g font-family="Arial" font-size="18" font-weight="bold">
+            <text x="112" y="158" fill="#0B6E6E">g</text><text x="100" y="95" fill="#B3261E">h</text>
+            <text x="12" y="150">A</text><text x="214" y="150">B</text><text x="274" y="50">C</text><text x="70" y="38">D</text>
+          </g>
+        </svg>
+        <div class="merk"><b>h steht senkrecht auf g</b> (rechter Winkel). Die schräge Seite ist <b>nicht</b> die Höhe. Jede Seite kann Grundseite sein.</div>
+        <svg class="klein" viewBox="0 0 300 165" role="img" aria-label="Höhe außerhalb: Grundseite verlängern">
+          <polygon points="100,135 220,135 150,45 30,45" fill="#CDEFEA" stroke="#0B6E6E" stroke-width="4" stroke-linejoin="round"/>
+          <line x1="30" y1="135" x2="100" y2="135" stroke="#888" stroke-width="3" stroke-dasharray="7 5"/>
+          <line x1="30" y1="45" x2="30" y2="135" stroke="#B3261E" stroke-width="3" stroke-dasharray="7 5"/>
+          <path d="M48 135 A18 18 0 0 0 30 117" fill="none" stroke="#000" stroke-width="2.5"/><circle cx="38" cy="127" r="2.5"/>
+          <g font-family="Arial" font-size="18" font-weight="bold">
+            <text x="42" y="95" fill="#B3261E">h</text><text x="150" y="158" fill="#0B6E6E">g</text>
+          </g>
+        </svg>
+        <div class="merk">Liegt die Höhe außerhalb: <b>Grundseite verlängern</b>.</div>
+      </div>
+    </div>
+    <div class="kasten">
+      <h2>4 · Fehlende Größe</h2>
+      <div class="inhalt">
+        <svg viewBox="0 0 360 210" role="img" aria-label="Schema: A und g bekannt, dann h; A und h bekannt, dann g">
+          <defs><marker id="pf2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#333"/></marker></defs>
+          <g stroke="#333" stroke-width="2.5" marker-end="url(#pf2)" fill="none"><line x1="95" y1="62" x2="95" y2="104"/><line x1="265" y1="62" x2="265" y2="104"/></g>
+          <g font-family="Arial" font-size="17" text-anchor="middle" font-weight="bold">
+            <rect x="15" y="12" width="160" height="50" rx="25" fill="#CDEFEA" stroke="#0B6E6E" stroke-width="2.5"/><text x="95" y="33">A und g</text><text x="95" y="53" font-size="14" font-weight="normal">sind bekannt</text>
+            <rect x="185" y="12" width="160" height="50" rx="25" fill="#CDEFEA" stroke="#0B6E6E" stroke-width="2.5"/><text x="265" y="33">A und h</text><text x="265" y="53" font-size="14" font-weight="normal">sind bekannt</text>
+            <rect x="35" y="106" width="120" height="44" rx="22" fill="#F8B9D4"/><text x="95" y="134">h gesucht</text>
+            <rect x="205" y="106" width="120" height="44" rx="22" fill="#F8B9D4"/><text x="265" y="134">g gesucht</text>
+            <text x="95" y="180" fill="#B3261E">h = A : g</text>
+            <text x="265" y="180" fill="#B3261E">g = A : h</text>
+          </g>
+        </svg>
+        <div class="merk">Durch Überlegen: <b>g · ? = A</b> oder <b>? · h = A</b>, dann dividieren.</div>
+        <div class="rechnung"><b>A = 36 cm², g = 9 cm</b><br>9 cm · ? = 36 cm²<br>h = 36 cm² : 9 cm = <b>4 cm</b></div>
+        <div class="rechnung"><b>A = 1,2 m², g = 80 cm</b><br>1,2 m² = 12 000 cm²<br>h = 12 000 cm² : 80 cm = <b>150 cm</b></div>
+      </div>
+    </div>
+</div>
+</div>
+
+  <div class="falle">
+    <h2>Achtung, Falle:</h2>
+    <b>Die schräge Seite ist nicht die Höhe!</b> Für A brauchst du g und h, nicht die schräge Seite.<br>
+    g = 7 cm, h = 4 cm, schräge Seite 5 cm:&nbsp; richtig A = 7 cm · 4 cm = 28 cm²,&nbsp; falsch A = 7 cm · 5 cm = 35 cm².<br>
+    Und: <b>Einheiten müssen gleich sein</b>, bevor du multiplizierst.
+  </div>
+
+  <div class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</div>
+</div>
+</body>
+</html>

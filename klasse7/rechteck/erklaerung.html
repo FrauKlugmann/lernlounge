@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erklärvideo: Das Rechteck (Klasse 7)</title>
+<style>
+:root{--gr:#00805F;--grh:#E3F2EC;--u:#C62828;--A:#1565C0;--uh:#FDECEC;--Ah:#E8F1FC}
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff;color:#000;font-family:Arial,"Liberation Sans",Helvetica,sans-serif}
+body{font-size:19px;line-height:1.45}
+.topbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:2px solid var(--gr);display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:7px 12px;min-height:56px}
+.tabs{display:flex;gap:6px}
+.tab{font:inherit;font-weight:bold;font-size:18px;padding:7px 20px;border:2px solid var(--gr);background:#fff;color:var(--gr);border-radius:8px 8px 0 0;cursor:pointer}
+.tab.active{background:var(--gr);color:#fff}
+.tools{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto;align-items:center}
+.tools button{font:inherit;font-size:15px;font-weight:bold;padding:6px 10px;border:2px solid #999;background:#fff;border-radius:7px;cursor:pointer;color:#000}
+.tools button.on{outline:3px solid #000;outline-offset:1px}
+.tools .pu{border-color:var(--u);color:var(--u)}
+.tools .pA{border-color:var(--A);color:var(--A)}
+.tools .pk{border-color:#000}
+.tools .warn{background:#C62828;color:#fff;border-color:#C62828}
+main{max-width:1060px;margin:0 auto;padding:10px 16px 30px}
+.page{display:none;position:relative}
+.page.active{display:block}
+.titel{background:var(--gr);color:#fff;font-weight:bold;font-size:1.35em;padding:9px 16px;border-radius:6px;margin-top:6px}
+.ziel{margin:7px 0 10px;font-size:1.02em}
+.ziel b{display:inline-block;background:var(--gr);color:#fff;border-radius:5px;padding:0 9px;margin-right:6px}
+.box{border:2px solid var(--gr);border-radius:7px;margin:0 0 11px;break-inside:avoid;page-break-inside:avoid}
+.box>h3{margin:0;background:var(--grh);border-bottom:1.5px solid var(--gr);padding:4px 12px;font-size:1em}
+.box>.in{padding:8px 12px}
+.reihe{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.reihe3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.karte{border:1.5px solid #888;border-radius:7px;padding:7px 10px;position:relative}
+.schild{display:inline-block;color:#fff;font-weight:bold;border-radius:5px;padding:0 9px;margin-right:6px}
+.su{background:var(--u)}.sA{background:var(--A)}.sg{background:#555}
+.formel{white-space:nowrap;background:#EEE;border-radius:6px;padding:5px 10px;margin:5px 0;display:inline-block}
+.merksatz{border:2px dashed #333;border-radius:7px;padding:5px 12px;margin-top:8px;font-weight:bold;text-align:center}
+.zeile{margin:4px 0;white-space:nowrap}
+.zeile.wrap{white-space:normal}
+.auf{font-weight:bold}
+.klein{font-size:.85em;color:#333}
+input.f{font:inherit;font-size:1em;border:none;border-bottom:2px solid #000;background:#F6F6F6;text-align:center;padding:0 3px;margin:0 2px;height:1.45em;border-radius:3px 3px 0 0;color:#000}
+input.f:focus{outline:2px solid var(--gr);background:#fff}
+.mal{padding:0 .15em}
+.wahl{display:inline-flex;gap:4px;margin-left:6px;vertical-align:middle}
+.wahl button{font:inherit;font-weight:bold;min-width:2.1em;padding:0 6px;border:2px solid #777;background:#fff;border-radius:50%;cursor:pointer;color:#000;line-height:1.5}
+.wahl button.sel[data-v="u"]{background:var(--u);border-color:var(--u);color:#fff}
+.wahl button.sel[data-v="A"]{background:var(--A);border-color:var(--A);color:#fff}
+.zuord{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 14px}
+.zuord>div{white-space:nowrap}
+svg text{font-family:Arial,"Liberation Sans",sans-serif}
+.gitter .zelle{fill:#fff;cursor:pointer}
+.gitter .zelle.an{fill:#BBD7F5}
+.gitter .kante{stroke:#000;stroke-width:3;stroke-linecap:round}
+.gitter .kante.an{stroke:var(--u);stroke-width:6}
+.gitter .hit{stroke:transparent;stroke-width:18;cursor:pointer}
+.gitter .nr{font-size:12px;font-weight:bold;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.gitter .nr.k{fill:var(--u)}
+.gitter .nr.z{fill:#0D3C78;font-size:14px}
+table.t{border-collapse:collapse}
+table.t td,table.t th{border:1.5px solid #000;padding:2px 8px;text-align:center}
+table.t th{background:#E0E0E0}
+table.t td:first-child{white-space:nowrap}
+.treppe{display:flex;align-items:flex-end;gap:0;margin:4px 0 2px}
+.stufe{border:2px solid #000;border-right:none;text-align:center;font-weight:bold;width:3.3em;background:#fff;padding:2px 0}
+.stufe:last-child{border-right:2px solid #000}
+.fuss{text-align:right;font-size:.8em;margin-top:12px;color:#000}
+canvas.ink{position:absolute;left:0;top:0;pointer-events:none;z-index:5}
+canvas.ink.zeichnen{pointer-events:auto;touch-action:none;cursor:crosshair}
+@media screen and (max-width:760px){.reihe,.reihe3,.zuord{grid-template-columns:1fr}.zeile{white-space:normal}}
+@page{size:A4;margin:1.2cm 1.5cm 1.2cm 2.5cm}
+@page :left{margin-left:1.5cm;margin-right:2.5cm}
+@page :right{margin-left:2.5cm;margin-right:1.5cm}
+@media print{
+ body{font-size:10.3pt;line-height:1.32}
+ .topbar,canvas.ink,.videoctl{display:none!important}
+ main{max-width:none;padding:0}
+ .page{display:block!important;break-after:page;page-break-after:always}
+ .page:last-child{break-after:auto;page-break-after:auto}
+ .titel{font-size:1.3em;padding:5px 12px;margin-top:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .box{margin-bottom:7px}
+ .box>.in{padding:5px 10px}
+ .box>h3{padding:2px 10px}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ input.f{background:#fff;height:1.5em}
+ .fuss{margin-top:6px}
+ #gitter1{width:250px;height:157px}
+ .zuord>div{margin:1px 0}
+}
+</style>
+<style id="video-style">
+.videoctl{position:sticky;top:60px;z-index:12;background:#fff;padding:6px 8px;border:1.5px solid #00805F;border-radius:8px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:6px 0 8px;font:15px Arial,sans-serif}
+.videoctl button{font:inherit;font-weight:bold;border:1.5px solid #00805F;background:#fff;color:#000;border-radius:7px;padding:7px 12px;cursor:pointer}
+.videoctl button:disabled{opacity:.4;cursor:default}
+.videoctl .go{background:#00805F;color:#fff}.videoctl .go.warn{background:#C62828;border-color:#C62828}
+.videoctl .hint{color:#444;flex-basis:100%}
+.videoctl select{font:inherit;padding:5px;border:1.5px solid #00805F;border-radius:6px;background:#fff;max-width:16em}
+.videoctl .status{color:#555;font-size:13px}
+.speaking{background:#FFF2BD!important;box-shadow:0 0 0 3px #E9B72B!important;border-radius:4px}
+svg .seite.vglow{animation:vglow .9s ease-in-out infinite}
+@keyframes vglow{50%{stroke-width:10}}
+input.f,.box{scroll-margin-top:150px}
+@media print{.videoctl{display:none!important}}
+</style>
+<style>
+/* Lern-Lounge: Zurück-Knopf und Spickzettel-Fenster */
+.ll-leiste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.ll-zurueck,.ll-spick{font:700 16px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.ll-zurueck{background:#fff;color:#1b1f20;border:2px solid #5a4a8a}
+.ll-zurueck:hover{background:#f1edfb}
+.ll-zurueck.ll-warn{background:#B3261E;color:#fff;border-color:#B3261E}
+.ll-spick{background:#B3261E;color:#fff;border:2px solid #B3261E;box-shadow:0 2px 8px rgba(179,38,30,.35)}
+.ll-spick:hover{background:#951f19}
+.ll-spick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ll-zurueck:focus-visible,.ll-spick:focus-visible,.ll-zu:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}
+.ll-fenster{position:fixed;inset:0;z-index:1000;background:rgba(20,20,30,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ll-fenster[hidden]{display:none}
+.ll-box{width:min(1080px,100%);height:min(92vh,100%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.ll-zu{align-self:flex-end;margin:8px 10px;font:700 15px Arial,Helvetica,sans-serif;color:#fff;background:#B3261E;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.ll-box iframe{flex:1;width:100%;border:0;border-top:1px solid #ddd}
+.ll-oben{max-width:1080px;margin:0 auto;padding:10px 16px 0;box-sizing:border-box}
+</style>
+</head>
+<body><div class="ll-oben"><div class="ll-leiste"><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a></div></div>
+<header class="topbar">
+ <nav class="tabs">
+  <button class="tab active" type="button" data-p="z1">Z1</button>
+  <button class="tab" type="button" data-p="z2">Z2</button>
+  <button class="tab" type="button" data-p="z3">Z3</button>
+ </nav>
+ <div class="tools">
+  <button type="button" class="pk on" data-tool="hand" title="Tippen und Eingeben">✋ Eingeben</button>
+  <button type="button" class="pu" data-tool="u">✏ rot (u)</button>
+  <button type="button" class="pA" data-tool="A">✏ blau (A)</button>
+  <button type="button" class="pk" data-tool="k">✏ schwarz</button>
+  <button type="button" data-tool="radier">⌫ Radierer</button>
+  <button type="button" id="leeren">Seite leeren</button>
+  <button type="button" id="allesweg">Alles löschen</button>
+ </div>
+</header>
+<main>
+
+<!-- ======================= Z1 ======================= -->
+<section class="page active" id="z1">
+ <div class="titel">Das Rechteck: Umfang und Flächeninhalt</div>
+ <div class="ziel"><b>Z1</b>Ich kenne die Begriffe Flächeninhalt und Umfang.</div>
+
+ <div class="box"><h3>Merke</h3><div class="in">
+  <div class="reihe">
+   <div class="karte"><span class="schild su">u</span><b>Umfang</b>
+    <div class="zeile wrap">Länge des <input class="f" style="width:8ch" autocomplete="off" data-k="z1-0" data-l="Randes">, einmal ganz herum</div>
+    <div class="zeile">Einheit: <input class="f" style="width:15ch" autocomplete="off" data-k="z1-1" data-l="Längeneinheit"> <span class="klein">(z. B. mm, cm, m)</span></div>
+   </div>
+   <div class="karte"><span class="schild sA">A</span><b>Flächeninhalt</b>
+    <div class="zeile wrap">Wie viele <input class="f" style="width:18ch" autocomplete="off" data-k="z1-2" data-l="Einheitsquadrate"> passen hinein?</div>
+    <div class="zeile">Einheit: <input class="f" style="width:16ch" autocomplete="off" data-k="z1-3" data-l="Flächeneinheit"> <span class="klein">(z. B. mm², cm², m²)</span></div>
+   </div>
+  </div>
+ </div></div>
+
+ <div class="box"><h3>Musterbeispiel</h3><div class="in">
+  <div class="reihe">
+   <div>
+    <div class="zeile wrap">Ein Rechteck ist 5 cm lang und 3 cm breit. Ein Kästchen ist 1 cm lang und 1 cm breit, also 1 cm² groß.</div>
+    <svg class="gitter" id="gitter1" data-fk="z1-f0" viewBox="0 0 300 200" width="300" height="200" aria-label="Rechteck auf Karopapier"></svg>
+    <div class="klein">Tippe auf die Randstücke (rot) und auf die Kästchen (blau).</div>
+   </div>
+   <div>
+    <div class="zeile"><span class="schild su">u</span>Rand abgehen:</div>
+    <div class="zeile">u = <input class="f" style="width:7ch" autocomplete="off" data-k="z1-4" data-l="16 cm"></div>
+    <div class="zeile" style="margin-top:8px"><span class="schild sA">A</span>Kästchen zählen:</div>
+    <div class="zeile">A = <input class="f" style="width:8ch" autocomplete="off" data-k="z1-5" data-l="15 cm²"></div>
+    <div class="zeile wrap" style="margin-top:10px"><b>Im Alltag:</b></div>
+    <div class="zeile wrap">Lichterkette um ein Poster → <input class="f" style="width:8ch" autocomplete="off" data-k="z1-6" data-l="Umfang"></div>
+    <div class="zeile wrap">Poster an der Wand → <input class="f" style="width:15ch" autocomplete="off" data-k="z1-7" data-l="Flächeninhalt"></div>
+   </div>
+  </div>
+ </div></div>
+
+ <div class="box"><h3>Jetzt ihr</h3><div class="in">
+  <div class="zeile wrap auf">Braucht man den Umfang (u) oder den Flächeninhalt (A)? Tippe an bzw. kreise ein.</div>
+  <div class="zuord">
+   <div>Zaun um den Garten <span class="wahl"><button type="button" data-v="u">u</button><button type="button" data-v="A">A</button></span></div>
+   <div>Rasen säen <span class="wahl"><button type="button" data-v="u">u</button><button type="button" data-v="A">A</button></span></div>
+   <div>Fußleiste im Zimmer <span class="wahl"><button type="button" data-v="u">u</button><button type="button" data-v="A">A</button></span></div>
+   <div>Teppichboden <span class="wahl"><button type="button" data-v="u">u</button><button type="button" data-v="A">A</button></span></div>
+   <div>Bilderrahmen <span class="wahl"><button type="button" data-v="u">u</button><button type="button" data-v="A">A</button></span></div>
+   <div>Glasscheibe <span class="wahl"><button type="button" data-v="u">u</button><button type="button" data-v="A">A</button></span></div>
+  </div>
+ </div></div>
+
+ <div class="box"><h3>Entdecker ★</h3><div class="in">
+  <div class="zeile wrap">Ein Faden ist 12 cm lang. Er wird zu verschiedenen Rechtecken gelegt.</div>
+  <div class="reihe">
+   <svg class="mini" id="mini1" viewBox="0 0 350 120" width="350" height="120" aria-label="drei Rechtecke"></svg>
+   <table class="t">
+    <tr><th>Rechteck</th><th>Umfang u</th><th>Flächeninhalt A</th></tr>
+    <tr><td>5 cm und 1 cm</td><td><input class="f" style="width:7ch" autocomplete="off" data-k="z1-8" data-l="12 cm"></td><td><input class="f" style="width:7ch" autocomplete="off" data-k="z1-9" data-l="5 cm²"></td></tr>
+    <tr><td>4 cm und 2 cm</td><td><input class="f" style="width:7ch" autocomplete="off" data-k="z1-10" data-l="12 cm"></td><td><input class="f" style="width:7ch" autocomplete="off" data-k="z1-11" data-l="8 cm²"></td></tr>
+    <tr><td>3 cm und 3 cm</td><td><input class="f" style="width:7ch" autocomplete="off" data-k="z1-12" data-l="12 cm"></td><td><input class="f" style="width:7ch" autocomplete="off" data-k="z1-13" data-l="9 cm²"></td></tr>
+   </table>
+  </div>
+  <div class="merksatz">Gleicher <input class="f" style="width:8ch" autocomplete="off" data-k="z1-14" data-l="Umfang">, aber verschiedener <input class="f" style="width:15ch" autocomplete="off" data-k="z1-15" data-l="Flächeninhalt">. Das <input class="f" style="width:9ch" autocomplete="off" data-k="z1-16" data-l="Quadrat"> hat den größten Flächeninhalt.</div>
+ </div></div>
+
+ <div class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</div>
+</section>
+
+<!-- ======================= Z2 ======================= -->
+<section class="page" id="z2">
+ <div class="titel">Das Rechteck: Umfang und Flächeninhalt berechnen</div>
+ <div class="ziel"><b>Z2</b>Ich kann den Umfang und Flächeninhalt von Rechtecken (einschließlich Quadraten) berechnen, auch wenn die Seiten unterschiedliche Längeneinheiten haben.</div>
+
+ <div class="box"><h3>Merke</h3><div class="in">
+  <div class="reihe">
+   <div class="karte" style="display:flex;gap:10px;align-items:center">
+    <svg viewBox="0 0 150 100" width="150" height="100" aria-label="Rechteck mit Seiten a und b">
+     <rect x="20" y="15" width="105" height="62" fill="none" stroke="#000" stroke-width="2.5"/>
+     <g fill="none" stroke="#000" stroke-width="1.4">
+      <path d="M20 65 A12 12 0 0 0 32 77"/><path d="M113 77 A12 12 0 0 0 125 65"/>
+      <path d="M125 27 A12 12 0 0 0 113 15"/><path d="M32 15 A12 12 0 0 0 20 27"/></g>
+     <g fill="#000"><circle cx="25" cy="72" r="1.8"/><circle cx="120" cy="72" r="1.8"/><circle cx="120" cy="20" r="1.8"/><circle cx="25" cy="20" r="1.8"/></g>
+     <text x="72" y="95" text-anchor="middle" font-size="16" font-style="italic">a</text>
+     <text x="136" y="51" font-size="16" font-style="italic">b</text>
+    </svg>
+    <div><b>Rechteck</b><br><span class="formel">u = <input class="f" style="width:13ch" autocomplete="off" data-k="z2-0" data-l="2 · (a + b)"></span><br><span class="formel">A = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-1" data-l="a · b"></span></div>
+   </div>
+   <div class="karte" style="display:flex;gap:10px;align-items:center">
+    <svg viewBox="0 0 120 100" width="120" height="100" aria-label="Quadrat mit Seite a">
+     <rect x="20" y="12" width="70" height="70" fill="none" stroke="#000" stroke-width="2.5"/>
+     <path d="M20 70 A12 12 0 0 0 32 82" fill="none" stroke="#000" stroke-width="1.4"/><circle cx="25" cy="77" r="1.8"/>
+     <g stroke="#000" stroke-width="1.6">
+      <line x1="52" y1="76" x2="52" y2="88"/><line x1="58" y1="76" x2="58" y2="88"/>
+      <line x1="52" y1="6" x2="52" y2="18"/><line x1="58" y1="6" x2="58" y2="18"/>
+      <line x1="14" y1="44" x2="26" y2="44"/><line x1="14" y1="50" x2="26" y2="50"/>
+      <line x1="84" y1="44" x2="96" y2="44"/><line x1="84" y1="50" x2="96" y2="50"/></g>
+     <text x="55" y="99" text-anchor="middle" font-size="16" font-style="italic">a</text>
+    </svg>
+    <div><b>Quadrat</b><br><span class="formel">u = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-2" data-l="4 · a"></span><br><span class="formel">A = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-3" data-l="a · a"></span></div>
+   </div>
+  </div>
+  <div class="merksatz">Erst <input class="f" style="width:19ch" autocomplete="off" data-k="z2-4" data-l="gleiche Einheiten">, dann rechnen! Einheiten stehen in jeder Rechnung mit.</div>
+ </div></div>
+
+ <div class="box"><h3>Musterbeispiel</h3><div class="in">
+  <div class="zeile wrap"><span class="auf">1) Poster:</span> Ein Poster ist 60 cm lang und 40 cm breit. Wie lang muss eine Lichterkette ringsherum sein? Wie viel Wandfläche bedeckt das Poster?</div>
+  <div class="zeile">u = 2 · ( <input class="f" style="width:7ch" autocomplete="off" data-k="z2-5" data-l="60 cm"> + <input class="f" style="width:7ch" autocomplete="off" data-k="z2-6" data-l="40 cm"> ) = 2 · <input class="f" style="width:8ch" autocomplete="off" data-k="z2-7" data-l="100 cm"> = <input class="f" style="width:8ch" autocomplete="off" data-k="z2-8" data-l="200 cm"></div>
+  <div class="zeile">A = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-9" data-l="60 cm"> · <input class="f" style="width:7ch" autocomplete="off" data-k="z2-10" data-l="40 cm"> = <input class="f" style="width:11ch" autocomplete="off" data-k="z2-11" data-l="2 400 cm²"></div>
+  <div class="zeile wrap">Antwort: Die Lichterkette muss <input class="f" style="width:8ch" autocomplete="off" data-k="z2-12" data-l="200 cm"> lang sein. Das Poster bedeckt <input class="f" style="width:11ch" autocomplete="off" data-k="z2-13" data-l="2 400 cm²">.</div>
+  <div class="zeile wrap" style="margin-top:7px"><span class="auf">2) Leinwand-Foto:</span> Ein quadratisches Foto auf Leinwand hat die Seitenlänge a = 30 cm.</div>
+  <div class="zeile">u = 4 · <input class="f" style="width:7ch" autocomplete="off" data-k="z2-14" data-l="30 cm"> = <input class="f" style="width:8ch" autocomplete="off" data-k="z2-15" data-l="120 cm"> <span style="display:inline-block;width:1.5em"></span> A = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-16" data-l="30 cm"> · <input class="f" style="width:7ch" autocomplete="off" data-k="z2-17" data-l="30 cm"> = <input class="f" style="width:9ch" autocomplete="off" data-k="z2-18" data-l="900 cm²"></div>
+  <div class="zeile wrap" style="margin-top:7px"><span class="auf">3) Schreibtisch:</span> Ein Schreibtisch ist 1,2 m lang und 60 cm breit.</div>
+  <div class="zeile">Erst gleiche Einheiten: 60 cm = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-19" data-l="0,6 m"></div>
+  <div class="zeile">u = 2 · ( <input class="f" style="width:7ch" autocomplete="off" data-k="z2-20" data-l="1,2 m"> + <input class="f" style="width:7ch" autocomplete="off" data-k="z2-21" data-l="0,6 m"> ) = 2 · <input class="f" style="width:7ch" autocomplete="off" data-k="z2-22" data-l="1,8 m"> = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-23" data-l="3,6 m"></div>
+  <div class="zeile">A = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-24" data-l="1,2 m"> · <input class="f" style="width:7ch" autocomplete="off" data-k="z2-25" data-l="0,6 m"> = <input class="f" style="width:9ch" autocomplete="off" data-k="z2-26" data-l="0,72 m²"></div>
+ </div></div>
+
+ <div class="box"><h3>Jetzt ihr</h3><div class="in">
+  <div class="zeile wrap"><span class="auf">a) Handy-Display:</span> 15 cm lang und 7 cm breit</div>
+  <div class="zeile">u = 2 · ( <input class="f" style="width:7ch" autocomplete="off" data-k="z2-27"> + <input class="f" style="width:7ch" autocomplete="off" data-k="z2-28"> ) = 2 · <input class="f" style="width:7ch" autocomplete="off" data-k="z2-29"> = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-30"> <span style="display:inline-block;width:1em"></span> A = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-31"> · <input class="f" style="width:7ch" autocomplete="off" data-k="z2-32"> = <input class="f" style="width:8ch" autocomplete="off" data-k="z2-33"></div>
+  <div class="zeile wrap" style="margin-top:5px"><span class="auf">b) Fliese:</span> quadratisch, a = 25 cm</div>
+  <div class="zeile">u = 4 · <input class="f" style="width:7ch" autocomplete="off" data-k="z2-34"> = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-35"> <span style="display:inline-block;width:1em"></span> A = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-36"> · <input class="f" style="width:7ch" autocomplete="off" data-k="z2-37"> = <input class="f" style="width:8ch" autocomplete="off" data-k="z2-38"></div>
+  <div class="zeile wrap" style="margin-top:5px"><span class="auf">c) Bett:</span> 2 m lang und 90 cm breit</div>
+  <div class="zeile">Erst gleiche Einheiten: 90 cm = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-39"></div>
+  <div class="zeile">u = 2 · ( <input class="f" style="width:7ch" autocomplete="off" data-k="z2-40"> + <input class="f" style="width:7ch" autocomplete="off" data-k="z2-41"> ) = 2 · <input class="f" style="width:7ch" autocomplete="off" data-k="z2-42"> = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-43"> <span style="display:inline-block;width:1em"></span> A = <input class="f" style="width:7ch" autocomplete="off" data-k="z2-44"> · <input class="f" style="width:7ch" autocomplete="off" data-k="z2-45"> = <input class="f" style="width:8ch" autocomplete="off" data-k="z2-46"></div>
+  <div class="zeile wrap" style="margin-top:5px"><span class="auf">d) Miss nach ★:</span> Miss deinen Tisch und berechne Umfang und Flächeninhalt.</div>
+  <div class="zeile">Länge: <input class="f" style="width:7ch" autocomplete="off" data-k="z2-47"> <span style="display:inline-block;width:1em"></span> Breite: <input class="f" style="width:7ch" autocomplete="off" data-k="z2-48"> <span style="display:inline-block;width:1em"></span> u = <input class="f" style="width:9ch" autocomplete="off" data-k="z2-49"> <span style="display:inline-block;width:1em"></span> A = <input class="f" style="width:9ch" autocomplete="off" data-k="z2-50"></div>
+ </div></div>
+
+ <div class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</div>
+</section>
+
+<!-- ======================= Z3 ======================= -->
+<section class="page" id="z3">
+ <div class="titel">Das Rechteck: fehlende Seiten und Flächeneinheiten</div>
+ <div class="ziel"><b>Z3</b>Ich kann aus dem Umfang und Flächeninhalt fehlende Seiten berechnen. Ich kann Flächeneinheiten ineinander umrechnen und Ergebnisse in sinnvollen Einheiten angeben.</div>
+
+ <div class="box"><h3>Musterbeispiel</h3><div class="in">
+  <div class="zeile wrap"><span class="auf">1) Hochbeet:</span> Ein Hochbeet hat den Flächeninhalt A = 24 m² und ist 6 m lang. Wie breit ist es?</div>
+  <div class="zeile">Überlegen: <input class="f" style="width:5ch" autocomplete="off" data-k="z3-0" data-l="6 m"> · ? = <input class="f" style="width:7ch" autocomplete="off" data-k="z3-1" data-l="24 m²"> → Breite = <input class="f" style="width:7ch" autocomplete="off" data-k="z3-2" data-l="24 m²"> : <input class="f" style="width:5ch" autocomplete="off" data-k="z3-3" data-l="6 m"> = <input class="f" style="width:5ch" autocomplete="off" data-k="z3-4" data-l="4 m"></div>
+  <div class="zeile wrap" style="margin-top:5px"><span class="auf">2) Bilderrahmen:</span> Ein Rahmen hat den Umfang u = 140 cm und ist 50 cm lang. Wie breit ist er?</div>
+  <div class="zeile">Halber Umfang: <input class="f" style="width:8ch" autocomplete="off" data-k="z3-5" data-l="140 cm"> : 2 = <input class="f" style="width:7ch" autocomplete="off" data-k="z3-6" data-l="70 cm"> <span class="klein">(Das ist Länge + Breite.)</span></div>
+  <div class="zeile">Breite = <input class="f" style="width:7ch" autocomplete="off" data-k="z3-7" data-l="70 cm"> − <input class="f" style="width:7ch" autocomplete="off" data-k="z3-8" data-l="50 cm"> = <input class="f" style="width:7ch" autocomplete="off" data-k="z3-9" data-l="20 cm"></div>
+  <div class="zeile wrap" style="margin-top:5px"><span class="auf">3) Pool:</span> Ein quadratischer Pool hat den Umfang u = 36 m. → a = <input class="f" style="width:6ch" autocomplete="off" data-k="z3-10" data-l="36 m"> : 4 = <input class="f" style="width:5ch" autocomplete="off" data-k="z3-11" data-l="9 m"></div>
+ </div></div>
+
+ <div class="box"><h3>Merke: Flächeneinheiten</h3><div class="in">
+  <div class="reihe">
+   <div>
+    <div class="treppe">
+     <div class="stufe" style="height:1.9em">mm²</div><div class="stufe" style="height:2.6em">cm²</div><div class="stufe" style="height:3.3em">dm²</div><div class="stufe" style="height:4em">m²</div><div class="stufe" style="height:4.7em">a</div><div class="stufe" style="height:5.4em">ha</div><div class="stufe" style="height:6.1em">km²</div>
+    </div>
+    <div class="zeile">Umrechnungszahl: <input class="f" style="width:5ch" autocomplete="off" data-k="z3-12" data-l="100"></div>
+   </div>
+   <div>
+    <div class="zeile">größere → kleinere Einheit: <input class="f" style="width:16ch" autocomplete="off" data-k="z3-13" data-l="multiplizieren"></div>
+    <div class="zeile">kleinere → größere Einheit: <input class="f" style="width:12ch" autocomplete="off" data-k="z3-14" data-l="dividieren"></div>
+    <div class="zeile wrap">Das Komma wandert <input class="f" style="width:4ch" autocomplete="off" data-k="z3-15" data-l="2"> Stellen pro Stufe. <span class="klein">(Bei Längen nur 1 Stelle.)</span></div>
+   </div>
+  </div>
+  <div class="zeile" style="margin-top:4px"><b>Beispiele:</b> 3 m² = <input class="f" style="width:5ch" autocomplete="off" data-k="z3-16" data-l="300"> dm² = <input class="f" style="width:8ch" autocomplete="off" data-k="z3-17" data-l="30 000"> cm² <span style="display:inline-block;width:1.5em"></span> 450 cm² = <input class="f" style="width:5ch" autocomplete="off" data-k="z3-18" data-l="4,5"> dm²</div>
+  <div class="zeile"><span style="display:inline-block;width:5.6em"></span>5 000 m² = <input class="f" style="width:4ch" autocomplete="off" data-k="z3-19" data-l="50"> a = <input class="f" style="width:5ch" autocomplete="off" data-k="z3-20" data-l="0,5"> ha</div>
+ </div></div>
+
+ <div class="box"><h3>Merke: Wo braucht man a und ha?</h3><div class="in">
+  <div class="reihe">
+   <div class="karte"><b>1 a (Ar)</b> = Quadrat mit 10 m Seite<br>10 m · 10 m = <input class="f" style="width:8ch" autocomplete="off" data-k="z3-21" data-l="100 m²"><br><span class="klein">Grundstücke, Bauland, Kleingärten</span></div>
+   <div class="karte"><b>1 ha (Hektar)</b> = Quadrat mit 100 m Seite<br>100 m · 100 m = <input class="f" style="width:11ch" autocomplete="off" data-k="z3-22" data-l="10 000 m²"><br><span class="klein">Felder, Wald, Parks, Sportanlagen („Hekt-ar“ = 100 Ar)</span></div>
+  </div>
+  <div class="zeile wrap" style="margin-top:4px"><b>km²</b>: Städte, Landkreise, Länder <span style="display:inline-block;width:1em"></span> <b>Wohnungen und Zimmer</b>: immer in <input class="f" style="width:4ch" autocomplete="off" data-k="z3-23" data-l="m²"></div>
+  <div class="zeile wrap klein">Größenvorstellung: 1 m² ≈ Tischplatte <span style="display:inline-block;width:.8em"></span> 1 a ≈ großes Klassenzimmer <span style="display:inline-block;width:.8em"></span> 1 ha ≈ Fußballfeld</div>
+ </div></div>
+
+ <div class="box"><h3>Auflösung: Wo ist am meisten Platz zum Toben?</h3><div class="in">
+  <div class="zeile">Abenteuerspielplatz: 52 a = <input class="f" style="width:10ch" autocomplete="off" data-k="z3-24" data-l="5 200 m²"> <span style="display:inline-block;width:.8em"></span> Strandfeld: 0,5 ha = <input class="f" style="width:10ch" autocomplete="off" data-k="z3-25" data-l="5 000 m²"> <span style="display:inline-block;width:.8em"></span> Bolzplatz: 4 800 m²</div>
+  <div class="zeile">Am meisten Platz bietet der <input class="f" style="width:21ch" autocomplete="off" data-k="z3-26" data-l="Abenteuerspielplatz">.</div>
+ </div></div>
+
+ <div class="box"><h3>Jetzt ihr</h3><div class="in">
+  <div class="zeile wrap"><span class="auf">a) Zimmer:</span> A = 18 m², Breite 3 m. Wie lang ist das Zimmer?</div>
+  <div class="zeile"><input class="f" style="width:6ch" autocomplete="off" data-k="z3-27"> · ? = <input class="f" style="width:7ch" autocomplete="off" data-k="z3-28"> → Länge = <input class="f" style="width:7ch" autocomplete="off" data-k="z3-29"> : <input class="f" style="width:6ch" autocomplete="off" data-k="z3-30"> = <input class="f" style="width:6ch" autocomplete="off" data-k="z3-31"></div>
+  <div class="zeile wrap" style="margin-top:4px"><span class="auf">b) Beet:</span> u = 8 m, Breite 1,5 m. Wie lang ist das Beet?</div>
+  <div class="zeile">Halber Umfang: <input class="f" style="width:6ch" autocomplete="off" data-k="z3-32"> : 2 = <input class="f" style="width:6ch" autocomplete="off" data-k="z3-33"> <span style="display:inline-block;width:1em"></span> Länge = <input class="f" style="width:6ch" autocomplete="off" data-k="z3-34"> − <input class="f" style="width:6ch" autocomplete="off" data-k="z3-35"> = <input class="f" style="width:6ch" autocomplete="off" data-k="z3-36"></div>
+  <div class="zeile" style="margin-top:4px"><span class="auf">c)</span> 7 m² = <input class="f" style="width:7ch" autocomplete="off" data-k="z3-37"> dm² <span style="display:inline-block;width:1em"></span> 2 500 mm² = <input class="f" style="width:6ch" autocomplete="off" data-k="z3-38"> cm² <span style="display:inline-block;width:1em"></span> 3 ha = <input class="f" style="width:8ch" autocomplete="off" data-k="z3-39"> m²</div>
+  <div class="zeile wrap" style="margin-top:4px"><span class="auf">d) Gib sinnvoll an:</span> Ein Teppich hat 40 000 cm². → <input class="f" style="width:8ch" autocomplete="off" data-k="z3-40"></div>
+ </div></div>
+
+ <div class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</div>
+</section>
+</main>
+
+<script id="tafel-script">
+(()=>{
+const NS='http://www.w3.org/2000/svg';
+const mk=(tag,attrs,parent)=>{const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;};
+/* ---------- Reiter ---------- */
+const tabs=[...document.querySelectorAll('.tab')];
+function zeigeSeite(id){tabs.forEach(t=>t.classList.toggle('active',t.dataset.p===id));
+ document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));
+ window.scrollTo(0,0);setTimeout(allesNeuZeichnen,30);}
+tabs.forEach(t=>t.addEventListener('click',()=>zeigeSeite(t.dataset.p)));
+const aktSeite=()=>document.querySelector('.page.active');
+/* ---------- Enter springt weiter ---------- */
+document.addEventListener('keydown',e=>{if(e.key!=='Enter'||!e.target.matches('input.f'))return;e.preventDefault();
+ const alle=[...e.target.closest('.page').querySelectorAll('input.f')];const n=alle[alle.indexOf(e.target)+1];if(n)n.focus();else e.target.blur();});
+/* ---------- u/A-Wahl ---------- */
+document.querySelectorAll('.wahl').forEach(w=>w.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+ const war=b.classList.contains('sel');w.querySelectorAll('button').forEach(x=>x.classList.remove('sel'));if(!war)b.classList.add('sel');}));
+/* ---------- Karogitter Z1 ---------- */
+const S=36,OX=1,OY=1,L=5,B=3,COLS=8,ROWS=5;
+const g=document.getElementById('gitter1');
+g.setAttribute('viewBox',`0 0 ${COLS*S+4} ${ROWS*S+4}`);g.setAttribute('width',COLS*S+4);g.setAttribute('height',ROWS*S+4);
+const gr=mk('g',{transform:'translate(2,2)'},g);
+const zellen=[],kanten=[];let reihenfolgeK=[],reihenfolgeZ=[];
+for(let r=0;r<B;r++)for(let c=0;c<L;c++){const x=(OX+c)*S,y=(OY+r)*S;
+ const z=mk('rect',{x,y,width:S,height:S,class:'zelle'},gr);const t=mk('text',{x:x+S/2,y:y+S/2,class:'nr z'},gr);
+ const o={z,t};zellen.push(o);z.addEventListener('click',()=>toggleZ(o));}
+for(let i=0;i<=COLS;i++)mk('line',{x1:i*S,y1:0,x2:i*S,y2:ROWS*S,stroke:'#B5B5B5','stroke-width':1,'pointer-events':'none'},gr);
+for(let j=0;j<=ROWS;j++)mk('line',{x1:0,y1:j*S,x2:COLS*S,y2:j*S,stroke:'#B5B5B5','stroke-width':1,'pointer-events':'none'},gr);
+/* Rand im Uhrzeigersinn: oben, rechts, unten, links */
+const seg=[];
+for(let c=0;c<L;c++)seg.push([OX+c,OY,OX+c+1,OY,0,-1]);
+for(let r=0;r<B;r++)seg.push([OX+L,OY+r,OX+L,OY+r+1,1,0]);
+for(let c=L;c>0;c--)seg.push([OX+c,OY+B,OX+c-1,OY+B,0,1]);
+for(let r=B;r>0;r--)seg.push([OX,OY+r,OX,OY+r-1,-1,0]);
+seg.forEach(([a,b,c,d,nx,ny])=>{const l=mk('line',{x1:a*S,y1:b*S,x2:c*S,y2:d*S,class:'kante'},gr);
+ const h=mk('line',{x1:a*S,y1:b*S,x2:c*S,y2:d*S,class:'hit'},gr);
+ const t=mk('text',{x:(a+c)/2*S+nx*12,y:(b+d)/2*S+ny*12,class:'nr k'},gr);const o={l,t};kanten.push(o);h.addEventListener('click',()=>toggleK(o));});
+mk('text',{x:(OX+L/2)*S,y:(OY+B)*S+31,'text-anchor':'middle','font-size':15},gr).textContent='5 cm';
+mk('text',{x:(OX+L)*S+27,y:(OY+B/2)*S+5,'font-size':15},gr).textContent='3 cm';
+function nummeriere(){reihenfolgeK.forEach((o,i)=>o.t.textContent=i+1);reihenfolgeZ.forEach((o,i)=>o.t.textContent=i+1);}
+function toggleK(o){const i=reihenfolgeK.indexOf(o);if(i<0){reihenfolgeK.push(o);o.l.classList.add('an');}else{reihenfolgeK.splice(i,1);o.l.classList.remove('an');o.t.textContent='';}nummeriere();}
+function toggleZ(o){const i=reihenfolgeZ.indexOf(o);if(i<0){reihenfolgeZ.push(o);o.z.classList.add('an');}else{reihenfolgeZ.splice(i,1);o.z.classList.remove('an');o.t.textContent='';}nummeriere();}
+function gitterLeeren(){reihenfolgeK.forEach(o=>{o.l.classList.remove('an');o.t.textContent='';});reihenfolgeZ.forEach(o=>{o.z.classList.remove('an');o.t.textContent='';});reihenfolgeK=[];reihenfolgeZ=[];}
+function nacheinander(liste,feld,fn){liste.forEach((o,i)=>setTimeout(()=>{if(!feld.includes(o))fn(o);},i*160));}
+window.randFaerben=()=>{reihenfolgeK.slice().forEach(toggleK);nacheinander(kanten,reihenfolgeK,toggleK);};
+window.kaestchenFaerben=()=>{reihenfolgeZ.slice().forEach(toggleZ);nacheinander(zellen,reihenfolgeZ,toggleZ);};
+/* ---------- kleine Rechtecke (Entdecker) ---------- */
+const m=document.getElementById('mini1');const s=18;
+[[5,1,4],[4,2,145],[3,3,268]].forEach(([l,b,x0])=>{const gg=mk('g',{transform:`translate(${x0},24)`},m);
+ for(let i=0;i<=l;i++)mk('line',{x1:i*s,y1:0,x2:i*s,y2:b*s,stroke:'#BBB'},gg);
+ for(let j=0;j<=b;j++)mk('line',{x1:0,y1:j*s,x2:l*s,y2:j*s,stroke:'#BBB'},gg);
+ mk('rect',{x:0,y:0,width:l*s,height:b*s,fill:'none',stroke:'#000','stroke-width':2.5},gg);
+ mk('text',{x:l*s/2,y:b*s+16,'text-anchor':'middle','font-size':13},gg).textContent=l+' cm';
+ mk('text',{x:l*s+5,y:b*s/2+5,'font-size':13},gg).textContent=b+' cm';});
+/* ---------- Stifte und Radierer ---------- */
+const FARBE={u:'#C62828',A:'#1565C0',k:'#000'};
+let werkzeug='hand';const striche={z1:[],z2:[],z3:[]};
+const pages=[...document.querySelectorAll('.page')];
+pages.forEach(p=>{const c=document.createElement('canvas');c.className='ink';p.appendChild(c);
+ let akt=null;
+ const pos=e=>{const r=c.getBoundingClientRect();const w=p.offsetWidth;return [(e.clientX-r.left)/w,(e.clientY-r.top)/w];};
+ c.addEventListener('pointerdown',e=>{if(werkzeug==='hand')return;e.preventDefault();c.setPointerCapture(e.pointerId);
+  if(werkzeug==='radier'){radiere(p,pos(e));return;}
+  akt={f:FARBE[werkzeug],pts:[pos(e)]};striche[p.id].push(akt);});
+ c.addEventListener('pointermove',e=>{if(werkzeug==='radier'&&e.buttons){radiere(p,pos(e));return;}
+  if(!akt)return;akt.pts.push(pos(e));zeichne(p);});
+ const ende=()=>{akt=null;};c.addEventListener('pointerup',ende);c.addEventListener('pointercancel',ende);});
+function radiere(p,[x,y]){const w=p.offsetWidth,r=16/w;const vor=striche[p.id].length;
+ striche[p.id]=striche[p.id].filter(st=>!st.pts.some(([a,b])=>Math.hypot(a-x,b-y)<r));if(striche[p.id].length!==vor)zeichne(p);}
+function zeichne(p){const c=p.querySelector('canvas.ink');const w=p.offsetWidth,h=p.offsetHeight,d=window.devicePixelRatio||1;
+ if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d);c.style.width=w+'px';c.style.height=h+'px';}
+ const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,w,h);x.lineCap='round';x.lineJoin='round';x.lineWidth=3.5;
+ striche[p.id].forEach(st=>{x.strokeStyle=st.f;x.beginPath();st.pts.forEach(([a,b],i)=>i?x.lineTo(a*w,b*w):x.moveTo(a*w,b*w));if(st.pts.length===1)x.lineTo(st.pts[0][0]*w+.5,st.pts[0][1]*w);x.stroke();});}
+function allesNeuZeichnen(){pages.forEach(p=>{if(p.classList.contains('active'))zeichne(p);});}
+window.addEventListener('resize',allesNeuZeichnen);
+document.querySelectorAll('[data-tool]').forEach(b=>b.addEventListener('click',()=>{werkzeug=b.dataset.tool;
+ document.querySelectorAll('[data-tool]').forEach(x=>x.classList.toggle('on',x===b));
+ document.querySelectorAll('canvas.ink').forEach(c=>c.classList.toggle('zeichnen',werkzeug!=='hand'));allesNeuZeichnen();}));
+/* ---------- Leeren mit Bestätigung ---------- */
+function seiteLeeren(p){p.querySelectorAll('input.f').forEach(i=>i.value='');p.querySelectorAll('.wahl .sel').forEach(b=>b.classList.remove('sel'));
+ if(p.id==='z1')gitterLeeren();striche[p.id]=[];zeichne(p);}
+function bestaetigen(btn,text,aktion){let t=null;const orig=btn.textContent;
+ btn.addEventListener('click',()=>{if(btn.classList.contains('warn')){clearTimeout(t);btn.classList.remove('warn');btn.textContent=orig;aktion();return;}
+  btn.classList.add('warn');btn.textContent=text;t=setTimeout(()=>{btn.classList.remove('warn');btn.textContent=orig;},3000);});}
+bestaetigen(document.getElementById('leeren'),'Wirklich? Nochmal tippen',()=>seiteLeeren(aktSeite()));
+bestaetigen(document.getElementById('allesweg'),'Alles weg? Nochmal tippen',()=>pages.forEach(seiteLeeren));
+window.addEventListener('load',allesNeuZeichnen);
+})();
+</script>
+<script id="video-script">(()=>{
+const ROT="#C62828",BLAU="#1565C0",GRUEN="#2E7D32",FC={h:ROT,g:BLAU,a:GRUEN};
+const SKRIPT={
+z1:[
+{kap:'Einstieg',box:'Merke',t:'Hallo! In diesem Teil geht es um das Rechteck. Du lernst zwei wichtige Begriffe kennen: den Umfang und den Flächeninhalt.'},
+{kap:'Merke: Umfang',t:'Der Umfang hat den Buchstaben u. Der Umfang ist die Länge des Randes. Du gehst einmal ganz um die Figur herum.',f:['z1-0']},
+{t:'Der Umfang ist eine Länge. Deshalb hat er eine Längeneinheit, zum Beispiel Millimeter, Zentimeter oder Meter.',f:['z1-1']},
+{kap:'Merke: Flächeninhalt',t:'Der Flächeninhalt hat den Buchstaben A. Er sagt dir, wie viele Einheitsquadrate in die Figur hineinpassen. Ein Einheitsquadrat ist zum Beispiel ein Quadrat mit einem Zentimeter Seitenlänge.',f:['z1-2']},
+{t:'Der Flächeninhalt hat eine Flächeneinheit, zum Beispiel Quadratzentimeter oder Quadratmeter. Die kleine Zwei oben an der Einheit bedeutet: Es geht um Quadrate.',f:['z1-3']},
+{kap:'Musterbeispiel',box:'Musterbeispiel',t:'Jetzt kommt das Musterbeispiel. Ein Rechteck ist fünf Zentimeter lang und drei Zentimeter breit. Jedes Kästchen ist einen Zentimeter lang und einen Zentimeter breit. Ein Kästchen ist also einen Quadratzentimeter groß.',fig:'z1-f0'},
+{t:'Für den Umfang gehen wir einmal am Rand entlang und zählen die Randstücke. Oben sind es fünf, rechts drei, unten fünf und links drei.',fig:'z1-f0',run:'randFaerben'},
+{t:'Zusammen sind das sechzehn Randstücke. Jedes Randstück ist einen Zentimeter lang. Der Umfang ist also sechzehn Zentimeter.',f:['z1-4']},
+{t:'Für den Flächeninhalt zählen wir die Kästchen im Rechteck. Es sind drei Reihen mit je fünf Kästchen.',fig:'z1-f0',run:'kaestchenFaerben'},
+{t:'Das sind fünfzehn Kästchen. Der Flächeninhalt ist also fünfzehn Quadratzentimeter. Achte auf die Einheit: Quadratzentimeter, nicht Zentimeter.',f:['z1-5']},
+{kap:'Im Alltag',t:'Auch im Alltag brauchen wir beides. Eine Lichterkette legt man um den Rand eines Posters. Dafür braucht man den Umfang.',f:['z1-6']},
+{t:'Das Poster selbst bedeckt ein Stück der Wand. Dafür braucht man den Flächeninhalt.',f:['z1-7']},
+{kap:'Entdecker',box:'Entdecker ★',t:'Jetzt wird es spannend. Ein Faden ist zwölf Zentimeter lang. Wir legen ihn zu drei verschiedenen Rechtecken.',q:'#mini1'},
+{t:'Das erste Rechteck ist fünf Zentimeter lang und einen Zentimeter breit. Der Faden ist immer zwölf Zentimeter lang, also ist der Umfang zwölf Zentimeter. Es passen fünf Kästchen hinein. Der Flächeninhalt ist fünf Quadratzentimeter.',f:['z1-8','z1-9']},
+{t:'Das zweite Rechteck ist vier Zentimeter lang und zwei Zentimeter breit. Der Umfang ist wieder zwölf Zentimeter. Es sind zwei Reihen mit je vier Kästchen. Das sind acht Quadratzentimeter.',f:['z1-10','z1-11']},
+{t:'Das dritte Rechteck ist drei Zentimeter lang und drei Zentimeter breit. Es ist ein Quadrat. Der Umfang ist wieder zwölf Zentimeter. Drei Reihen mit je drei Kästchen ergeben neun Quadratzentimeter.',f:['z1-12','z1-13']},
+{t:'Was fällt dir auf? Alle Rechtecke haben den gleichen Umfang, aber einen verschiedenen Flächeninhalt. Das Quadrat hat den größten Flächeninhalt.',f:['z1-14','z1-15','z1-16']},
+{kap:'Jetzt ihr',box:'Jetzt ihr',t:'Jetzt bist du dran! Bearbeite die Aufgaben im Kasten Jetzt ihr selbstständig. Überlege bei jedem Beispiel: Geht es um den Rand, dann brauchst du den Umfang u. Geht es um die Fläche, dann brauchst du den Flächeninhalt A. Danach geht es mit dem Reiter Z2 weiter.'}
+],
+z2:[
+{kap:'Merke: Formeln',box:'Merke',t:'In diesem Teil lernst du, wie man Umfang und Flächeninhalt ausrechnet, ohne Kästchen zu zählen.'},
+{t:'Ein Rechteck hat zwei Seiten a und zwei Seiten b. Für den Umfang gehst du einmal herum: a plus b, und das zweimal. Deshalb gilt: u gleich zwei mal Klammer auf a plus b Klammer zu.',f:['z2-0']},
+{t:'Für den Flächeninhalt multiplizierst du die Länge mit der Breite: A gleich a mal b. Das ist wie beim Kästchenzählen: Anzahl der Reihen mal Kästchen pro Reihe.',f:['z2-1']},
+{t:'Beim Quadrat sind alle vier Seiten gleich lang. Das zeigen die zwei kleinen Striche an jeder Seite. Der Umfang ist deshalb u gleich vier mal a.',f:['z2-2']},
+{t:'Der Flächeninhalt des Quadrats ist A gleich a mal a.',f:['z2-3']},
+{t:'Ganz wichtig ist der Merksatz: Erst gleiche Einheiten, dann rechnen! Außerdem schreiben wir die Einheiten in jeder Rechnung mit.',f:['z2-4']},
+{kap:'Musterbeispiel 1: Poster',box:'Musterbeispiel',t:'Erstes Musterbeispiel: Ein Poster ist sechzig Zentimeter lang und vierzig Zentimeter breit. Die Lichterkette geht um den Rand, also suchen wir den Umfang. Die Wandfläche ist der Flächeninhalt.'},
+{t:'Wir nehmen die Formel u gleich zwei mal Klammer a plus b. Wir setzen ein: sechzig Zentimeter plus vierzig Zentimeter.',f:['z2-5','z2-6']},
+{t:'In der Klammer rechnen wir zuerst: sechzig Zentimeter plus vierzig Zentimeter sind hundert Zentimeter.',f:['z2-7']},
+{t:'Zwei mal hundert Zentimeter sind zweihundert Zentimeter.',f:['z2-8']},
+{t:'Für den Flächeninhalt multiplizieren wir sechzig Zentimeter mit vierzig Zentimeter. Sechs mal vier ist vierundzwanzig, dazu kommen zwei Nullen. Das ergibt zweitausendvierhundert Quadratzentimeter. Aus Zentimeter mal Zentimeter wird Quadratzentimeter.',f:['z2-9','z2-10','z2-11']},
+{t:'Zum Schluss schreiben wir den Antwortsatz: Die Lichterkette muss zweihundert Zentimeter lang sein. Das Poster bedeckt zweitausendvierhundert Quadratzentimeter.',f:['z2-12','z2-13']},
+{kap:'Musterbeispiel 2: Quadrat',t:'Zweites Musterbeispiel: Ein quadratisches Foto auf Leinwand hat die Seitenlänge dreißig Zentimeter. Weil es ein Quadrat ist, nehmen wir die Formeln für das Quadrat.'},
+{t:'Der Umfang ist vier mal dreißig Zentimeter. Das sind hundertzwanzig Zentimeter.',f:['z2-14','z2-15']},
+{t:'Der Flächeninhalt ist dreißig Zentimeter mal dreißig Zentimeter. Drei mal drei ist neun, dazu kommen zwei Nullen. Das sind neunhundert Quadratzentimeter.',f:['z2-16','z2-17','z2-18']},
+{kap:'Musterbeispiel 3: verschiedene Einheiten',t:'Drittes Musterbeispiel: Ein Schreibtisch ist eins Komma zwei Meter lang und sechzig Zentimeter breit. Achtung: Hier passen die Einheiten nicht zusammen. Meter und Zentimeter darf man nicht einfach zusammenrechnen.'},
+{t:'Also erst gleiche Einheiten. Hundert Zentimeter sind ein Meter. Sechzig Zentimeter sind deshalb null Komma sechs Meter.',f:['z2-19']},
+{t:'Jetzt der Umfang: zwei mal Klammer eins Komma zwei Meter plus null Komma sechs Meter.',f:['z2-20','z2-21']},
+{t:'In der Klammer ergibt das eins Komma acht Meter. Zwei mal eins Komma acht Meter sind drei Komma sechs Meter.',f:['z2-22','z2-23']},
+{t:'Der Flächeninhalt ist eins Komma zwei Meter mal null Komma sechs Meter. Zwölf mal sechs ist zweiundsiebzig. Beide Zahlen haben eine Stelle nach dem Komma, das Ergebnis bekommt also zwei Stellen nach dem Komma. Es sind null Komma sieben zwei Quadratmeter.',f:['z2-24','z2-25','z2-26']},
+{kap:'Jetzt ihr',box:'Jetzt ihr',t:'Jetzt bist du dran! Bearbeite die Aufgaben im Kasten Jetzt ihr selbstständig. Denke beim Bett an den Merksatz: erst gleiche Einheiten. Miss zum Schluss deinen eigenen Tisch. Danach geht es mit dem Reiter Z3 weiter.'}
+],
+z3:[
+{kap:'Fehlende Seiten',box:'Musterbeispiel',t:'Jetzt drehen wir die Aufgabe um. Wir kennen den Umfang oder den Flächeninhalt und suchen eine fehlende Seite. Dafür überlegen wir einfach.'},
+{kap:'Musterbeispiel 1: aus A',t:'Erstes Musterbeispiel: Ein Hochbeet hat den Flächeninhalt vierundzwanzig Quadratmeter und ist sechs Meter lang. Wie breit ist es?'},
+{t:'Wir wissen: Flächeninhalt gleich Länge mal Breite. Also überlegen wir: Sechs Meter mal wie viel ergibt vierundzwanzig Quadratmeter?',f:['z3-0','z3-1']},
+{t:'Die Umkehrung des Multiplizierens ist das Dividieren. Wir dividieren vierundzwanzig Quadratmeter durch sechs Meter. Das Zeichen für Dividieren ist der Doppelpunkt.',f:['z3-2','z3-3']},
+{t:'Das ergibt vier Meter. Probe: Sechs Meter mal vier Meter sind vierundzwanzig Quadratmeter. Das Hochbeet ist also vier Meter breit.',f:['z3-4']},
+{kap:'Musterbeispiel 2: aus u',t:'Zweites Musterbeispiel: Ein Bilderrahmen hat den Umfang hundertvierzig Zentimeter und ist fünfzig Zentimeter lang. Wie breit ist er?'},
+{t:'Beim Umfang kommt jede Seite zweimal vor. Der halbe Umfang ist also Länge plus Breite. Wir dividieren hundertvierzig Zentimeter durch zwei. Das sind siebzig Zentimeter.',f:['z3-5','z3-6']},
+{t:'Siebzig Zentimeter sind Länge und Breite zusammen. Die Länge ist fünfzig Zentimeter. Für die Breite bleibt: siebzig Zentimeter minus fünfzig Zentimeter gleich zwanzig Zentimeter.',f:['z3-7','z3-8','z3-9']},
+{kap:'Musterbeispiel 3: Quadrat',t:'Drittes Musterbeispiel: Ein quadratischer Pool hat den Umfang sechsunddreißig Meter. Beim Quadrat sind alle vier Seiten gleich lang. Also dividieren wir den Umfang durch vier: Sechsunddreißig Meter durch vier sind neun Meter.',f:['z3-10','z3-11']},
+{kap:'Merke: Flächeneinheiten',box:'Merke: Flächeneinheiten',t:'Jetzt lernst du die Flächeneinheiten kennen. Sie stehen hier wie auf einer Treppe: Quadratmillimeter, Quadratzentimeter, Quadratdezimeter, Quadratmeter, Ar, Hektar und Quadratkilometer.',q:'.treppe'},
+{t:'Von einer Stufe zur nächsten ist die Umrechnungszahl immer hundert. Zum Beispiel ist ein Quadratzentimeter so groß wie hundert Quadratmillimeter. Ein Quadratmeter sind hundert Quadratdezimeter.',f:['z3-12']},
+{t:'Gehst du zur kleineren Einheit, dann multiplizierst du mit hundert. Gehst du zur größeren Einheit, dann dividierst du durch hundert.',f:['z3-13','z3-14']},
+{t:'Dabei wandert das Komma zwei Stellen pro Stufe. Bei Längen war es nur eine Stelle, weil dort die Umrechnungszahl zehn ist.',f:['z3-15']},
+{kap:'Umrechnen',t:'Beispiel: Drei Quadratmeter sollen in Quadratdezimeter umgerechnet werden. Das ist eine Stufe nach unten, also mal hundert. Das sind dreihundert Quadratdezimeter.',f:['z3-16']},
+{t:'Noch eine Stufe nach unten zu Quadratzentimeter: Dreihundert mal hundert sind dreißigtausend Quadratzentimeter.',f:['z3-17']},
+{t:'Vierhundertfünfzig Quadratzentimeter sollen in Quadratdezimeter. Das ist eine Stufe nach oben, also durch hundert. Das Komma wandert zwei Stellen nach links. Das ergibt vier Komma fünf Quadratdezimeter.',f:['z3-18']},
+{t:'Fünftausend Quadratmeter in Ar: durch hundert, das sind fünfzig Ar. Und in Hektar noch einmal durch hundert: null Komma fünf Hektar.',f:['z3-19','z3-20']},
+{kap:'Merke: a und ha',box:'Merke: Wo braucht man a und ha?',t:'Ar und Hektar braucht man nur für Grund und Boden. Ein Ar ist ein Quadrat mit zehn Meter Seitenlänge. Zehn Meter mal zehn Meter sind hundert Quadratmeter. In Ar misst man Grundstücke, Bauland und Kleingärten.',f:['z3-21']},
+{t:'Ein Hektar ist ein Quadrat mit hundert Meter Seitenlänge. Hundert Meter mal hundert Meter sind zehntausend Quadratmeter. Das Wort Hektar bedeutet hundert Ar. In Hektar misst man Felder, Wälder, Parks und Sportanlagen.',f:['z3-22']},
+{t:'Städte, Landkreise und Länder gibt man in Quadratkilometer an. Wohnungen und Zimmer gibt man immer in Quadratmeter an.',f:['z3-23']},
+{t:'Zur Vorstellung: Ein Quadratmeter ist etwa so groß wie eine Tischplatte. Ein Ar ist etwa so groß wie ein großes Klassenzimmer. Ein Hektar ist etwa so groß wie ein Fußballfeld.'},
+{kap:'Auflösung',box:'Auflösung: Wo ist am meisten Platz zum Toben?',t:'Erinnerst du dich an die Abstimmung? Wo ist am meisten Platz zum Toben? Um zu vergleichen, rechnen wir alles in Quadratmeter um.'},
+{t:'Der Abenteuerspielplatz hat zweiundfünfzig Ar. Ein Ar sind hundert Quadratmeter. Also sind das fünftausendzweihundert Quadratmeter.',f:['z3-24']},
+{t:'Das Strandfeld hat null Komma fünf Hektar. Ein Hektar sind zehntausend Quadratmeter, die Hälfte davon sind fünftausend Quadratmeter. Hektar klingt riesig, ist hier aber nicht am größten.',f:['z3-25']},
+{t:'Der Bolzplatz hat viertausendachthundert Quadratmeter. Er hat zwar die größte Zahl, aber die kleinste Fläche. Am meisten Platz bietet also der Abenteuerspielplatz.',f:['z3-26']},
+{kap:'Jetzt ihr',box:'Jetzt ihr',t:'Jetzt bist du dran! Bearbeite die Aufgaben im Kasten Jetzt ihr selbstständig. Überlege bei der fehlenden Seite wie im Musterbeispiel und schreibe immer die Einheiten mit. Beim Umrechnen hilft dir die Treppe. Damit hast du alle drei Ziele geschafft. Super!'}
+]};
+const synth=window.speechSynthesis;let stimme=null;
+function waehleStimme(){if(!synth)return;const v=synth.getVoices().filter(x=>/^de/i.test(x.lang));
+ stimme=v.find(x=>/natural/i.test(x.name)&&/de-DE/i.test(x.lang))||v.find(x=>/google deutsch/i.test(x.name))||v.find(x=>/anna|helena|petra|markus|yannick/i.test(x.name)&&/de-DE/i.test(x.lang))||v.find(x=>/de-DE/i.test(x.lang))||v[0]||null;}
+if(synth){waehleStimme();try{synth.addEventListener('voiceschanged',waehleStimme)}catch(e){synth.onvoiceschanged=waehleStimme}}
+const saetze=t=>t.match(/[^.!?]+[.!?]*/g).map(s=>s.trim()).filter(Boolean);
+let lauf=null,token=0,wachhund=null;
+function stopWachhund(){if(wachhund){clearTimeout(wachhund);wachhund=null;}}
+function sprich(liste,fertig){
+ const my=++token;let k=0;
+ const weiter=()=>{if(my!==token)return;stopWachhund();
+  if(k>=liste.length){fertig();return;}
+  const text=liste[k++];let u;
+  try{u=new SpeechSynthesisUtterance(text);u.lang='de-DE';u.rate=.92;if(stimme)u.voice=stimme;}catch(e){keineStimme();return;}
+  let gestartet=false;
+  u.onstart=()=>{if(my!==token)return;gestartet=true;stopWachhund();
+    wachhund=setTimeout(()=>{if(my===token){synth.cancel();weiter();}},text.length*110+5000);};
+  u.onend=()=>{if(my===token)weiter();};
+  u.onerror=e=>{if(my!==token)return;if(e&&(e.error==='interrupted'||e.error==='canceled'))return;weiter();};
+  synth.speak(u);
+  wachhund=setTimeout(()=>{if(my===token&&!gestartet)keineStimme();},6000);
+ };
+ weiter();
+}
+function keineStimme(){const r=lauf;stopAlles();if(r)status(r.id,'Keine Sprachausgabe. iPad: Stummschalter und Lautstärke prüfen. Computer: Chrome, Edge oder Safari verwenden.');}
+function abbrechen(){token++;stopWachhund();if(synth)synth.cancel();}
+const page=id=>document.getElementById(id);
+const feld=k=>document.querySelector('input.f[data-k="'+k+'"]');
+const fig=k=>document.querySelector('[data-fk="'+k+'"]');
+function linie(fk,s){const d=fig(fk);return d&&d.querySelector('.seite[data-s="'+s+'"]');}
+function boxMit(p,titel){return [...p.querySelectorAll('.box')].find(b=>b.querySelector('h3')?.textContent.trim()===titel);}
+let aktiv=[];
+function markiereAus(){aktiv.forEach(el=>el.classList.remove('speaking','vglow'));aktiv=[];}
+function markiere(el,cls){if(!el)return;el.classList.add(cls||'speaking');aktiv.push(el);}
+function wirkung(st){
+ if(st.run&&window[st.run])window[st.run]();
+ (st.f||[]).forEach(k=>{const i=feld(k);if(i)i.value=i.dataset.l;});
+ if(st.farbe)Object.entries(st.farbe).forEach(([s,c])=>{const l=linie(st.fig,s);if(l){l.setAttribute('stroke',FC[c]);l.setAttribute('stroke-width',5);}});
+}
+function zeige(st,p){
+ markiereAus();wirkung(st);
+ (st.f||[]).forEach(k=>markiere(feld(k)));
+ (st.glow||[]).forEach(s=>markiere(linie(st.fig,s),'vglow'));
+ if(st.farbe)Object.keys(st.farbe).forEach(s=>markiere(linie(st.fig,s),'vglow'));
+ let ziel=null;
+ if(st.q){const el=p.querySelector(st.q);markiere(el);ziel=el;}
+ if(st.box){const b=boxMit(p,st.box);if(b){b.scrollIntoView({block:'start',behavior:'smooth'});ziel=null;}}
+ const f0=(st.f||[]).map(feld).find(Boolean);
+ ziel=ziel||(st.fig?fig(st.fig):null)||f0;
+ if(ziel)ziel.scrollIntoView({block:'center',behavior:'smooth'});
+}
+function status(id,t){const c=page(id)?.querySelector('.videoctl .status');if(c)c.textContent=t;}
+function knoepfe(){document.querySelectorAll('.videoctl').forEach(c=>{const an=lauf&&lauf.id===c.parentNode.id;
+ c.querySelector('.pause').textContent=an&&lauf.pausiert?'▶ Weiter':'⏸ Pause';
+ c.querySelector('.pause').disabled=!an;c.querySelector('.zur').disabled=!an;c.querySelector('.vor').disabled=!an;});}
+function schritt(){
+ const r=lauf;if(!r||r.pausiert)return;
+ if(r.i>=r.schritte.length){markiereAus();status(r.id,'Erklärung beendet');lauf=null;knoepfe();return;}
+ const st=r.schritte[r.i],p=page(r.id);
+ zeige(st,p);kapitelAnzeige(r);
+ status(r.id,'Schritt '+(r.i+1)+' von '+r.schritte.length);
+ sprich(saetze(st.t),()=>{if(lauf!==r)return;r.i++;schritt();});
+}
+function kapitelAnzeige(r){const sel=page(r.id).querySelector('.videoctl select');let k=0;
+ r.schritte.forEach((s,i)=>{if(s.kap&&i<=r.i)k=i;});sel.value=String(k);}
+function starte(id,ab){
+ abbrechen();markiereAus();
+ const schritte=SKRIPT[id];ab=ab||0;
+ schritte.slice(0,ab).forEach(wirkung);
+ lauf={id,schritte,i:ab,pausiert:false};knoepfe();
+ const los=()=>{if(lauf&&lauf.id===id)schritt();};
+ if(synth&&synth.speaking)setTimeout(los,80);else los();
+}
+function springe(n){const r=lauf;if(!r)return;abbrechen();
+ n=Math.max(0,Math.min(r.schritte.length-1,n));
+ if(n>r.i)r.schritte.slice(r.i,n).forEach(wirkung);
+ r.i=n;r.pausiert=false;knoepfe();setTimeout(schritt,80);}
+function pause(){const r=lauf;if(!r)return;
+ if(r.pausiert){r.pausiert=false;knoepfe();schritt();}
+ else{r.pausiert=true;abbrechen();status(r.id,'Pausiert – tippe auf ▶ Weiter');knoepfe();}}
+function stopAlles(){abbrechen();markiereAus();if(lauf){status(lauf.id,'Gestoppt');}lauf=null;knoepfe();}
+function eigeneEintraege(id){return [...page(id).querySelectorAll('input.f[data-l]')].some(i=>i.value.trim()!==''&&i.value.trim()!==i.dataset.l);}
+for(const p of document.querySelectorAll('.page')){
+ const id=p.id,sk=SKRIPT[id];if(!sk)continue;
+ const c=document.createElement('div');c.className='videoctl';
+ const opts=sk.map((s,i)=>s.kap?'<option value="'+i+'">'+s.kap+'</option>':'').join('');
+ c.innerHTML='<span class="hint">Tippe auf ▶ Start, um dir die Erklärung anzuhören.</span>'+
+  '<button class="go" type="button">▶ Start</button><button class="pause" type="button">⏸ Pause</button>'+
+  '<button class="zur" type="button" title="Einen Schritt zurück">◀ Zurück</button><button class="vor" type="button" title="Einen Schritt weiter">Vor ▶</button>'+
+  '<button class="stop" type="button">■ Stopp</button>'+
+  '<label class="kap">Abschnitt: <select>'+opts+'</select></label><span class="status" aria-live="polite"></span>';
+ p.insertBefore(c,p.firstChild);
+ const go=c.querySelector('.go'),sel=c.querySelector('select');
+ if(!synth||typeof SpeechSynthesisUtterance==='undefined'){c.querySelector('.status').textContent='Sprachausgabe in diesem Browser nicht verfügbar';}
+ let warn=null;
+ const startMitPruefung=ab=>{
+  if(!warn&&eigeneEintraege(id)){warn=setTimeout(()=>{warn=null;go.textContent='▶ Start';go.classList.remove('warn');},4000);
+   go.textContent='Deine Einträge werden überschrieben – nochmal tippen';go.classList.add('warn');go.dataset.ab=ab;return;}
+  clearTimeout(warn);warn=null;go.textContent='▶ Start';go.classList.remove('warn');delete go.dataset.ab;starte(id,+ab||0);};
+ go.onclick=()=>startMitPruefung(go.dataset.ab||0);
+ sel.onchange=()=>{if(lauf&&lauf.id===id)springe(+sel.value);else{go.dataset.ab=sel.value;startMitPruefung(sel.value);}};
+ c.querySelector('.pause').onclick=pause;
+ c.querySelector('.zur').onclick=()=>lauf&&springe(lauf.i-1);
+ c.querySelector('.vor').onclick=()=>lauf&&springe(lauf.i+1);
+ c.querySelector('.stop').onclick=stopAlles;
+}
+knoepfe();
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',stopAlles));
+window.addEventListener('pagehide',()=>{if(synth)synth.cancel();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&lauf&&!lauf.pausiert)pause();});
+})();</script>
+<script>
+(function(){
+  function still(){try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}}
+  document.getElementById('ll-zurueck').addEventListener('click',still);
+  window.addEventListener('pagehide',still);
+})();
+</script>
+</body>
+</html>
