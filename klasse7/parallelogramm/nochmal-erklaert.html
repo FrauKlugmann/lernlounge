@@ -351,9 +351,9 @@ const BSP = {
        aufgabe: 'Ein Parallelogramm hat die Seiten <span class="m" data-m="g1">7 cm</span> und <span class="m" data-m="g2">5 cm</span>. Die Höhe ist <span class="m" data-m="g3">4 cm</span>. Berechne den <span class="m" data-m="s1">Umfang</span> und den <span class="m" data-m="s2">Flächeninhalt</span>.',
        vorlesen: 'Ein Parallelogramm hat die Seiten 7 cm und 5 cm. Die Höhe ist 4 cm. Berechne den Umfang und den Flächeninhalt.',
        mass: ['g = 7 cm', '5 cm', '7 cm', '5 cm'],
-       U: 'U = 7 cm + 5 cm + 7 cm + 5 cm = <b>24 cm</b>',
+       U: 'u = 7 cm + 5 cm + 7 cm + 5 cm = <b>24 cm</b>',
        A: 'A = 7 cm · 4 cm = <b>28 cm²</b>',
-       antwort: 'Der Umfang ist 24 cm.<br>Der Flächeninhalt ist 28 cm².', ergebnis: 'U = 24 cm und A = 28 cm²',
+       antwort: 'Der Umfang ist 24 cm.<br>Der Flächeninhalt ist 28 cm².', ergebnis: 'u = 24 cm und A = 28 cm²',
        minip: 'Abschneiden, schieben: ein Rechteck!',
        liste: ['Skizze zeichnen, Längen dran', 'Umfang: alle 4 Seiten addieren', 'Dreieck abschneiden und schieben', 'Fläche: Grundseite · Höhe'],
        regel: 'Für den Umfang addierst du alle vier Seiten. Für den Flächeninhalt schneidest du das Dreieck ab und schiebst es nach rechts. So entsteht ein Rechteck. Darum rechnest du Grundseite mal Höhe.' }
@@ -473,7 +473,7 @@ function mini(b) {
   const [a1, a2] = m(b.h.von), [c1, c2] = m(b.h.bis);
   return `<svg class="mini-svg" viewBox="0 0 320 ${H * s + 62}"><polygon points="${pts(b.P.map(m))}" fill="#fde6d6" stroke="${F.U}" stroke-width="4" stroke-linejoin="round"/>
     <path d="M${a1},${a2} L${c1},${c2}" stroke="${F.h}" stroke-width="3.5" stroke-dasharray="8 5"/>
-    <text x="160" y="${oy + H * s + 40}" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="20"><tspan fill="${F.U}">U = ${b.Uw} cm</tspan><tspan fill="${F.A}" dx="22">A = ${b.Aw} cm²</tspan></text></svg>`;
+    <text x="160" y="${oy + H * s + 40}" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="20"><tspan fill="${F.U}">u = ${b.Uw} cm</tspan><tspan fill="${F.A}" dx="22">A = ${b.Aw} cm²</tspan></text></svg>`;
 }
 
 /* Text zum Vorlesen aufbereiten */

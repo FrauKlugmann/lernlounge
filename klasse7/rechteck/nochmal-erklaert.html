@@ -345,10 +345,10 @@ const BSP = {
        aufgabe: 'Ein Rechteck ist <span class="m" data-m="g1">7 cm</span> lang und <span class="m" data-m="g2">4 cm</span> breit. Berechne den <span class="m" data-m="s1">Umfang</span> und den <span class="m" data-m="s2">Flächeninhalt</span>.',
        vorlesen: 'Ein Rechteck ist 7 cm lang und 4 cm breit. Berechne den Umfang und den Flächeninhalt.',
        mass: ['a = 7 cm', 'b = 4 cm', 'a = 7 cm', 'b = 4 cm'],
-       U: 'U = 7 cm + 4 cm + 7 cm + 4 cm = <b>22 cm</b>', Uk: 'Kurz: U = 2 · a + 2 · b',
+       U: 'u = 7 cm + 4 cm + 7 cm + 4 cm = <b>22 cm</b>', Uk: 'Kurz: u = 2 · a + 2 · b',
        A: 'A = 7 cm · 4 cm = <b>28 cm²</b>', Ak: 'Kurz: A = a · b',
        reihen: 'Es sind 4 Reihen mit je 7 Kästchen. Rechne Länge mal Breite.',
-       antwort: 'Der Umfang ist 22 cm.<br>Der Flächeninhalt ist 28 cm².', ergebnis: 'U = 22 cm und A = 28 cm²',
+       antwort: 'Der Umfang ist 22 cm.<br>Der Flächeninhalt ist 28 cm².', ergebnis: 'u = 22 cm und A = 28 cm²',
        minip: 'Rundherum und innen drin.',
        liste: ['Skizze zeichnen, Längen dran', 'Umfang: alle 4 Seiten addieren', 'Fläche: Länge · Breite', 'Einheiten: cm und cm²'],
        regel: 'Zeichne eine Skizze und schreibe die Längen an die Seiten. Für den Umfang addierst du alle vier Seiten. Für den Flächeninhalt rechnest du Länge mal Breite. Der Umfang hat die Einheit cm, der Flächeninhalt cm².' },
@@ -356,12 +356,12 @@ const BSP = {
        aufgabe: 'Ein Quadrat hat die Seitenlänge <span class="m" data-m="g1">5 cm</span>. Berechne den <span class="m" data-m="s1">Umfang</span> und den <span class="m" data-m="s2">Flächeninhalt</span>.',
        vorlesen: 'Ein Quadrat hat die Seitenlänge 5 cm. Berechne den Umfang und den Flächeninhalt.',
        mass: ['a = 5 cm', 'a = 5 cm', 'a = 5 cm', 'a = 5 cm'],
-       U: 'U = 5 cm + 5 cm + 5 cm + 5 cm = <b>20 cm</b>', Uk: 'Kurz: U = 4 · a',
+       U: 'u = 5 cm + 5 cm + 5 cm + 5 cm = <b>20 cm</b>', Uk: 'Kurz: u = 4 · a',
        A: 'A = 5 cm · 5 cm = <b>25 cm²</b>', Ak: 'Kurz: A = a · a',
        reihen: 'Es sind 5 Reihen mit je 5 Kästchen. Rechne Seite mal Seite.',
-       antwort: 'Der Umfang ist 20 cm.<br>Der Flächeninhalt ist 25 cm².', ergebnis: 'U = 20 cm und A = 25 cm²',
+       antwort: 'Der Umfang ist 20 cm.<br>Der Flächeninhalt ist 25 cm².', ergebnis: 'u = 20 cm und A = 25 cm²',
        minip: 'Alle vier Seiten sind gleich lang.',
-       liste: ['Alle 4 Seiten gleich lang', 'Umfang: U = 4 · a', 'Fläche: A = a · a', 'Einheiten: cm und cm²'],
+       liste: ['Alle 4 Seiten gleich lang', 'Umfang: u = 4 · a', 'Fläche: A = a · a', 'Einheiten: cm und cm²'],
        regel: 'Beim Quadrat sind alle vier Seiten gleich lang. Für den Umfang rechnest du vier mal die Seite. Für den Flächeninhalt rechnest du Seite mal Seite. Der Umfang hat die Einheit cm, der Flächeninhalt cm².' },
   3: { teil: 'laenge', nr: 1, farbe: '#1565C0', titel: 'Treppe runter', treppe: 'laenge', start: 3, ziel: 1, werte: ['3 m', '30 dm', '300 cm'],
        aufgabe: 'Rechne <span class="m" data-m="g1">3 m</span> in <span class="m" data-m="s1">cm</span> um.', vorlesen: 'Rechne 3 m in cm um.' },
@@ -531,7 +531,7 @@ function miniForm(b) {
   return `<svg class="mini-svg" viewBox="0 0 320 ${h + 80}">${k}<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="${F.U}" stroke-width="5"/>
     <text x="160" y="${y - 8}" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="20" fill="#1d1d22">${b.a} cm</text>
     <text x="${x + w + 8}" y="${y + h / 2 + 7}" font-family="Arial" font-weight="bold" font-size="20" fill="#1d1d22">${b.b} cm</text>
-    <text x="160" y="${y + h + 34}" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="20"><tspan fill="${F.U}">U = ${2 * b.a + 2 * b.b} cm</tspan><tspan fill="${F.A}" dx="22">A = ${b.a * b.b} cm²</tspan></text></svg>`;
+    <text x="160" y="${y + h + 34}" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="20"><tspan fill="${F.U}">u = ${2 * b.a + 2 * b.b} cm</tspan><tspan fill="${F.A}" dx="22">A = ${b.a * b.b} cm²</tspan></text></svg>`;
 }
 let miniNr = 0;
 function miniTreppe(b) {

@@ -351,10 +351,10 @@ const BSP = {
        aufgabe: 'Ein Dreieck hat einen rechten Winkel. Die Seiten sind <span class="m" data-m="g1">4 cm</span>, <span class="m" data-m="g2">3 cm</span> und <span class="m" data-m="g3">5 cm</span> lang. Berechne den <span class="m" data-m="s1">Umfang</span> und den <span class="m" data-m="s2">Flächeninhalt</span>.',
        vorlesen: 'Ein Dreieck hat einen rechten Winkel. Die Seiten sind 4 cm, 3 cm und 5 cm lang. Berechne den Umfang und den Flächeninhalt.',
        mass: ['g = 4 cm', '5 cm', '3 cm'],
-       U: 'U = 4 cm + 5 cm + 3 cm = <b>12 cm</b>',
+       U: 'u = 4 cm + 5 cm + 3 cm = <b>12 cm</b>',
        doppel: 'Rechteck: 4 cm · 3 cm = 12 cm²',
        A: `A = ${HALB} · 4 cm · 3 cm = <b>6 cm²</b>`,
-       antwort: 'Der Umfang ist 12 cm.<br>Der Flächeninhalt ist 6 cm².', ergebnis: 'U = 12 cm und A = 6 cm²',
+       antwort: 'Der Umfang ist 12 cm.<br>Der Flächeninhalt ist 6 cm².', ergebnis: 'u = 12 cm und A = 6 cm²',
        minip: 'Zwei Dreiecke ergeben ein Rechteck.',
        liste: ['Umfang: alle 3 Seiten addieren', 'Klonen, drehen, anschieben: Rechteck', 'Unser Dreieck ist die Hälfte', `Fläche: A = ${HALB} · g · h`],
        regel: 'Für den Umfang addierst du alle drei Seiten. Klone das Dreieck, drehe die Kopie und schiebe sie an. Zusammen ergeben sie ein Rechteck. Unser Dreieck ist die Hälfte davon. Darum rechnest du ein halb mal Grundseite mal Höhe.' },
@@ -365,10 +365,10 @@ const BSP = {
        aufgabe: 'Ein Dreieck hat die Grundseite <span class="m" data-m="g1">8 cm</span> und zwei Seiten mit je <span class="m" data-m="g2">5 cm</span>. Die Höhe ist <span class="m" data-m="g3">3 cm</span>. Berechne den <span class="m" data-m="s1">Umfang</span> und den <span class="m" data-m="s2">Flächeninhalt</span>.',
        vorlesen: 'Ein Dreieck hat die Grundseite 8 cm und zwei Seiten mit je 5 cm. Die Höhe ist 3 cm. Berechne den Umfang und den Flächeninhalt.',
        mass: ['g = 8 cm', '5 cm', '5 cm'],
-       U: 'U = 8 cm + 5 cm + 5 cm = <b>18 cm</b>',
+       U: 'u = 8 cm + 5 cm + 5 cm = <b>18 cm</b>',
        doppel: 'Parallelogramm: 8 cm · 3 cm = 24 cm²',
        A: `A = ${HALB} · 8 cm · 3 cm = <b>12 cm²</b>`,
-       antwort: 'Der Umfang ist 18 cm.<br>Der Flächeninhalt ist 12 cm².', ergebnis: 'U = 18 cm und A = 12 cm²',
+       antwort: 'Der Umfang ist 18 cm.<br>Der Flächeninhalt ist 12 cm².', ergebnis: 'u = 18 cm und A = 12 cm²',
        minip: 'Die Höhe kommt von der Spitze.',
        liste: ['Höhe: von der Spitze senkrecht runter', 'Die Höhe zählt nicht zum Umfang', 'Klonen, drehen, anschieben', `Fläche: A = ${HALB} · g · h`],
        regel: 'Die Höhe geht von der Spitze senkrecht nach unten. Sie zählt nicht zum Umfang. Klone das Dreieck, drehe die Kopie und schiebe sie an. Zusammen ergeben sie ein Parallelogramm. Darum rechnest du ein halb mal Grundseite mal Höhe.' }
@@ -493,7 +493,7 @@ function mini(b) {
   const [a1, a2] = m(b.h.von), [c1, c2] = m(b.h.bis);
   return `<svg class="mini-svg" viewBox="0 0 320 ${H * s + 62}"><polygon points="${pts(b.P.map(m))}" fill="#fde6d6" stroke="${F.U}" stroke-width="4" stroke-linejoin="round"/>
     <path d="M${a1},${a2} L${c1},${c2}" stroke="${F.h}" stroke-width="3.5" stroke-dasharray="8 5"/>
-    <text x="160" y="${oy + H * s + 40}" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="20"><tspan fill="${F.U}">U = ${b.Uw} cm</tspan><tspan fill="${F.A}" dx="22">A = ${b.Aw} cm²</tspan></text></svg>`;
+    <text x="160" y="${oy + H * s + 40}" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="20"><tspan fill="${F.U}">u = ${b.Uw} cm</tspan><tspan fill="${F.A}" dx="22">A = ${b.Aw} cm²</tspan></text></svg>`;
 }
 
 /* Text zum Vorlesen aufbereiten */
