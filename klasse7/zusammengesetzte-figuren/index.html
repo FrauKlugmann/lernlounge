@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Zusammengesetzte Figuren – Interaktive Übungen</title>
+<script>
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  AUFGABENBLOCK – NUR AB HIER ÄNDERN                              ║
+   ║  Alles unterhalb von „ENDE AUFGABENBLOCK“ ist der feste Motor.   ║
+   ╚══════════════════════════════════════════════════════════════════╝
+   Kurzschrift in Texten:
+     [30]          Eingabefeld, Lösung 30 (Komma/Punkt egal)
+     [0,5|,5]      mehrere richtige Antworten mit |
+     {3/10}        Bruch;  {[30]/100}  Bruch mit Feld im Zähler
+     [=7/100]      Bruch frei eingeben (jeder gleichwertige Bruch zählt)
+     ((A|*B|C))    Auswahlknöpfe, * = richtig
+     [G:40] [W:10] [P:25 %]   Zahl zum Markieren (nur Art "markieren")
+     **fett**   <blau>…</blau>  <orange>…</orange>  <gruen>…</gruen>
+   Aufgabenarten: luecke, erweitern, hunderterfeld, faerben, tabelle,
+     vergleichen, auswahl, markieren, streifen, verhaeltnis, zuordnen,
+     richtigfalsch, sortieren, streifenbau, kreisbau   (jede kann zusätzlich bild:"<svg…>" haben)
+*/
+/* ─── Diagramm-Helfer (Teil des Motors, auch für feste Bilder in Aufgaben nutzbar) ─── */
+const DFARBEN=["#F4B6B0","#B7DFB9","#FFE08A","#CDBBE8","#A9DDE6"];
+const dEsc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const dZ=x=>String(Math.round(x*10)/10).replace(".",",");
+/* streifenSvg(namen, cm, {live, bis, texte}) – bis = Länge der Skala (Standard 10), texte = eigene Beschriftung je Teil */
+function streifenSvg(namen,cm,opt){
+  opt=opt||{};const x0=10,y0=22,h=40,pc=50,bis=opt.bis||10;const B=565+(bis-10)*pc;
+  let s='<svg viewBox="0 0 '+B+' 100" role="img" aria-label="Streifendiagramm" style="width:'+B+'px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  let x=0;
+  cm.forEach((c,i)=>{c=Math.max(0,c);const w=Math.max(0,Math.min(c,bis-x))*pc;
+    if(w>0){s+='<rect x="'+(x0+x*pc)+'" y="'+y0+'" width="'+w+'" height="'+h+'" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';
+      const n=(opt.texte?opt.texte[i]:namen[i])||"";if(n&&w>=n.length*7+8)s+='<text x="'+(x0+x*pc+w/2)+'" y="'+(y0+h/2+5)+'" text-anchor="middle" font-size="13">'+dEsc(n)+'</text>';}
+    x=Math.min(bis,x+c);});
+  s+='<rect x="'+x0+'" y="'+y0+'" width="'+10*pc+'" height="'+h+'" fill="none" stroke="#000" stroke-width="2"/>';
+  for(let k=0;k<=bis;k++)s+='<line x1="'+(x0+k*pc)+'" y1="'+(y0+h)+'" x2="'+(x0+k*pc)+'" y2="'+(y0+h+8)+'" stroke="#000" stroke-width="1.5"/><text x="'+(x0+k*pc)+'" y="'+(y0+h+23)+'" text-anchor="middle" font-size="13">'+k+'</text>';
+  s+='<text x="'+(x0+bis*pc+20)+'" y="'+(y0+h+23)+'" font-size="13">cm</text>';
+  const sum=cm.reduce((a,b)=>a+Math.max(0,b),0);
+  if(opt.live&&sum>10.0001)s+='<text x="10" y="12" font-size="13" fill="#C62828" font-weight="700">Zu lang! Der Streifen ist nur 10 cm lang.</text>';
+  return s+'</svg>';
+}
+/* kreisSvg(namen, grad, {winkel:false, texte}) – texte = eigene Beschriftung je Teil */
+function kreisSvg(namen,grad,opt){
+  opt=opt||{};const cx=225,cy=125,r=100;const P=a=>[cx+r*Math.sin(a*Math.PI/180),cy-r*Math.cos(a*Math.PI/180)];
+  let s='<svg viewBox="0 0 450 250" role="img" aria-label="Kreisdiagramm" style="width:450px;max-width:100%;height:auto;font-family:Arial,sans-serif">';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#fff" stroke="#000" stroke-width="2"/>';
+  let a=0;const lab=[];
+  grad.forEach((g,i)=>{g=Math.max(0,g);const b=Math.min(360,a+g);
+    if(b-a>0.0001){
+      if(b-a>=359.999)s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';
+      else{const p1=P(a),p2=P(b);s+='<path d="M'+cx+' '+cy+' L'+p1[0].toFixed(2)+' '+p1[1].toFixed(2)+' A'+r+' '+r+' 0 '+((b-a)>180?1:0)+' 1 '+p2[0].toFixed(2)+' '+p2[1].toFixed(2)+' Z" fill="'+DFARBEN[i%5]+'" stroke="#000" stroke-width="1.5"/>';}
+      lab.push([i,(a+b)/2,b-a]);}
+    a=b;});
+  lab.forEach(([i,m,w])=>{const sn=Math.sin(m*Math.PI/180),cs=Math.cos(m*Math.PI/180);const px=cx+(r+10)*sn,py=cy-(r+10)*cs;
+    const an=sn>0.15?"start":sn<-0.15?"end":"middle";const dy=cs>0.9?-3:cs<-0.9?14:4;
+    const t=opt.texte?opt.texte[i]:(namen[i]||"")+(opt.winkel===false?"":" · "+dZ(grad[i])+"°");
+    s+='<text x="'+px.toFixed(1)+'" y="'+(py+dy).toFixed(1)+'" text-anchor="'+an+'" font-size="13">'+dEsc(t)+'</text>';});
+  return s+'</svg>';
+}
+
+function karte(kopf,titel,preis,zeilen){return '<div class="shop"><div class="shop-kopf">'+kopf+'</div><div class="shop-innen"><b>'+titel+'</b><br><span class="preis">'+preis+'</span><p class="shop-det">'+zeilen.join("<br>")+'</p></div></div>';}
+/* ─── Zusatz-Helfer Parallelogramm (Woche 2) ─── */
+const PF={rand:"#000",flaeche:"#CCF1EC",dreieck:"#FFE08A",hoehe:"#d9472b",grund:"#14b8a6",schueler:"#1565C0",gitter:"#d6d6d6"};
+const ein=d=>{const l=Math.hypot(d[0],d[1])||1;return [d[0]/l,d[1]/l];};
+const pkt=p=>p[0].toFixed(1)+" "+p[1].toFixed(1);
+/* rechter Winkel als runder Bogen mit Punkt, beliebig gedreht (P = Scheitel, u, v = Richtungen der Schenkel) */
+function rwB(P,u,v,r){r=r||12;u=ein(u);v=ein(v);
+  const p1=[P[0]+u[0]*r,P[1]+u[1]*r],p2=[P[0]+v[0]*r,P[1]+v[1]*r],sw=(u[0]*v[1]-u[1]*v[0])>0?1:0;
+  const m=[P[0]+(u[0]+v[0])*r*0.42,P[1]+(u[1]+v[1])*r*0.42];
+  return '<path d="M'+pkt(p1)+' A'+r+' '+r+' 0 0 '+sw+' '+pkt(p2)+'" fill="none" stroke="#000" stroke-width="1.4"/><circle cx="'+m[0].toFixed(1)+'" cy="'+m[1].toFixed(1)+'" r="1.8" fill="#000"/>';}
+/* Winkelbogen mit Gradzahl im Bogen */
+function wB(P,u,v,r,txt){u=ein(u);v=ein(v);const p1=[P[0]+u[0]*r,P[1]+u[1]*r],p2=[P[0]+v[0]*r,P[1]+v[1]*r],sw=(u[0]*v[1]-u[1]*v[0])>0?1:0;
+  const b=ein([u[0]+v[0],u[1]+v[1]]),t=[P[0]+b[0]*r*0.62,P[1]+b[1]*r*0.62+4];
+  return '<path d="M'+pkt(p1)+' A'+r+' '+r+' 0 0 '+sw+' '+pkt(p2)+'" fill="none" stroke="#000" stroke-width="1.3"/><text x="'+t[0].toFixed(1)+'" y="'+t[1].toFixed(1)+'" text-anchor="middle" font-size="12" font-family="Arial">'+txt+'</text>';}
+/* zwei Striche für gleich lange Seiten */
+function strich2(P,Q){const m=[(P[0]+Q[0])/2,(P[1]+Q[1])/2],d=ein([Q[0]-P[0],Q[1]-P[1]]),n=[-d[1],d[0]];let s="";
+  [-3,3].forEach(o=>{const c=[m[0]+d[0]*o,m[1]+d[1]*o];s+='<line x1="'+(c[0]-n[0]*6).toFixed(1)+'" y1="'+(c[1]-n[1]*6).toFixed(1)+'" x2="'+(c[0]+n[0]*6).toFixed(1)+'" y2="'+(c[1]+n[1]*6).toFixed(1)+'" stroke="#000" stroke-width="1.6"/>';});return s;}
+function T(x,y,t,o){o=o||{};return '<text x="'+(+x).toFixed(1)+'" y="'+(+y).toFixed(1)+'" font-family="Arial" font-size="'+(o.fs||16)+'" text-anchor="'+(o.anc||"middle")+'"'+(o.it?' font-style="italic"':'')+(o.fill?' fill="'+o.fill+'"':'')+(o.b?' font-weight="bold"':'')+'>'+t+'</text>';}
+function poly(P,o){o=o||{};return '<polygon points="'+P.map(pkt).join(" ")+'" fill="'+(o.fill||"#fff")+'" stroke="'+(o.st||"#000")+'" stroke-width="'+(o.sw||2)+'" stroke-linejoin="round"/>';}
+function lin(P,Q,o){o=o||{};return '<line x1="'+P[0].toFixed(1)+'" y1="'+P[1].toFixed(1)+'" x2="'+Q[0].toFixed(1)+'" y2="'+Q[1].toFixed(1)+'" stroke="'+(o.st||"#000")+'" stroke-width="'+(o.sw||2)+'"'+(o.dash?' stroke-dasharray="'+o.dash+'"':'')+' stroke-linecap="round"/>';}
+function gitterSvg(x0,y0,nx,ny,s){let g="";for(let i=0;i<=nx;i++)g+=lin([x0+i*s,y0],[x0+i*s,y0+ny*s],{st:PF.gitter,sw:1});
+  for(let j=0;j<=ny;j++)g+=lin([x0,y0+j*s],[x0+nx*s,y0+j*s],{st:PF.gitter,sw:1});return g;}
+/* Eckpunkte beschriften: nach außen vom Mittelpunkt weg */
+function ecken(P,namen){const m=[P.reduce((a,p)=>a+p[0],0)/P.length,P.reduce((a,p)=>a+p[1],0)/P.length];
+  return P.map((p,i)=>{const d=ein([p[0]-m[0],p[1]-m[1]]);return T(p[0]+d[0]*16,p[1]+d[1]*16+6,namen[i],{fs:16,b:true});}).join("");}
+
+/* Standardbild: Parallelogramm mit Grundseite g, Höhe h (rot, gestrichelt) und optional schräger Seite s */
+function parSvg(o){o=o||{};const A=[40,130],B=[220,130],C=[280,40],D=[100,40],F=[100,130];
+  let s='<svg viewBox="0 0 320 170" width="320" role="img" aria-label="Parallelogramm mit Grundseite und Höhe">'+poly([A,B,C,D]);
+  s+=lin(D,F,{st:PF.hoehe,sw:2.4,dash:"6 4"})+rwB(F,[0,-1],[1,0],12);
+  s+=T((A[0]+B[0])/2,A[1]+26,o.g||"g",{it:true})+T(F[0]+8,85,o.h||"h",{it:true,anc:"start",fill:PF.hoehe});
+  if(o.s)s+=T((A[0]+D[0])/2-12,(A[1]+D[1])/2+4,o.s,{it:true,anc:"end"});
+  return s+'</svg>';}
+
+/* ═══ Entdecker Z1: Rechteck, Parallelogramm, Raute, Quadrat ═══ */
+const ENT_P='<div class="ent"><div class="regler"><label>Winkel bei A = <b class="ww">60</b>°<input type="range" class="rw" min="30" max="90" step="5" value="60" aria-label="Winkel bei A"></label>'+
+ '<label>Seite b = <b class="wb">3</b> cm<input type="range" class="rb" min="2" max="7" step="1" value="3" aria-label="Seite b"></label><p class="klein">Die Seite a ist immer 5 cm lang.</p></div>'+
+ '<div class="entbild"></div><div class="entwerte"><p class="pname" style="font-size:1.3em"></p><p class="pauch klein"></p></div></div>';
+function initEntP(K){const rw=K.querySelector(".rw"),rb=K.querySelector(".rb"),bild=K.querySelector(".entbild");
+  const z=()=>{const w=+rw.value,b=+rb.value,a=5,s=30,A=[40,250],r=w*Math.PI/180;
+    const B=[A[0]+a*s,A[1]],D=[A[0]+b*s*Math.cos(r),A[1]-b*s*Math.sin(r)],C=[B[0]+D[0]-A[0],B[1]+D[1]-A[1]];
+    let g='<svg viewBox="0 0 420 290" width="420" role="img" aria-label="Viereck">'+poly([A,B,C,D],{fill:PF.flaeche});
+    if(w===90){g+=rwB(A,[1,0],[D[0]-A[0],D[1]-A[1]])+rwB(B,[-1,0],[C[0]-B[0],C[1]-B[1]])+rwB(C,[B[0]-C[0],B[1]-C[1]],[-1,0])+rwB(D,[1,0],[A[0]-D[0],A[1]-D[1]]);}
+    else g+=wB(A,[1,0],[D[0]-A[0],D[1]-A[1]],42,w+"°");
+    if(a===b)g+=strich2(A,B)+strich2(B,C)+strich2(C,D)+strich2(D,A);
+    g+=ecken([A,B,C,D],["A","B","C","D"])+T((A[0]+B[0])/2,A[1]+30,"a = 5 cm",{it:true})+T((A[0]+D[0])/2-14,(A[1]+D[1])/2,"b",{it:true,anc:"end"});
+    bild.innerHTML=g+'</svg>';
+    K.querySelector(".ww").textContent=w;K.querySelector(".wb").textContent=b;
+    let n,auch;if(w===90&&a===b){n="Quadrat";auch="Ein Quadrat ist auch ein Rechteck, eine Raute und ein Parallelogramm.";}
+    else if(w===90){n="Rechteck";auch="Ein Rechteck ist auch ein Parallelogramm.";}
+    else if(a===b){n="Raute";auch="Eine Raute ist auch ein Parallelogramm.";}
+    else{n="Parallelogramm";auch="Gegenüberliegende Seiten sind parallel und gleich lang.";}
+    K.querySelector(".pname").innerHTML="Das ist ein <b>"+n+"</b>.";K.querySelector(".pauch").textContent=auch;};
+  rw.addEventListener("input",z);rb.addEventListener("input",z);z();}
+
+/* ═══ Figuren sortieren: antippen → ja → nein → leer ═══ */
+const FIGUREN=[
+  {p:[[0,0],[5,0],[7,3],[2,3]],ja:true},
+  {p:[[0,0],[6,0],[4.5,3],[1.5,3]],ja:false},
+  {p:[[0,0],[6,0],[6,3.4],[0,3.4]],ja:true,rw:true},
+  {p:[[2,0],[4,3],[2,4.2],[0,3]],ja:false},
+  {p:[[0,0],[4,0],[6.4,3.2],[2.4,3.2]],ja:true,gl:true},
+  {p:[[2,0],[4,2],[2,4],[0,2]],ja:true,rw:true,gl:true},
+  {p:[[0,0],[5,0.5],[4,3.5],[1,2.5]],ja:false},
+  {p:[[0,0],[2.2,1.1],[2.2,5],[0,3.9]],ja:true},
+  {p:[[0,0],[5,0],[3,3],[0,3]],ja:false,rwi:[0,3]}];
+function figSvg(f){const xs=f.p.map(p=>p[0]),ys=f.p.map(p=>p[1]),mx=Math.min(...xs),Mx=Math.max(...xs),my=Math.min(...ys),My=Math.max(...ys);
+  const k=Math.min(110/(Mx-mx),80/(My-my)),ox=10+(110-(Mx-mx)*k)/2,oy=8+(80-(My-my)*k)/2;
+  const P=f.p.map(p=>[ox+(p[0]-mx)*k,oy+(My-p[1])*k]);let s='<svg viewBox="0 0 130 96" width="130" aria-hidden="true">'+poly(P,{fill:"#fff"});
+  const ri=f.rw?[0,1,2,3]:(f.rwi||[]);ri.forEach(i=>{const p=P[i],v1=P[(i+1)%4],v0=P[(i+3)%4];s+=rwB(p,[v1[0]-p[0],v1[1]-p[1]],[v0[0]-p[0],v0[1]-p[1]],9);});
+  if(f.gl)for(let i=0;i<4;i++)s+=strich2(P[i],P[(i+1)%4]);return s+'</svg>';}
+function sortHtml(){return '<div class="fsgrid">'+FIGUREN.map((f,i)=>'<button type="button" class="fs epr" data-i="'+i+'" data-soll="'+(f.ja?"ja":"nein")+'" data-z=""><span class="fsnr">'+(i+1)+'</span>'+figSvg(f)+'<span class="fsz">?</span></button>').join("")+'</div>';}
+function initSort(K){K.querySelectorAll(".fs").forEach(b=>{
+  const zeig=()=>{const z=b.dataset.z;b.querySelector(".fsz").textContent=z===""?"?":(z==="ja"?"ja, Parallelogramm":"nein");b.classList.toggle("fsja",z==="ja");b.classList.toggle("fsnein",z==="nein");};
+  b.addEventListener("click",()=>{const o=["","ja","nein"];b.dataset.z=o[(o.indexOf(b.dataset.z)+1)%3];b.classList.remove("ok","falsch");zeig();});
+  b._pruef=()=>b.dataset.z===b.dataset.soll;zeig();});}
+
+/* ═══ Höhe auf Karopapier einzeichnen: Fußpunkt auf einen Gitterpunkt tippen ═══
+   p: Eckpunkte A,B,C,D in Kästchen (y nach oben), g: [i,j] Grundseite, v: Ecke, von der die Höhe ausgeht, f: richtiger Fußpunkt */
+const HOEHEN={
+  waag:{p:[[1,1],[7,1],[9,5],[3,5]],g:[0,1],v:3,f:[3,1],text:"Zeichne die Höhe von D auf die Grundseite g = AB."},
+  senk:{p:[[1,1],[5,3],[5,7],[1,5]],g:[1,2],v:3,f:[5,5],text:"Das Parallelogramm steht anders. Zeichne die Höhe von D auf die Grundseite g = BC."},
+  schraeg:{p:[[1,1],[5,1],[8,4],[4,4]],g:[1,2],v:3,f:[6,2],text:"Zeichne die Höhe von D auf die Grundseite g = BC."},
+  aussen1:{p:[[1,1],[4,1],[9,5],[6,5]],g:[0,1],v:3,f:[6,1],aussen:true,text:"Zeichne die Höhe von D auf die Grundseite g = AB."},
+  aussen2:{p:[[1,4],[7,4],[10,7],[4,7]],g:[1,2],v:0,f:[4,1],aussen:true,text:"Zeichne die Höhe von A auf die Grundseite g = BC."}};
+function hoeheHtml(keys){return keys.map((k,i)=>'<div class="hgbox"><p class="sit"><b>'+"abcdef"[i]+')</b> '+HOEHEN[k].text+'</p><div class="hg epr" data-k="'+k+'"></div></div>').join("");}
+function initHoehe(K){K.querySelectorAll(".hg").forEach(el=>{const c=HOEHEN[el.dataset.k],s=28,N=["A","B","C","D"];
+  const xs=c.p.map(p=>p[0]).concat(c.f[0]),ys=c.p.map(p=>p[1]).concat(c.f[1]);
+  const nx=Math.max(...xs)+1,ny=Math.max(...ys)+1,x0=14,y0=14,W=x0*2+nx*s,H=y0*2+ny*s;
+  const S=p=>[x0+p[0]*s,y0+(ny-p[1])*s];let tip=null,geloest=false;
+  const male=()=>{const P=c.p.map(S),G1=P[c.g[0]],G2=P[c.g[1]],V=P[c.v];
+    let g='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" role="img" aria-label="Parallelogramm auf Karopapier" style="touch-action:manipulation;cursor:crosshair">'+gitterSvg(x0,y0,nx,ny,s)+poly(P,{fill:"rgba(204,241,236,.55)"});
+    g+=lin(G1,G2,{st:PF.grund,sw:5});const gm=[(G1[0]+G2[0])/2,(G1[1]+G2[1])/2],pm=[P.reduce((a,p)=>a+p[0],0)/4,P.reduce((a,p)=>a+p[1],0)/4],gd=ein([gm[0]-pm[0],gm[1]-pm[1]]);
+    g+=T(gm[0]+gd[0]*20,gm[1]+gd[1]*20+6,c.lab||"g",{it:!c.lab||c.lab.length<2,fill:"#00805F",b:true});
+    if(geloest&&c.aussen){const F=S(c.f),nah=Math.hypot(F[0]-G1[0],F[1]-G1[1])<Math.hypot(F[0]-G2[0],F[1]-G2[1])?G1:G2,d=ein([F[0]-nah[0],F[1]-nah[1]]);
+      g+=lin(nah,[F[0]+d[0]*s,F[1]+d[1]*s],{st:PF.grund,sw:2,dash:"6 5"});}
+    if(tip){const F=S(tip);g+=lin(V,F,{st:geloest?PF.hoehe:PF.schueler,sw:3})+'<circle cx="'+F[0]+'" cy="'+F[1]+'" r="5" fill="'+(geloest?PF.hoehe:PF.schueler)+'"/>';
+      if(geloest){const gd2=[G2[0]-G1[0],G2[1]-G1[1]],zu=[V[0]-F[0],V[1]-F[1]];g+=rwB(F,zu,(Math.hypot(F[0]-G2[0],F[1]-G2[1])>1?[G2[0]-F[0],G2[1]-F[1]]:[G1[0]-F[0],G1[1]-F[1]]),13);
+        const hd=ein([F[0]-V[0],F[1]-V[1]]);g+=T((V[0]+F[0])/2-hd[1]*13,(V[1]+F[1])/2+hd[0]*13+5,"h",{it:true,b:true,fill:PF.hoehe});}}
+    g+='<circle cx="'+V[0]+'" cy="'+V[1]+'" r="5" fill="#000"/>'+ecken(P,N);
+    el.innerHTML=g+'</svg><p class="klein hginfo">'+(tip?(geloest?"Richtig eingezeichnet!":"Dein Fußpunkt ist gesetzt. Tippe woanders hin, um ihn zu verschieben."):"Tippe mit dem Stift genau auf den Gitterpunkt, wo die Höhe die Grundseite trifft.")+'</p>';
+    const svg=el.querySelector("svg");
+    svg.addEventListener("pointerdown",e=>{const r=svg.getBoundingClientRect(),sx=(e.clientX-r.left)*W/r.width,sy=(e.clientY-r.top)*H/r.height;
+      const gx=Math.round((sx-x0)/s),gy=ny-Math.round((sy-y0)/s);if(gx<0||gy<0||gx>nx||gy>ny)return;
+      tip=[gx,gy];geloest=false;el.classList.remove("ok","falsch");male();});};
+  el._pruef=()=>{const ok=!!tip&&tip[0]===c.f[0]&&tip[1]===c.f[1];geloest=ok;male();return ok;};
+  male();});}
+
+/* ═══ „Welche Strecke ist die Höhe?“ ═══ */
+function nrKreis(p,n,f){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="11" fill="#fff" stroke="'+f+'" stroke-width="2"/>'+T(p[0],p[1]+5,n,{fs:13,b:true,fill:f});}
+function streckenSvg(t){const s=20;let g='<svg viewBox="0 0 280 190" width="280" role="img" aria-label="Parallelogramm mit drei Strecken">'+gitterSvg(0,0,14,9,s);
+  let P,L,G;
+  if(t===1){P=[[40,160],[180,160],[240,40],[100,40]];G=[0,1];L=[[P[0],P[3]],[[100,40],[140,160]],[[160,40],[160,160]]];}
+  if(t===2){P=[[40,160],[200,120],[200,40],[40,80]];G=[1,2];L=[[[40,80],[200,80]],[P[0],P[1]],[[40,80],[200,120]]];}
+  if(t===3){P=[[20,160],[100,160],[240,60],[160,60]];G=[0,1];L=[[P[1],P[2]],[[160,60],[160,160]],[[160,60],[100,160]]];}
+  g+=poly(P,{fill:"rgba(204,241,236,.55)"})+lin(P[G[0]],P[G[1]],{st:PF.grund,sw:5});
+  if(t===3)g+=lin([100,160],[180,160],{st:PF.grund,sw:2,dash:"6 5"});
+  const farb=["#C2185B","#6A1B9A","#E65100"];
+  const TT=t===3?[0.8,0.72,0.3]:(t===2?[0.75,0.78,0.3]:[0.5,0.78,0.3]),OF=t===2?[12,15,15]:[-15,15,15];L.forEach((l,i)=>{g+=lin(l[0],l[1],{st:farb[i],sw:3});});
+  L.forEach((l,i)=>{const t=TT[i],m=[l[0][0]+(l[1][0]-l[0][0])*t,l[0][1]+(l[1][1]-l[0][1])*t],d=ein([l[1][0]-l[0][0],l[1][1]-l[0][1]]),o=OF[i];g+=nrKreis([m[0]-d[1]*o,m[1]+d[0]*o],i+1,farb[i]);});
+  return g+ecken(P,["A","B","C","D"])+'</svg>';}
+function wahlKnoepfe(soll){return '<span class="auswahl" data-soll="Strecke '+soll+'">'+[1,2,3].map(n=>'<button type="button" data-z="Strecke '+n+'">Strecke '+n+'</button>').join("")+'</span>';}
+const STRECKEN_HTML='<div class="strgrid">'+[[1,3],[2,1],[3,2]].map(([t,soll],i)=>'<div class="strbox"><p><b>'+"abc"[i]+')</b> Grundseite g ist <span style="color:#00805F;font-weight:bold">grün</span>.</p>'+streckenSvg(t)+'<p>Die Höhe ist '+wahlKnoepfe(soll)+'</p></div>').join("")+'</div>';
+
+/* Tims Fehler: schräge Seite als Höhe */
+function timSvg(){const A=[40,130],B=[200,130],C=[260,40],D=[100,40];
+  return '<svg viewBox="0 0 300 165" width="300" role="img" aria-label="Tim hat die schräge Seite als Höhe markiert">'+poly([A,B,C,D])+lin(A,D,{st:PF.schueler,sw:4})+
+   T(58,80,"h?",{it:true,b:true,fill:PF.schueler,anc:"end"})+T(120,155,"g",{it:true})+ecken([A,B,C,D],["A","B","C","D"])+'</svg>';}
+
+/* ═══ Entdecker Z3: Zerlegen und Verschieben ═══ */
+const ENT_Z='<div class="ent"><div class="regler"><label>Dreieck verschieben<input type="range" class="rv" min="0" max="100" value="0" aria-label="Dreieck verschieben"></label></div>'+
+ '<div class="entbild"></div><div class="entwerte"><p class="zinfo"></p><p class="klein">Jedes Kästchen ist 1 cm² groß.</p></div></div>';
+function initEntZ(K){const rv=K.querySelector(".rv"),bild=K.querySelector(".entbild");
+  const z=()=>{const t=+rv.value/100,s=30,x0=14,y0=14,nx=9,ny=5,S=p=>[x0+p[0]*s,y0+(ny-p[1])*s];
+    const off=6*t,A=[0,0],F=[2,0],B=[6,0],C=[8,4],D=[2,4];
+    let g='<svg viewBox="0 0 '+(x0*2+nx*s)+' '+(y0*2+ny*s+30)+'" width="'+(x0*2+nx*s)+'" role="img" aria-label="Parallelogramm wird zum Rechteck">'+gitterSvg(x0,y0,nx,ny,s);
+    g+=poly([F,B,C,D].map(S),{fill:PF.flaeche,sw:2});
+    g+=poly([[A[0]+off,0],[F[0]+off,0],[D[0]+off,4]].map(S),{fill:PF.dreieck,sw:2});
+    g+=lin(S(D),S(F),{st:PF.hoehe,sw:2.4,dash:"6 4"})+rwB(S(F),[0,-1],[1,0],12);
+    g+=T(S([4,0])[0],S([4,0])[1]+24,"g = 6 cm",{it:true})+T(S(F)[0]+8,S([2,2])[1]+5,"h = 4 cm",{it:true,anc:"start",fill:PF.hoehe});
+    bild.innerHTML=g+'</svg>';
+    K.querySelector(".zinfo").innerHTML=t===1?"<b>Fertig: ein Rechteck!</b> Es ist 6 cm lang und 4 cm hoch.":(t===0?"Das gelbe Dreieck wird an der Höhe abgeschnitten. Verschiebe es nach rechts.":"Das Dreieck wandert …");};
+  rv.addEventListener("input",z);z();}
+
+/* ═══ Entdecker Z3: Flächeninhalt live ═══ */
+const ENT_A='<div class="ent"><div class="regler"><label>g = <b class="wg">6</b> cm<input type="range" class="rg" min="2" max="8" value="6" aria-label="Grundseite g"></label>'+
+ '<label>h = <b class="wh">3</b> cm<input type="range" class="rh" min="1" max="5" value="3" aria-label="Höhe h"></label>'+
+ '<label>Schiefe<input type="range" class="rs" min="0" max="5" value="2" aria-label="Schiefe"></label></div>'+
+ '<div class="entbild"></div><div class="entwerte"><p><b>A = <span class="wgg"></span> cm · <span class="whh"></span> cm = <span class="wA"></span> cm²</b></p><p>schräge Seite: ungefähr <span class="wsch"></span> cm</p><p class="klein">Jedes Kästchen ist 1 cm² groß.</p></div></div>';
+function initEntA(K){const rg=K.querySelector(".rg"),rh=K.querySelector(".rh"),rs=K.querySelector(".rs"),bild=K.querySelector(".entbild");
+  const z=()=>{const gg=+rg.value,h=+rh.value,o=+rs.value,s=26,x0=14,y0=14,nx=14,ny=6,S=p=>[x0+p[0]*s,y0+(ny-p[1])*s];
+    const A=[0.5,0.5],B=[A[0]+gg,0.5],C=[B[0]+o,0.5+h],D=[A[0]+o,0.5+h],F=[D[0],0.5];
+    let g='<svg viewBox="0 0 '+(x0*2+nx*s)+' '+(y0*2+ny*s+28)+'" width="'+(x0*2+nx*s)+'" role="img" aria-label="Parallelogramm">'+gitterSvg(x0,y0,nx,ny,s);
+    g+=poly([A,B,C,D].map(S),{fill:PF.flaeche});
+    if(o>gg)g+=lin(S(B),S([F[0]+0.4,0.5]),{st:"#000",sw:1.6,dash:"6 5"});
+    if(o>0)g+=lin(S(D),S(F),{st:PF.hoehe,sw:2.4,dash:"6 4"})+rwB(S(F),[0,-1],[o>gg?-1:1,0],11);
+    g+=T(S([A[0]+gg/2,0])[0],S([0,0.5])[1]+24,"g",{it:true})+T(S(F)[0]+(o>0?7:-7),S([0,0.5+h/2])[1]+5,"h",{it:true,fill:PF.hoehe,anc:o>0?"start":"end"});
+    bild.innerHTML=g+'</svg>';
+    K.querySelector(".wg").textContent=gg;K.querySelector(".wh").textContent=h;K.querySelector(".wgg").textContent=gg;K.querySelector(".whh").textContent=h;K.querySelector(".wA").textContent=gg*h;
+    K.querySelector(".wsch").textContent=dZ(Math.hypot(o,h));};
+  [rg,rh,rs].forEach(r=>r.addEventListener("input",z));z();}
+
+/* ═══ Entdecker Z4: A bleibt 24 cm² ═══ */
+const G24=[2,3,4,6,8,12];
+const ENT_B='<div class="ent"><div class="regler"><label>g = <b class="wg">6</b> cm<input type="range" class="rg" min="0" max="5" value="3" aria-label="Grundseite g"></label>'+
+ '<p class="klein">h passt sich von selbst an, damit der Flächeninhalt immer 24 cm² bleibt.</p></div>'+
+ '<div class="entbild"></div><div class="entwerte"><p>h = <b><span class="wh"></span> cm</b></p><p><b>A = <span class="wgg"></span> cm · <span class="whh"></span> cm = 24 cm²</b> (bleibt gleich)</p></div></div>';
+function initEntB(K){const rg=K.querySelector(".rg"),bild=K.querySelector(".entbild");
+  const z=()=>{const gg=G24[+rg.value],h=24/gg,o=2,s=17,x0=12,y0=10,nx=15,ny=13,S=p=>[x0+p[0]*s,y0+(ny-p[1])*s];
+    const A=[0.5,0.5],B=[A[0]+gg,0.5],C=[B[0]+o,0.5+h],D=[A[0]+o,0.5+h],F=[D[0],0.5];
+    let g='<svg viewBox="0 0 '+(x0*2+nx*s)+' '+(y0*2+ny*s+26)+'" width="'+(x0*2+nx*s)+'" role="img" aria-label="Parallelogramm mit 24 cm²">'+gitterSvg(x0,y0,nx,ny,s);
+    g+=poly([A,B,C,D].map(S),{fill:PF.flaeche})+lin(S(D),S(F),{st:PF.hoehe,sw:2.2,dash:"6 4"})+rwB(S(F),[0,-1],[1,0],10);
+    g+=T(S([A[0]+gg/2,0])[0],S([0,0.5])[1]+22,"g",{it:true});
+    bild.innerHTML=g+'</svg>';
+    K.querySelector(".wg").textContent=gg;K.querySelector(".wh").textContent=h;K.querySelector(".wgg").textContent=gg;K.querySelector(".whh").textContent=h;};
+  rg.addEventListener("input",z);z();}
+
+/* Bilder für Sachaufgaben */
+function parkSvg(){let g='<svg viewBox="0 0 360 210" width="360" role="img" aria-label="Schräge Parkplätze">';
+  g+='<rect x="0" y="0" width="360" height="210" fill="#eceff1"/><rect x="0" y="160" width="360" height="50" fill="#9e9e9e"/>'+lin([0,185],[360,185],{st:"#fff",sw:3,dash:"18 12"})+T(300,203,"Straße",{fs:12,fill:"#fff"});
+  for(let i=0;i<5;i++){const x=20+i*60;g+=lin([x,160],[x+50,40],{st:"#fff",sw:5});}
+  g+=lin([20,160],[260,160],{st:"#fff",sw:3});
+  const A=[80,160],B=[140,160],C=[190,40],D=[130,40];g+=poly([A,B,C,D],{fill:"rgba(20,184,166,.25)",st:"none"});
+  g+=lin([130,40],[130,160],{st:PF.hoehe,sw:2.4,dash:"6 4"})+rwB([130,160],[0,-1],[1,0],11);
+  g+=T(110,176,"2,5 m",{fs:13,b:true,fill:"#fff"})+T(122,100,"5 m",{fs:13,b:true,fill:PF.hoehe,anc:"end"})+T(178,104,"5,5 m",{fs:13,b:true,anc:"start"});
+  g+='<rect x="292" y="20" width="56" height="44" rx="5" fill="#1565C0"/>'+T(320,50,"P",{fs:26,b:true,fill:"#fff"})+T(320,80,"max. 2 Std.",{fs:11});
+  return g+'</svg>';}
+const AUFNAEHER=karte("🛒 Online-Shop","Trikot-Aufnäher „Blitz“","3,50 € pro Stück",["<b>Produktdetails</b>","Form: Parallelogramm","Grundseite: 6 cm","Höhe: 4,5 cm","schräge Seite: 5 cm","Material: gestickt, zum Aufbügeln"]);
+const WIMPEL=karte("📣 Fanshop","Fan-Wimpel „Kurve 1“","7,90 €",["<b>Produktdetails</b>","Form: Parallelogramm","Stofffläche: 1 200 cm²","Grundseite (an der Stange): 40 cm","mit Holzstange 60 cm","Farben: rot, gold, türkis"]);
+const GRIFF=karte("🧗 Kletterhalle – Bestellung","Griffplatte „Volumen XL“","89,00 €",["<b>Produktdetails</b>","Form: Parallelogramm","Fläche: 0,36 m²","Höhe: 40 cm","Gewicht: 6 kg","12 Bohrlöcher für Griffe"]);
+
+/* ─── Helfer „Das Dreieck“ (Woche 3) ─── */
+const DGC="#1565C0",DHC="#C2410C";
+const _f=x=>(+x).toFixed(1);
+/* Dreieck: P = [[x,y],…] in cm (y nach oben). o: s (px/cm), real (Originalgröße, für das Geodreieck), tk {AB:2,…}, rw "A"|"B"|"C",
+   w {A:"60°"}, h (Höhe von C auf AB), hs ("AC"|"BC": Höhe ist Seite), gl, hl (Beschriftungen), ecken (Standard ja) */
+function dr(P,o){o=o||{};const s=o.real?34:(o.s||22),pad=o.pad||(o.hl?70:30);
+  const N={A:P[0],B:P[1],C:P[2]};const A=N.A,B=N.B,C=N.C;
+  const dx=B[0]-A[0],dy=B[1]-A[1],t=((C[0]-A[0])*dx+(C[1]-A[1])*dy)/(dx*dx+dy*dy),F=[A[0]+t*dx,A[1]+t*dy];
+  const pts=[A,B,C].concat(o.h?[F]:[]),xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const W=(x1-x0)*s+2*pad,H=(y1-y0)*s+60;
+  const T=p=>[pad+(p[0]-x0)*s,30+(y1-p[1])*s];
+  const q=k=>T(N[k]);
+  let g='<svg class="'+(o.real?"mess":"dsvg")+'" width="'+W.toFixed(0)+'" height="'+H.toFixed(0)+'" viewBox="0 0 '+W.toFixed(0)+' '+H.toFixed(0)+'" role="img" aria-label="Dreieck">';
+  g+='<polygon points="'+[q("A"),q("B"),q("C")].map(p=>_f(p[0])+","+_f(p[1])).join(" ")+'" fill="'+(o.real?"#fff":"#E8F5EE")+'" stroke="none"/>';
+  [["A","B"],["B","C"],["C","A"]].forEach(([u,v])=>{const k=u+v;let col="#000",w=2.2;
+    if(o.gl&&k==="AB"){col=DGC;w=3.5}if(o.hs&&(o.hs===k||o.hs===v+u)){col=DHC;w=3.5}
+    g+='<line x1="'+_f(q(u)[0])+'" y1="'+_f(q(u)[1])+'" x2="'+_f(q(v)[0])+'" y2="'+_f(q(v)[1])+'" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round"/>';});
+  if(o.h&&!o.hs){const f=T(F),c=q("C");
+    if(t<0)g+='<line x1="'+_f(f[0])+'" y1="'+_f(f[1])+'" x2="'+_f(q("A")[0])+'" y2="'+_f(q("A")[1])+'" stroke="#000" stroke-width="1.4" stroke-dasharray="5 4"/>';
+    if(t>1)g+='<line x1="'+_f(q("B")[0])+'" y1="'+_f(q("B")[1])+'" x2="'+_f(f[0])+'" y2="'+_f(f[1])+'" stroke="#000" stroke-width="1.4" stroke-dasharray="5 4"/>';
+    g+='<line x1="'+_f(c[0])+'" y1="'+_f(c[1])+'" x2="'+_f(f[0])+'" y2="'+_f(f[1])+'" stroke="'+DHC+'" stroke-width="2.4" stroke-dasharray="7 5"/>';
+    const u=ein([c[0]-f[0],c[1]-f[1]]),v=ein([(t>.5?q("A"):q("B"))[0]-f[0],(t>.5?q("A"):q("B"))[1]-f[1]]);g+=rwB(f,u,v,11);
+    if(o.hl){const m=[(c[0]+f[0])/2,(c[1]+f[1])/2],rechts=t>1;g+=T2(m[0]+(rechts?8:-8),m[1]+5,o.hl,{fill:DHC,anchor:rechts?"start":"end"});}}
+  if(o.hs&&o.hl){const a=q(o.hs[0]),b=q(o.hs[1]);g+=T2((a[0]+b[0])/2-8,(a[1]+b[1])/2+5,o.hl,{fill:DHC,anchor:"end"});}
+  if(o.gl){const a=q("A"),b=q("B");g+=T2((a[0]+b[0])/2,a[1]+24,o.gl,{fill:DGC});}
+  for(const k in (o.tk||{})){const a=q(k[0]),b=q(k[1]);g+=strich2(a,b);}
+  const cx=(q("A")[0]+q("B")[0]+q("C")[0])/3,cy=(q("A")[1]+q("B")[1]+q("C")[1])/3;
+  for(const v of ["A","B","C"]){const p=q(v),an=["A","B","C"].filter(x=>x!==v).map(x=>q(x));
+    const u1=ein([an[0][0]-p[0],an[0][1]-p[1]]),u2=ein([an[1][0]-p[0],an[1][1]-p[1]]);
+    if(o.rw===v)g+=rwB(p,u1,u2,15);else if(o.w&&o.w[v])g+=wB(p,u1,u2,o.w[v].length>3?34:28,o.w[v]);
+    if(o.ecken!==false){const d=ein([p[0]-cx,p[1]-cy]);g+=T2(p[0]+d[0]*16,p[1]+d[1]*16+6,v,{});}}
+  return g+'</svg>';}
+function T2(x,y,t,o){return '<text x="'+_f(x)+'" y="'+_f(y)+'" font-family="Arial" font-size="'+(o.fs||16)+'" font-weight="700" text-anchor="'+(o.anchor||"middle")+'" fill="'+(o.fill||"#000")+'" stroke="#fff" stroke-width="4" paint-order="stroke">'+t+'</text>';}
+/* Winkel: Scheitel, ein Schenkel waagerecht nach rechts. o: L (px), lab (Gradzahl im Bogen), real (für das Geodreieck: 1 cm = 34 px) */
+function wk(d,o){o=o||{};const L=o.real?136:(o.L||90),r=o.lab?Math.max(26,L*.32):24,a=d*Math.PI/180;
+  const pts=[[0,0],[L,0],[L*Math.cos(a),-L*Math.sin(a)]];for(let i=0;i<=16;i++)pts.push([r*Math.cos(a*i/16),-r*Math.sin(a*i/16)]);
+  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]),x0=Math.min(...xs)-14,y0=Math.min(...ys)-14,W=Math.max(...xs)-x0+14,H=Math.max(...ys)-y0+14;
+  const S=[-x0,-y0],E=[L-x0,-y0],Z=[L*Math.cos(a)-x0,-L*Math.sin(a)-y0];
+  let g='<svg class="'+(o.real?"mess":"wsvg")+'" width="'+W.toFixed(0)+'" height="'+H.toFixed(0)+'" viewBox="0 0 '+W.toFixed(0)+' '+H.toFixed(0)+'" role="img" aria-label="Winkel">';
+  g+=lin(S,E,{sw:2.4})+lin(S,Z,{sw:2.4})+'<circle cx="'+_f(S[0])+'" cy="'+_f(S[1])+'" r="3"/>';
+  if(d===90)g+=rwB(S,[1,0],[0,-1],18);
+  else{const e=d>=360?359.9:d,ea=e*Math.PI/180;g+='<path d="M'+_f(S[0]+r)+' '+_f(S[1])+' A'+r+' '+r+' 0 '+(e>180?1:0)+' 0 '+_f(S[0]+r*Math.cos(ea))+' '+_f(S[1]-r*Math.sin(ea))+'" fill="none" stroke="#000" stroke-width="1.6"/>';
+    if(o.lab){const m=ea/2;g+=T2(S[0]+r*.6*Math.cos(m)+(d<40?6:0),S[1]-r*.6*Math.sin(m)+5,d+"°",{fs:13});}}
+  return g+'</svg>';}
+const ART6="spitzer Winkel|rechter Winkel|stumpfer Winkel|gestreckter Winkel|überstumpfer Winkel|Vollwinkel";
+const wahl6=r=>"(("+ART6.split("|").map(x=>(x===r?"*":"")+x).join("|")+"))";
+const SEITEN=r=>"(("+["unregelmäßig","gleichschenklig","gleichseitig"].map(x=>(x===r?"*":"")+x).join("|")+"))";
+const WINKEL=r=>"(("+["spitzwinklig","rechtwinklig","stumpfwinklig"].map(x=>(x===r?"*":"")+x).join("|")+"))";
+const artVon=d=>d<90?"spitzer Winkel":d===90?"rechter Winkel":d<180?"stumpfer Winkel":d===180?"gestreckter Winkel":d<360?"überstumpfer Winkel":"Vollwinkel";
+/* Vorlesen für Sachaufgaben */
+function vl(t){return ' <button type="button" class="vlk" data-t="'+t.replace(/"/g,"&quot;")+'" aria-label="Vorlesen">🔊</button>';}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest(".vlk");if(!b)return;try{speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(b.dataset.t.replace(/(\d) (\d{3})/g,"$1$2").replace(/cm²/g,"Quadratzentimeter").replace(/m²/g,"Quadratmeter").replace(/(\d) ?cm\b/g,"$1 Zentimeter").replace(/(\d) ?m\b/g,"$1 Meter"));
+  u.lang="de-DE";u.rate=.92;speechSynthesis.speak(u);}catch(x){}});
+/* Entdecker Winkel */
+const ENT_W='<div class="entw"><input type="range" min="0" max="360" value="40" class="rw" aria-label="Winkel"><div class="entbild"></div><div class="entname"></div></div>';
+function initEntW(K){const r=K.querySelector(".rw"),b=K.querySelector(".entbild"),n=K.querySelector(".entname");
+  const z=()=>{const d=+r.value;b.innerHTML=d===0?"":wk(d,{L:110,lab:true});n.innerHTML=d===0?"Nullwinkel":artVon(d);};r.addEventListener("input",z);z();}
+/* Entdecker Dreieck: Ecke C ziehen */
+const ENT_D='<div class="entw"><div class="entbild dz"></div><div class="entname"></div></div><p class="klein">Ziehe die orange Ecke C.</p>';
+function initEntD(K){const b=K.querySelector(".entbild"),n=K.querySelector(".entname");const W=420,H=260,A=[80,230],B=[320,230];let C=[170,70];
+  const d=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[1]),wi=(v,p,q)=>{let x=Math.abs(Math.atan2(p[1]-v[1],p[0]-v[0])-Math.atan2(q[1]-v[1],q[0]-v[0]))*180/Math.PI;return x>180?360-x:x;};
+  const z=()=>{const a=d(B,C),bb=d(A,C),c=d(A,B),al=wi(A,B,C),be=wi(B,A,C),ga=180-al-be,gl=(x,y)=>Math.abs(x-y)<.02*Math.max(x,y);
+    const sei=gl(a,bb)&&gl(bb,c)?"gleichseitig":(gl(a,bb)||gl(bb,c)||gl(a,c))?"gleichschenklig":"unregelmäßig",mx=Math.max(al,be,ga),win=Math.abs(mx-90)<.6?"rechtwinklig":mx>90?"stumpfwinklig":"spitzwinklig";
+    b.innerHTML='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'"><polygon points="'+A+' '+B+' '+C+'" fill="#E8F5EE" stroke="#000" stroke-width="2.5"/>'+T2(A[0]-14,A[1]+18,"A",{})+T2(B[0]+14,B[1]+18,"B",{})+
+      '<circle class="cc" cx="'+C[0]+'" cy="'+C[1]+'" r="14" fill="#E2A21B" stroke="#000" stroke-width="2" style="cursor:grab;touch-action:none"/><text x="'+C[0]+'" y="'+(C[1]+6)+'" text-anchor="middle" font-family="Arial" font-weight="700" pointer-events="none">C</text></svg>';
+    n.innerHTML=sei+"-"+win+'<span class="klein" style="display:block">α = '+Math.round(al)+"°, β = "+Math.round(be)+"°, γ = "+Math.round(ga)+"°</span>";};
+  let zi=false;b.addEventListener("pointerdown",e=>{if(e.target.classList.contains("cc")){zi=true;b.setPointerCapture(e.pointerId);e.preventDefault();}});
+  b.addEventListener("pointermove",e=>{if(!zi)return;const r=b.querySelector("svg").getBoundingClientRect();let x=Math.round((e.clientX-r.left)*W/r.width/10)*10,y=Math.round((e.clientY-r.top)*H/r.height/5)*5;
+    C=[Math.max(10,Math.min(W-10,x)),Math.max(15,Math.min(215,y))];if(Math.abs(C[0]-200)<6&&Math.abs(C[1]-22.2)<6)C=[200,22.2];z();});
+  b.addEventListener("pointerup",()=>zi=false);z();}
+/* Entdecker Flächeninhalt: g, h, C verschieben, zweites Dreieck anlegen */
+const ENT_F='<div class="entw"><div class="regler"><label>g <input type="range" class="rg" min="2" max="9" step=".5" value="6"></label><label>h <input type="range" class="rh" min="1" max="5" step=".5" value="4"></label>'+
+  '<label>C verschieben <input type="range" class="rs" min="-3" max="12" step=".5" value="2"></label><button type="button" class="kn">Zweites Dreieck anlegen</button></div><div class="entbild"></div><div class="entname"></div></div>';
+function initEntF(K){const g=K.querySelector(".rg"),h=K.querySelector(".rh"),s=K.querySelector(".rs"),k=K.querySelector(".kn"),b=K.querySelector(".entbild"),n=K.querySelector(".entname");let zw=false;
+  const z=()=>{const G=+g.value,Hh=+h.value,S=+s.value,u=26,ox=20+Math.max(0,-S)*u,oy=20+5*u,P=(x,y)=>[ox+x*u,oy-y*u],A=P(0,0),B=P(G,0),C=P(S,Hh),D=P(G+S,Hh),F=P(S,0),w=Math.max(G,G+S,S)*u+ox+30;
+    let v='<svg width="'+w+'" height="'+(oy+36)+'" viewBox="0 0 '+w+' '+(oy+36)+'">';
+    if(zw)v+='<polygon points="'+B+' '+D+' '+C+'" fill="#fff" stroke="#000" stroke-width="2" stroke-dasharray="6 4"/>';
+    v+='<polygon points="'+A+' '+B+' '+C+'" fill="#BFE3D2" stroke="#000" stroke-width="2.5"/>';
+    if(S<0)v+=lin(F,A,{sw:1.2,dash:"5 4"});if(S>G)v+=lin(B,F,{sw:1.2,dash:"5 4"});
+    v+=lin(A,B,{st:DGC,sw:4})+lin(C,F,{st:DHC,sw:3,dash:S===0||S===G?"":"7 5"})+T2((A[0]+B[0])/2,oy+24,"g = "+dZ(G)+" cm",{fill:DGC})+T2(F[0]+8,(C[1]+F[1])/2,"h = "+dZ(Hh)+" cm",{fill:DHC,anchor:"start"})+'</svg>';
+    b.innerHTML=v;n.innerHTML=(S===0||S===G?"Höhe ist eine Seite":S>0&&S<G?"Höhe innerhalb":"Höhe außerhalb")+'<span class="klein" style="display:block">Dreieck: '+dZ(G*Hh/2)+" cm²"+(zw?"<br>Parallelogramm: "+dZ(G*Hh)+" cm²":"")+"</span>";};
+  [g,h,s].forEach(x=>x.addEventListener("input",z));k.addEventListener("click",()=>{zw=!zw;k.textContent=zw?"Zweites Dreieck wegnehmen":"Zweites Dreieck anlegen";z();});z();}
+
+/* Messtoleranz: ±1 mm bzw. ±1° */
+const dz=x=>String(Math.round(x*100)/100).replace(".",",");
+const tol=(v,d)=>{d=d||.1;return [v-d,v,v+d].map(dz).join("|");};
+const tolA=(g,h)=>{const s=new Set();[g-.1,g,g+.1].forEach(a=>[h-.1,h,h+.1].forEach(b=>s.add(dz(a*b/2))));return [...s].join("|");};
+const HALB="{1/2}";
+/* ─── Helfer „Das Trapez“ (Woche 4) ─── */
+const TBL="#1565C0",THO="#C2410C";
+/* Trapez/Viereck: a, c, dx, h in cm (A=(0,0), B=(a,0), C=(dx+c,h), D=(dx,h)) oder pts:[[x,y]×4].
+   o: s (px/cm), real (Originalgröße für das Geodreieck), lab {a,b,c,d}, hx (Lage der Höhe), hl (Text), ecken, eq [["b","d"]], ra [Ecken-Index], blau (a,c blau), extra (SVG-Zusatz) */
+function trs(o){const s=o.real?34:(o.s||24);
+  const P0=o.pts?o.pts:[[0,0],[o.a,0],[o.dx+o.c,o.h],[o.dx,o.h]];
+  const ext=P0.concat(o.hx!=null?[[o.hx,0]]:[]),xs=ext.map(p=>p[0]),ys=ext.map(p=>p[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),pad=o.pad||(o.lab?62:30);
+  const W=(x1-x0)*s+2*pad,H=(y1-y0)*s+2*pad,S=p=>[pad+(p[0]-x0)*s,pad+(y1-p[1])*s],P=P0.map(S);
+  let g='<svg class="'+(o.real?"mess":"tsvg")+'" width="'+W.toFixed(0)+'" height="'+H.toFixed(0)+'" viewBox="0 0 '+W.toFixed(0)+' '+H.toFixed(0)+'" role="img" aria-label="Viereck">';
+  g+=poly(P,{fill:o.real?"#fff":"#E3F0FB",sw:2.2});
+  if(o.blau){g+=lin(P[0],P[1],{st:TBL,sw:4})+lin(P[3],P[2],{st:TBL,sw:4});}
+  (o.ra||[]).forEach(i=>{const p=P[i],v1=P[(i+1)%4],v0=P[(i+3)%4];g+=rwB(p,[v1[0]-p[0],v1[1]-p[1]],[v0[0]-p[0],v0[1]-p[1]],12);});
+  (o.eq||[]).forEach(gr=>gr.forEach(n=>{const i="abcd".indexOf(n);g+=strich2(P[i],P[(i+1)%4]);}));
+  if(o.hx!=null){const top=S([o.hx,o.h]),fu=S([o.hx,0]);
+    if(o.hx>o.a+1e-6)g+=lin(P[1],[fu[0]+10,fu[1]],{sw:1.4,dash:"5 4"});if(o.hx<-1e-6)g+=lin(P[0],[fu[0]-10,fu[1]],{sw:1.4,dash:"5 4"});
+    g+=lin(top,fu,{st:THO,sw:2.6,dash:"7 5"})+rwB(fu,[0,-1],[o.hx>=o.a?-1:1,0],11);
+    if(o.hl)g+=T2(fu[0]+8,(top[1]+fu[1])/2+5,o.hl,{fill:THO,anchor:"start",fs:15});}
+  if(o.lab){const m=[P.reduce((x,p)=>x+p[0],0)/4,P.reduce((x,p)=>x+p[1],0)/4];
+    "abcd".split("").forEach((n,i)=>{const t=o.lab[n];if(!t)return;const A=P[i],B=P[(i+1)%4],M=[(A[0]+B[0])/2,(A[1]+B[1])/2],d=ein([B[0]-A[0],B[1]-A[1]]);let nn=[-d[1],d[0]];
+      if((M[0]-m[0])*nn[0]+(M[1]-m[1])*nn[1]<0)nn=[-nn[0],-nn[1]];const off=14+Math.abs(nn[0])*t.length*4.2;
+      g+=T2(M[0]+nn[0]*off,M[1]+nn[1]*off+5,t,{fs:15,fill:(o.blau&&(n==="a"||n==="c"))?TBL:"#000"});});}
+  if(o.ecken)g+=ecken(P,["A","B","C","D"]);
+  if(o.extra)g+=o.extra(S);
+  return g+'</svg>';}
+/* Viereck mit Diagonalen (Raute/Drachen): e waagerecht, f senkrecht, f kreuzt e bei p·e */
+function rds(e,f,p,o){o=o||{};const s=o.s||20;
+  return trs({pts:[[0,f/2],[p*e,0],[e,f/2],[p*e,f]],s,pad:o.pad||40,ecken:false,eq:o.eq,lab:o.lab,extra:S=>{const A=S([0,f/2]),C=S([e,f/2]),B=S([p*e,0]),D=S([p*e,f]),X=S([p*e,f/2]);
+    let g=lin(A,C,{st:TBL,sw:2.6})+lin(B,D,{st:THO,sw:2.6})+rwB(X,[1,0],[0,-1],10);
+    if(o.el)g+=T2((X[0]+C[0])/2,X[1]-8,o.el,{fs:14,fill:TBL});if(o.fl)g+=T2(X[0]-8,(X[1]+B[1])/2+5,o.fl,{fs:14,fill:THO,anchor:"end"});return g;}});}
+
+/* Trapeze sortieren: antippen → ja → nein → leer */
+const TFIG=[
+  {p:[[0,0],[6,0],[4.5,3],[1.5,3]],ja:true},
+  {p:[[2,0],[4,1.7],[2,4.5],[0,1.7]],ja:false},
+  {p:[[0,0],[5,0],[6.5,3],[1.5,3]],ja:true},
+  {p:[[0,0],[5,1],[4,4],[1,3]],ja:false},
+  {p:[[0,0],[5,0],[5,3],[0,1.4]],ja:true,rwi:[0,1]},
+  {p:[[0,0],[3,0],[4.6,2.6],[1.6,2.6]],ja:true,gl:true},
+  {p:[[0,0],[6,0],[6,3.4],[0,3.4]],ja:true,rw:true},
+  {p:[[0.6,0],[5,0.9],[3.8,4.05],[1.6,3.6]],ja:true},
+  {p:[[0,0],[5,0.6],[3.4,3],[0.4,2.2]],ja:false}];
+function tSortHtml(){return '<div class="fsgrid">'+TFIG.map((f,i)=>'<button type="button" class="fs epr" data-i="'+i+'" data-soll="'+(f.ja?"ja":"nein")+'" data-z=""><span class="fsnr">'+(i+1)+'</span>'+figSvg(f)+'<span class="fsz">?</span></button>').join("")+'</div>';}
+function initTSort(K){K.querySelectorAll(".fs").forEach(b=>{
+  const zeig=()=>{const z=b.dataset.z;b.querySelector(".fsz").textContent=z===""?"?":(z==="ja"?"ja, Trapez":"nein");b.classList.toggle("fsja",z==="ja");b.classList.toggle("fsnein",z==="nein");};
+  b.addEventListener("click",()=>{const o=["","ja","nein"];b.dataset.z=o[(o.indexOf(b.dataset.z)+1)%3];b.classList.remove("ok","falsch");zeig();});
+  b._pruef=()=>b.dataset.z===b.dataset.soll;zeig();});}
+/* Achtung: TFIG[7] ist ein gedrehtes Trapez – Seite AB ∥ CD prüfen */
+
+/* Höhe auf Karopapier – Trapeze */
+Object.assign(HOEHEN,{
+  tin:{p:[[1,1],[10,1],[8,5],[3,5]],g:[0,1],v:3,f:[3,1],lab:"a",text:"Zeichne die Höhe von D auf die Seite a = AB."},
+  taus:{p:[[1,1],[5,1],[10,4],[7,4]],g:[0,1],v:3,f:[7,1],aussen:true,lab:"a",text:"Die Seite c steht über a hinaus. Zeichne die Höhe von D auf a = AB."},
+  tsenk:{p:[[1,1],[6,3],[6,7],[1,5]],g:[1,2],v:3,f:[6,5],lab:"BC",text:"Hier stehen die parallelen Seiten senkrecht. Zeichne die Höhe von D auf die Seite BC."}});
+
+/* Welche Strecke ist die Höhe? */
+function tStrecken(P,L,G,ext){const s=20,W=300,H=180;let g='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" role="img" aria-label="Trapez mit drei Strecken">'+gitterSvg(0,0,15,9,s);
+  g+=poly(P,{fill:"rgba(227,240,251,.7)"})+lin(P[G[0]],P[G[1]],{st:TBL,sw:5});
+  if(ext)g+=lin(ext[0],ext[1],{sw:2,dash:"6 5"});const farb=["#C2185B","#6A1B9A","#E65100"];L.forEach((l,i)=>g+=lin(l[0],l[1],{st:farb[i],sw:3}));
+  L.forEach((l,i)=>{const m=[l[0][0]+(l[1][0]-l[0][0])*.5,l[0][1]+(l[1][1]-l[0][1])*.5],d=ein([l[1][0]-l[0][0],l[1][1]-l[0][1]]);g+=nrKreis([m[0]-d[1]*15,m[1]+d[0]*15],i+1,farb[i]);});
+  return g+ecken(P,["A","B","C","D"])+'</svg>';}
+const STR1=tStrecken([[20,160],[260,160],[200,40],[80,40]],[[[80,40],[20,160]],[[140,40],[140,160]],[[200,40],[160,160]]],[0,1]);
+const STR2=tStrecken([[40,160],[160,160],[260,60],[180,60]],[[[160,160],[260,60]],[[180,60],[120,160]],[[180,60],[180,160]]],[0,1],[[160,160],[200,160]]);
+const STR3=tStrecken([[40,160],[220,160],[220,40],[100,40]],[[[100,40],[40,160]],[[220,40],[220,160]],[[160,40],[200,160]]],[0,1]);
+
+/* Pauls Fehler: Schenkel als Höhe */
+function paulSvg(){return trs({a:7,c:3,dx:1.5,h:3.5,s:30,ecken:true,extra:S=>lin(S([0,0]),S([1.5,3.5]),{st:"#1565C0",sw:4})+T2(S([0.75,1.75])[0]-10,S([0.75,1.75])[1],"h?",{fill:"#1565C0",anchor:"end"})});}
+
+/* ═══ Entdecker Z1: Ecken D und C ziehen ═══ */
+const ENT_TZ='<div class="entw"><div class="entbild tz"></div><div class="entname"></div></div><p class="klein">Ziehe die gelben Ecken D und C. Sie bleiben immer auf der gestrichelten Parallelen.</p>';
+function initEntTZ(K){const b=K.querySelector(".entbild"),n=K.querySelector(".entname"),A=8,H=3.5,sc=34,pad=34,W=(A+6)*sc+2*pad,Hh=H*sc+2*pad+20;let D=1.5,C=5.5;
+  const X=x=>pad+(x+3)*sc,Y=y=>pad+(H-y)*sc;
+  const z=()=>{const c=C-D,e=.13;let nm="Trapez";
+    if(Math.abs(c-A)<e&&Math.abs(D)<e)nm="Rechteck – auch ein Trapez!";else if(Math.abs(c-A)<e)nm="Parallelogramm – auch ein Trapez!";
+    else if(Math.abs(D)<e||Math.abs(C-A)<e)nm="rechtwinkliges Trapez";else if(Math.abs(D-(A-C))<e)nm="gleichschenkliges Trapez";
+    const ov=D<A&&C>0,hx=ov?Math.max(0,Math.min(A,(Math.max(D,0)+Math.min(C,A))/2)):(C<=0?C:D);
+    let g='<svg width="'+W+'" height="'+Hh+'" viewBox="0 0 '+W+' '+Hh+'">'+lin([X(-3),Y(H)],[X(A+3),Y(H)],{st:"#bbb",sw:2,dash:"6 6"});
+    g+=poly([[0,0],[A,0],[C,H],[D,H]].map(p=>[X(p[0]),Y(p[1])]),{fill:"#E3F0FB",sw:2.5})+lin([X(0),Y(0)],[X(A),Y(0)],{st:TBL,sw:5})+lin([X(D),Y(H)],[X(C),Y(H)],{st:TBL,sw:5});
+    if(hx<0||hx>A)g+=lin([X(hx<0?0:A),Y(0)],[X(hx),Y(0)],{sw:1.4,dash:"6 5"});
+    g+=lin([X(hx),Y(H)],[X(hx),Y(0)],{st:THO,sw:3,dash:"8 5"})+rwB([X(hx),Y(0)],[0,-1],[hx>=A?-1:1,0],13);
+    g+=T2(X(A/2),Y(0)+24,"a = "+dZ(A)+" cm",{fill:TBL})+T2(X(hx)+10,Y(H/2),"h",{fill:THO,anchor:"start"})+T2(X(0)-14,Y(0)+18,"A",{})+T2(X(A)+14,Y(0)+18,"B",{});
+    [["D",D],["C",C]].forEach(([k,v])=>{g+='<circle class="dr" data-k="'+k+'" cx="'+X(v)+'" cy="'+Y(H)+'" r="15" fill="#E2A21B" stroke="#000" stroke-width="2" style="cursor:grab;touch-action:none"/><text x="'+X(v)+'" y="'+(Y(H)+6)+'" text-anchor="middle" font-family="Arial" font-weight="700" pointer-events="none">'+k+'</text>';});
+    b.innerHTML=g+'</svg>';n.innerHTML=nm+'<span class="klein" style="display:block">c = '+dZ(c)+' cm, h = 3,5 cm | Höhe '+((hx>=0&&hx<=A)?"innerhalb":"außerhalb")+'</span>';};
+  let dr=null;b.addEventListener("pointerdown",e=>{if(e.target.classList.contains("dr")){dr=e.target.dataset.k;b.setPointerCapture(e.pointerId);e.preventDefault();}});
+  b.addEventListener("pointermove",e=>{if(!dr)return;const r=b.querySelector("svg").getBoundingClientRect(),x=((e.clientX-r.left)*W/r.width-pad)/sc-3;
+    const v=Math.round(Math.max(-3,Math.min(A+3,x))*2)/2;if(dr==="D")D=Math.min(v,C-.5);else C=Math.max(v,D+.5);z();});
+  b.addEventListener("pointerup",()=>dr=null);z();}
+
+/* ═══ Entdecker Z2: Klonen und Drehen ═══ */
+const ENT_TK='<div class="entw"><div class="regler"><label>a = <b class="va"></b> cm <input type="range" class="ra" min="3" max="9" value="6"></label><label>c = <b class="vc"></b> cm <input type="range" class="rc" min="1" max="8" value="2"></label><label>h = <b class="vh"></b> cm <input type="range" class="rh" min="1" max="5" value="3"></label>'+
+  '<label>Kopie drehen <input type="range" class="rd" min="0" max="180" step="5" value="0"></label></div><div class="entbild"></div><div class="entname"></div></div>';
+function initEntTK(K){const q=c=>K.querySelector(c),b=q(".entbild"),n=q(".entname");
+  const z=()=>{const a=+q(".ra").value,c=+q(".rc").value,h=+q(".rh").value,d=+q(".rd").value,dx=(a-c)/2,u=26,ox=24,oy=24+5*u,P=p=>[ox+p[0]*u,oy-p[1]*u];
+    q(".va").textContent=a;q(".vc").textContent=c;q(".vh").textContent=h;const T0=[[0,0],[a,0],[dx+c,h],[dx,h]],M=[(a+dx+c)/2,h/2],r=d*Math.PI/180,rot=p=>[M[0]+(p[0]-M[0])*Math.cos(r)-(p[1]-M[1])*Math.sin(r)*-1*-1,M[1]+(p[0]-M[0])*Math.sin(r)+(p[1]-M[1])*Math.cos(r)];
+    const K2=T0.map(rot),w=(a+c+Math.abs(dx)+1)*u+ox*2;
+    let g='<svg width="'+w+'" height="'+(oy+44)+'" viewBox="0 0 '+w+' '+(oy+44)+'">';
+    if(d>0)g+=poly(K2.map(P),{fill:"#FFE9DC",st:THO,sw:2});
+    g+=poly(T0.map(P),{fill:"#DCEBFB",sw:2.5})+lin(P([0,0]),P([a,0]),{st:TBL,sw:5})+lin(P([dx,h]),P([dx+c,h]),{st:TBL,sw:5});
+    g+=T2(P([a/2,0])[0],oy+22,"a",{fill:TBL})+T2(P([dx+c/2,h])[0],P([0,h])[1]-10,"c",{fill:TBL});
+    if(d===180)g+=lin([P([0,0])[0],oy+32],[P([a+c,0])[0],oy+32],{sw:1.6})+T2(P([(a+c)/2,0])[0],oy+44,"a + c = "+(a+c)+" cm",{fs:14});
+    b.innerHTML=g+'</svg>';
+    n.innerHTML=(d===180?"Parallelogramm: (a + c) · h = "+(a+c)+" cm · "+h+" cm = "+dZ((a+c)*h)+" cm²<br>":"Drehe die Kopie bis 180°.<br>")+'<span class="klein">Trapez: '+dZ((a+c)*h/2)+" cm²</span>";};
+  K.querySelectorAll("input").forEach(x=>x.addEventListener("input",z));z();}
+
+/* ═══ Entdecker Z3: Diagonalen ═══ */
+const ENT_TR='<div class="entw"><div class="regler"><label>e = <b class="ve"></b> cm <input type="range" class="re" min="3" max="10" value="8"></label><label>f = <b class="vf"></b> cm <input type="range" class="rf" min="2" max="7" value="5"></label><label>f kreuzt e bei <input type="range" class="rp" min="20" max="80" step="5" value="50"></label></div><div class="entbild"></div><div class="entname"></div></div>';
+function initEntTR(K){const q=c=>K.querySelector(c),b=q(".entbild"),n=q(".entname");
+  const z=()=>{const e=+q(".re").value,f=+q(".rf").value,p=+q(".rp").value/100;q(".ve").textContent=e;q(".vf").textContent=f;
+    b.innerHTML=trs({pts:[[0,f/2],[p*e,0],[e,f/2],[p*e,f]],s:30,pad:30,extra:S=>{const A=S([0,f/2]),C=S([e,f/2]),B=S([p*e,0]),D=S([p*e,f]),X=S([p*e,f/2]),o=S([0,f]),u=S([e,0]);
+      return '<rect x="'+o[0]+'" y="'+o[1]+'" width="'+(u[0]-o[0])+'" height="'+(u[1]-o[1])+'" fill="none" stroke="#777" stroke-width="2" stroke-dasharray="7 5"/>'+lin(A,C,{st:TBL,sw:3})+lin(B,D,{st:THO,sw:3})+rwB(X,[1,0],[0,-1],11)+T2((X[0]+C[0])/2,X[1]-8,"e",{fill:TBL})+T2(X[0]-8,(X[1]+B[1])/2,"f",{fill:THO,anchor:"end"});}});
+    n.innerHTML=(p===0.5?"Raute":"Drachenviereck")+'<span class="klein" style="display:block">Rechteck: e · f = '+(e*f)+' cm² → Figur: A = '+dZ(e*f/2)+' cm²</span>';};
+  K.querySelectorAll("input").forEach(x=>x.addEventListener("input",z));z();}
+
+/* Toleranzen */
+const tolT=(a,c,h)=>{const s=new Set();[a-.1,a,a+.1].forEach(x=>[c-.1,c,c+.1].forEach(y=>[h-.1,h,h+.1].forEach(k=>s.add(dz((x+y)*k/2)))));return [...s].join("|");};
+const NUR="<span style=\"background:#FFE08A;border-radius:6px;padding:1px 8px;font-weight:bold\">Nur fürs LH 1</span> ";
+const BILD_T=trs({a:7,c:3,dx:2,h:3.5,s:26,lab:{a:"a",c:"c",b:"",d:""},hx:3,hl:"h",blau:true});
+const BILD_S=trs({a:7,c:3,dx:2,h:3.5,s:26,lab:{a:"a",c:"c",b:"s",d:"s"},hx:3,hl:"h",blau:true,eq:[["b","d"]]});
+const BILD_U=trs({a:7,c:3,dx:2,h:3.5,s:26,lab:{a:"a",b:"b",c:"c",d:"d"},blau:true});
+const BILD_R=rds(8,5,.5,{el:"e",fl:"f",s:22,eq:[["a","b","c","d"]]});
+
+/* ═══ Zusammengesetzte Figuren: Zeichenhelfer ═══ */
+const ZB="#1565C0",ZO="#C2410C",ZG="#2E7D32",ZR="#C62828",ZFILL={0:"#E3F0FB",1:"#DCEBFB",2:"#FFE3D3",3:"#DFF1E0"},ZNC={1:ZB,2:ZO,3:ZG};
+const zU=(x,y)=>{const l=Math.hypot(x,y)||1;return[x/l,y/l]};
+const zArea=P=>{let s=0;P.forEach((p,i)=>{const q=P[(i+1)%P.length];s+=p[0]*q[1]-q[0]*p[1]});return s/2};
+const zCen=P=>[P.reduce((a,p)=>a+p[0],0)/P.length,P.reduce((a,p)=>a+p[1],0)/P.length];
+function zTx(x,y,t,o){o=o||{};return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" font-family="Arial" font-size="'+(o.fs||15)+'" text-anchor="middle" dominant-baseline="central" fill="'+(o.fill||"#000")+'"'+(o.b?' font-weight="700"':'')+(o.halo?' stroke="#fff" stroke-width="4" paint-order="stroke"':'')+'>'+String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;")+'</text>';}
+/* o.pts in Einheiten, o.s Pixel pro Einheit; lab {Kante:Text}; parts; cut; comp; holes; htxt; dims; tap */
+function zf(o){
+  const s=o.s||24,fs=15,P=o.pts,all=P.concat(...(o.dims||[]).map(d=>[d.a,d.b]));
+  const xs=all.map(p=>p[0]),ys=all.map(p=>p[1]),mx=Math.min(...xs),Mx=Math.max(...xs),my=Math.min(...ys),My=Math.max(...ys);
+  const labs=Object.values(o.lab||{}).concat((o.dims||[]).map(d=>d.t)),ml=Math.max(2,...labs.map(x=>x.length)),pad=fs*(1.6+ml*.45);
+  const S=p=>[(p[0]-mx)*s+pad,(My-p[1])*s+pad],W=(Mx-mx)*s+2*pad,H=(My-my)*s+2*pad;
+  const pts=Q=>Q.map(S).map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
+  const ln=(a,b,col,w,dash,cls,extra)=>{const A=S(a),B=S(b);return '<line'+(cls?' class="'+cls+'"':'')+(extra||'')+' x1="'+A[0].toFixed(1)+'" y1="'+A[1].toFixed(1)+'" x2="'+B[0].toFixed(1)+'" y2="'+B[1].toFixed(1)+'" stroke="'+col+'" stroke-width="'+w+'"'+(dash?' stroke-dasharray="7 5"':'')+' stroke-linecap="round"/>';};
+  let g='<svg viewBox="0 0 '+W.toFixed(0)+' '+H.toFixed(0)+'" width="'+W.toFixed(0)+'" style="max-width:100%;height:auto;overflow:visible" role="img" aria-label="Zusammengesetzte Figur">';
+  if(o.gitter){for(let x=Math.ceil(mx);x<=Mx;x++)g+=ln([x,my],[x,My],"#ddd",1);for(let y=Math.ceil(my);y<=My;y++)g+=ln([mx,y],[Mx,y],"#ddd",1);}
+  if(o.comp)g+='<polygon points="'+pts(o.comp)+'" fill="#ececec" stroke="#777" stroke-width="2" stroke-dasharray="7 5"/>';
+  g+='<polygon points="'+pts(P)+'" fill="'+ZFILL[0]+'"/>';
+  (o.parts||[]).forEach(q=>g+='<polygon points="'+pts(q.pts)+'" fill="'+ZFILL[q.c]+'"/>');
+  (o.holes||[]).forEach(h=>g+='<polygon points="'+pts(h)+'" fill="#fff" stroke="#000" stroke-width="2.5"/>');
+  (o.cut||[]).forEach(c=>g+=ln(c[0],c[1],"#333",2.2,1));
+  g+='<polygon points="'+pts(P)+'" fill="none" stroke="#000" stroke-width="2.8" stroke-linejoin="round"/>';
+  (o.parts||[]).forEach(q=>{const c=S(q.np||zCen(q.pts));g+=zTx(c[0],c[1],q.n,{fs:19,b:1,fill:ZNC[q.c]});});
+  const kanten=(Q,lab,innen)=>{const ccw=zArea(Q)>0;Q.forEach((A0,i)=>{const t=lab[i];if(!t)return;const B0=Q[(i+1)%Q.length],A=S(A0),B=S(B0),M=[(A[0]+B[0])/2,(A[1]+B[1])/2];
+    const d=zU(B0[0]-A0[0],B0[1]-A0[1]);let n=ccw?[d[1],-d[0]]:[-d[1],d[0]];if(innen)n=[-n[0],-n[1]];const nS=[n[0],-n[1]];
+    const off=fs*.8+Math.abs(nS[0])*t.length*fs*.28;g+=zTx(M[0]+off*nS[0],M[1]+off*nS[1],t,{b:t==="?",fill:t==="?"?ZR:"#000"});});};
+  if(o.lab)kanten(P,o.lab,false);
+  if(o.htxt&&o.holes){const c=S(zCen(o.holes[0]));o.htxt.forEach((z,j)=>g+=zTx(c[0],c[1]+(j-(o.htxt.length-1)/2)*13,z,{fs:12}));}
+  (o.dims||[]).forEach(d=>{const A=S(d.a),B=S(d.b),u=zU(B[0]-A[0],B[1]-A[1]),n=[-u[1],u[0]],M=[(A[0]+B[0])/2,(A[1]+B[1])/2];
+    if(d.ext){g+=ln(d.a,d.b,"#333",1.6);[A,B].forEach(p=>g+='<line x1="'+(p[0]-6*n[0]).toFixed(1)+'" y1="'+(p[1]-6*n[1]).toFixed(1)+'" x2="'+(p[0]+6*n[0]).toFixed(1)+'" y2="'+(p[1]+6*n[1]).toFixed(1)+'" stroke="#333" stroke-width="1.6"/>');}
+    else{g+=ln(d.a,d.b,ZO,2.4,1);if(d.ra)g+=rwB(A,u,[u[1],-u[0]],11);}
+    const sg=d.ext?(Math.abs(n[1])>.5?-1:1):-1,off=fs*.55+Math.abs(n[0])*d.t.length*fs*.28;
+    g+=zTx(M[0]+sg*off*n[0],M[1]+sg*off*n[1],d.t,{fill:d.ext?"#000":ZO,b:!d.ext,halo:1});});
+  /* Tippen */
+  if(o.tap==="kanten"){P.forEach((A0,i)=>{const B0=P[(i+1)%P.length];g+='<g class="tl" data-ok="1">'+ln(A0,B0,"transparent",18,0,"hit")+ln(A0,B0,"transparent",6,0,"vis")+'</g>';});
+    (o.innen||[]).forEach(c=>g+='<g class="tl" data-ok="0">'+ln(c[0],c[1],"transparent",18,0,"hit")+ln(c[0],c[1],"#333",2.2,1,"vis")+'</g>');}
+  if(o.tap==="schnitt")(o.kand||[]).forEach(c=>g+='<g class="tl" data-ok="'+(c[2]?1:0)+'">'+ln(c[0],c[1],"transparent",18,0,"hit")+ln(c[0],c[1],"#9e9e9e",3,1,"vis")+'</g>');
+  if(o.tap==="stueck"){(o.reg||[]).forEach(r=>g+='<polygon class="tr" data-ok="'+(r.ok?1:0)+'" points="'+pts(r.pts)+'" fill="rgba(255,255,255,.01)" stroke="#999" stroke-width="2" stroke-dasharray="7 5"/>');}
+  return g+'</svg>';}
+/* Tipp-Aufgaben: kanten = alle Außenseiten antippen · schnitt = eine passende Trennlinie wählen · stueck = fehlendes Stück antippen */
+function tapHtml(figs){return '<div class="tapgrid">'+figs.map((f,i)=>'<div class="tapbox"><p class="sit"><b>'+"abcdef"[i]+')</b> '+(f.text||"")+'</p><div class="tapw epr" data-modus="'+f.tap+'">'+zf(f)+'</div></div>').join("")+'</div>';}
+function initTap(K){K.querySelectorAll(".tapw").forEach(w=>{const m=w.dataset.modus,els=[...w.querySelectorAll(".tl,.tr")];
+  els.forEach(e=>e.addEventListener("click",()=>{if(m==="schnitt")els.forEach(x=>{if(x!==e)x.classList.remove("an");});e.classList.toggle("an");w.classList.remove("ok","falsch");}));
+  w._pruef=()=>{const an=els.filter(e=>e.classList.contains("an"));
+    if(m==="schnitt")return an.length===1&&an[0].dataset.ok==="1";
+    return els.every(e=>e.classList.contains("an")===(e.dataset.ok==="1"));};});}
+
+/* ═══ Entdecker ═══ */
+function rechteckBild(W0,H0,poly,extra){const sc=32,pad=46,X=x=>pad+x*sc,Y=y=>pad+(H0-y)*sc;
+  let s='<svg viewBox="0 0 '+(W0*sc+2*pad)+' '+(H0*sc+2*pad)+'" width="'+(W0*sc+2*pad)+'" style="max-width:100%;height:auto">';
+  s+='<rect x="'+X(0)+'" y="'+Y(H0)+'" width="'+W0*sc+'" height="'+H0*sc+'" fill="#f4f4f4" stroke="#999" stroke-width="2" stroke-dasharray="7 5"/>';
+  s+='<polygon points="'+poly.map(p=>X(p[0])+","+Y(p[1])).join(" ")+'" fill="#DCEBFB" stroke="#000" stroke-width="3"/>';
+  return s+(extra?extra(X,Y,sc):"")+'</svg>';}
+const ENT_EK='<div class="entw"><div class="regler"><label>Breite der Ecke: <b class="vw"></b> cm <input type="range" class="rw" min="0" max="7" value="3"></label><label>Höhe der Ecke: <b class="vh"></b> cm <input type="range" class="rh" min="0" max="5" value="2"></label></div><div class="entbild"></div><div class="entname"></div></div>';
+function initEntEK(K){const q=c=>K.querySelector(c);const z=()=>{const w=+q(".rw").value,h=+q(".rh").value;q(".vw").textContent=w;q(".vh").textContent=h;
+  const P=(w&&h)?[[0,0],[8,0],[8,6-h],[8-w,6-h],[8-w,6],[0,6]]:[[0,0],[8,0],[8,6],[0,6]];
+  q(".entbild").innerHTML=rechteckBild(8,6,P,(X,Y)=>zTx(X(4),Y(0)+16,"8 cm",{})+zTx(X(0)-24,Y(3),"6 cm",{}));
+  q(".entname").innerHTML="Umfang u = 28 cm<span class=\"klein\" style=\"display:block\">Fläche A = 48 cm² − "+(w*h)+" cm² = "+(48-w*h)+" cm²</span>";};
+  K.querySelectorAll("input").forEach(x=>x.addEventListener("input",z));z();}
+const ENT_TR2='<div class="entw"><div class="regler"><label>obere Breite: <b class="vt"></b> m <input type="range" class="rt" min="1" max="7" value="5"></label><label><input type="radio" name="trz" value="s" checked> senkrecht zerlegen</label><label><input type="radio" name="trz" value="w"> waagerecht zerlegen</label></div><div class="entbild"></div><div class="entname"></div></div>';
+function initEntTR2(K){const q=c=>K.querySelector(c);const z=()=>{const t=+q(".rt").value,sv=q('input[name=trz]:checked').value==="s";q(".vt").textContent=t;
+  const P=[[0,0],[8,0],[8,2],[t,2],[t,5],[0,5]],A1=sv?[[0,0],[t,0],[t,5],[0,5]]:[[0,0],[8,0],[8,2],[0,2]],A2=sv?[[t,0],[8,0],[8,2],[t,2]]:[[0,2],[t,2],[t,5],[0,5]];
+  const cut=sv?[[t,0],[t,2]]:[[0,2],[t,2]];
+  q(".entbild").innerHTML=zf({pts:P,s:30,lab:{0:"8 m",1:"2 m",3:"3 m",4:t+" m",5:"5 m"},parts:t<8?[{pts:A1,c:1,n:"①"},{pts:A2,c:2,n:"②"}]:[{pts:A1,c:1,n:"①"}],cut:t<8?[cut]:[]});
+  const a1=sv?t*5:16,a2=sv?(8-t)*2:t*3;q(".entname").innerHTML="A① = "+a1+" m² · A② = "+a2+" m²<span class=\"klein\" style=\"display:block\">zusammen: A = "+(a1+a2)+" m²</span>";};
+  K.querySelectorAll("input").forEach(x=>x.addEventListener("input",z));K.querySelectorAll("input[type=radio]").forEach(x=>x.addEventListener("change",z));z();}
+const ENT_LOCH='<div class="entw"><div class="regler"><label>Lochbreite: <b class="vw"></b> cm <input type="range" class="rw" min="0" max="7" value="4"></label><label>Lochhöhe: <b class="vh"></b> cm <input type="range" class="rh" min="0" max="5" value="3"></label></div><div class="entbild"></div><div class="entname"></div></div>';
+function initEntLoch(K){const q=c=>K.querySelector(c);const z=()=>{const w=+q(".rw").value,h=+q(".rh").value;q(".vw").textContent=w;q(".vh").textContent=h;
+  const x0=(8-w)/2,y0=(6-h)/2;q(".entbild").innerHTML=rechteckBild(8,6,[[0,0],[8,0],[8,6],[0,6]],(X,Y,sc)=>(w&&h?'<rect x="'+X(x0)+'" y="'+Y(y0+h)+'" width="'+w*sc+'" height="'+h*sc+'" fill="#fff" stroke="#000" stroke-width="3"/>':"")+zTx(X(4),Y(0)+16,"8 cm",{})+zTx(X(0)-24,Y(3),"6 cm",{}));
+  q(".entname").innerHTML="A = 48 cm² − "+(w*h)+" cm² = "+(48-w*h)+" cm²";};
+  K.querySelectorAll("input").forEach(x=>x.addEventListener("input",z));z();}
+
+/* ═══ Figuren ═══ */
+const F_L1=zf({pts:[[0,0],[9,0],[9,3],[4,3],[4,7],[0,7]],s:20,lab:{0:"9 cm",1:"3 cm",2:"?",3:"?",4:"4 cm",5:"7 cm"}});
+const F_U1=zf({pts:[[0,0],[10,0],[10,6],[7,6],[7,4],[3,4],[3,6],[0,6]],s:18,lab:{0:"10 m",2:"?",3:"2 m",5:"",6:"3 m",7:"6 m",1:"?"},dims:[{a:[3,6.7],b:[7,6.7],t:"4 m",ext:1}]});
+const F_PLUS=zf({pts:[[2,0],[4,0],[4,2],[6,2],[6,4],[4,4],[4,6],[2,6],[2,4],[0,4],[0,2],[2,2]],s:20});
+const F_TREPPE=zf({pts:[[0,0],[4,0],[4,1],[3,1],[3,2],[2,2],[2,3],[1,3],[1,4],[0,4]],s:26,lab:{0:"4 m",9:"4 m"}});
+const F_HAUS1=zf({pts:[[0,0],[6,0],[6,4],[3,8],[0,4]],s:16,cut:[[[0,4],[6,4]]],lab:{0:"6 m",1:"4 m",2:"5 m",3:"5 m",4:"4 m"}});
+const F_LEINH=zf({pts:[[0,0],[20,0],[20,6],[8,6],[8,15],[0,15]],s:8,lab:{0:"2 m",1:"60 cm",2:"?",3:"?",4:"80 cm",5:"1,5 m"}});
+const F_BEN=zf({pts:[[0,0],[5,0],[5,3],[2.5,4.66],[0,3]],s:26,cut:[[[0,3],[5,3]]],lab:{0:"5 m",1:"3 m",2:"3 m",3:"3 m",4:"3 m"}});
+const F_BEET=zf({pts:[[0,0],[3,0],[3,1],[1,1],[1,2.5],[0,2.5]],s:44,lab:{0:"3 m",1:"1 m",2:"?",3:"?",4:"1 m",5:"2,5 m"}});
+const F_TISCH=zf({pts:[[0,0],[16,0],[16,6],[6,6],[6,12],[0,12]],s:12,lab:{0:"160 cm",1:"60 cm",2:"?",3:"?",4:"60 cm",5:"120 cm"}});
+const TAP_K=[{tap:"kanten",text:"Tippe alle Seiten an, die zum Umfang gehören.",pts:[[0,0],[7,0],[7,3],[3,3],[3,6],[0,6]],s:26,innen:[[[3,0],[3,3]]]},
+  {tap:"kanten",text:"Tippe alle Seiten an, die zum Umfang gehören.",pts:[[0,0],[6,0],[6,3],[3,6],[0,3]],s:28,innen:[[[0,3],[6,3]]]}];
+const TAP_S=[{tap:"schnitt",text:"Tippe eine passende Trennlinie an.",pts:[[0,0],[7,0],[7,3],[3,3],[3,6],[0,6]],s:24,kand:[[[3,0],[3,3],1],[[0,6],[7,0],0],[[0,3],[3,3],1]]},
+  {tap:"schnitt",text:"Tippe eine passende Trennlinie an.",pts:[[0,0],[6,0],[6,3],[3,6],[0,3]],s:26,kand:[[[3,0],[3,6],0],[[0,3],[6,3],1],[[0,0],[6,3],0]]},
+  {tap:"schnitt",text:"Tippe eine passende Trennlinie an.",pts:[[0,0],[8,0],[8,2],[6,4],[2,4],[0,2]],s:22,kand:[[[0,2],[8,2],1],[[2,0],[2,4],0],[[0,0],[2,4],0]]}];
+const TAP_E=[{tap:"stueck",text:"Tippe das Stück an, das zum Rechteck fehlt.",pts:[[0,0],[8,0],[8,3],[5,3],[5,5],[0,5]],s:24,reg:[{pts:[[5,3],[8,3],[8,5],[5,5]],ok:1},{pts:[[0,0],[5,0],[5,5],[0,5]],ok:0}]},
+  {tap:"stueck",text:"Tippe das Stück an, das zum Rechteck fehlt.",pts:[[0,0],[8,0],[8,5],[6,5],[6,2],[2,2],[2,5],[0,5]],s:22,reg:[{pts:[[2,2],[6,2],[6,5],[2,5]],ok:1},{pts:[[0,0],[8,0],[8,2],[0,2]],ok:0}]},
+  {tap:"stueck",text:"Tippe das Stück an, das zum Rechteck fehlt.",pts:[[0,0],[8,0],[8,4],[6,4],[4,2],[2,4],[0,4]],s:24,reg:[{pts:[[2,4],[6,4],[4,2]],ok:1},{pts:[[0,0],[4,0],[4,2],[2,4],[0,4]],ok:0}]}];
+const F_Z2A=zf({pts:[[0,0],[6,0],[6,2],[2,2],[2,5],[0,5]],s:24,lab:{0:"6 cm",1:"2 cm",4:"2 cm",5:"5 cm"},parts:[{pts:[[0,0],[2,0],[2,5],[0,5]],c:1,n:"①"},{pts:[[2,0],[6,0],[6,2],[2,2]],c:2,n:"②"}],cut:[[[2,0],[2,2]]]});
+const F_Z2B=zf({pts:[[2,0],[4,0],[4,4],[6,4],[6,6],[0,6],[0,4],[2,4]],s:22,lab:{0:"2 m",1:"4 m",4:"6 m",5:"2 m"},parts:[{pts:[[2,0],[4,0],[4,4],[2,4]],c:1,n:"①"},{pts:[[0,4],[6,4],[6,6],[0,6]],c:2,n:"②"}],cut:[[[2,4],[4,4]]]});
+const F_Z2C=zf({pts:[[0,0],[4,0],[7,2],[4,4],[0,4]],s:28,lab:{0:"4 cm",4:"4 cm"},parts:[{pts:[[0,0],[4,0],[4,4],[0,4]],c:1,n:"①"},{pts:[[4,0],[7,2],[4,4]],c:2,n:"②",np:[4.9,2.9]}],cut:[[[4,0],[4,4]]],dims:[{a:[4,2],b:[7,2],t:"3 cm",ra:1}]});
+const F_Z2D=zf({pts:[[0,0],[6,0],[6,2],[4,4],[2,4],[0,2]],s:24,lab:{0:"6 cm",1:"2 cm",3:"2 cm"},parts:[{pts:[[0,0],[6,0],[6,2],[0,2]],c:1,n:"①"},{pts:[[0,2],[6,2],[4,4],[2,4]],c:2,n:"②",np:[4.6,2.7]}],cut:[[[0,2],[6,2]]],dims:[{a:[3,2],b:[3,4],t:"2 cm",ra:1}]});
+const F_LENA=zf({pts:[[0,0],[7,0],[7,2],[3,2],[3,5],[0,5]],s:24,lab:{0:"7 m",1:"2 m",4:"3 m",5:"5 m"},cut:[[[3,0],[3,2]]]});
+function posterSvg(){return '<svg viewBox="0 0 260 230" width="260" role="img" aria-label="Bauhaus-Poster"><rect x="10" y="10" width="240" height="210" fill="#f6efe0" stroke="#000" stroke-width="2"/>'+
+  '<polygon points="50,200 210,200 210,110 130,40 50,110" fill="#d9472b" stroke="#000" stroke-width="3"/><line x1="50" y1="110" x2="210" y2="110" stroke="#222" stroke-width="2" stroke-dasharray="7 5"/>'+
+  '<rect x="20" y="20" width="22" height="70" fill="#1565C0"/><circle cx="225" cy="45" r="16" fill="#E2A21B"/>'+zTx(130,215,"40 cm",{fs:13})+zTx(228,155,"30 cm",{fs:13})+'<line x1="130" y1="40" x2="130" y2="110" stroke="#fff" stroke-width="2" stroke-dasharray="5 4"/>'+zTx(150,80,"20 cm",{fs:13,fill:"#fff",b:1})+'</svg>';}
+const F_SKATE=zf({pts:[[0,0],[20,0],[20,12],[16,16],[10,16],[8,12],[0,12]],s:11,lab:{0:"20 m",1:"12 m",3:"6 m",5:"8 m"},parts:[{pts:[[0,0],[20,0],[20,12],[0,12]],c:1,n:"①"},{pts:[[8,12],[20,12],[16,16],[10,16]],c:2,n:"②",np:[17.6,13.6]}],cut:[[[8,12],[20,12]]],dims:[{a:[13,12],b:[13,16],t:"4 m",ra:1}]});
+const F_E1=zf({pts:[[0,0],[9,0],[9,4],[6,4],[6,6],[0,6]],s:22,lab:{0:"9 cm",1:"4 cm",4:"6 cm",5:"6 cm"},comp:[[6,4],[9,4],[9,6],[6,6]]});
+const F_E2=zf({pts:[[0,0],[8,0],[8,5],[5,5],[5,2],[3,2],[3,5],[0,5]],s:22,lab:{0:"8 m",1:"5 m",3:"3 m"},dims:[{a:[3,5.6],b:[5,5.6],t:"2 m",ext:1}]});
+const F_E3=zf({pts:[[0,0],[30,0],[30,24],[0,24]],s:5,lab:{0:"30 cm",1:"24 cm"},holes:[[[5,5],[25,5],[25,19],[5,19]]],htxt:["20 cm breit","14 cm hoch"]});
+const F_E4=zf({pts:[[0,0],[10,0],[10,4],[7,4],[5,1],[3,4],[0,4]],s:22,lab:{0:"10 cm",1:"4 cm"},dims:[{a:[3,4.6],b:[7,4.6],t:"4 cm",ext:1},{a:[5,1],b:[5,4],t:"3 cm"}]});
+const F_TIM=zf({pts:[[0,0],[9,0],[9,4],[6,4],[6,2],[3,2],[3,4],[0,4]],s:22,lab:{0:"9 m",1:"4 m",3:"2 m"},dims:[{a:[3,4.6],b:[6,4.6],t:"3 m",ext:1}]});
+const F_ANH=zf({pts:[[0,0],[6,0],[6,3],[0,3]],s:30,lab:{0:"6 cm",1:"3 cm"},holes:[[[2,1],[4,1],[4,2],[2,2]]],htxt:["2 cm · 1 cm"]});
+const F_WAND=zf({pts:[[0,0],[8,0],[8,5],[4,8],[0,5]],s:20,lab:{0:"8 m",1:"5 m"},cut:[[[0,5],[8,5]]],holes:[[[1,2.5],[2.5,2.5],[2.5,3.5],[1,3.5]],[[5.5,2.5],[7,2.5],[7,3.5],[5.5,3.5]],[[3.5,0],[4.5,0],[4.5,2],[3.5,2]]],dims:[{a:[4,5],b:[4,8],t:"3 m",ra:1}]});
+
+const BLATT = {
+  thema: "Zusammengesetzte Figuren",
+  erstellt: "November 2026",
+  uebungen: [
+    { reiter: "Z1 Umfang", titel: "Den Umfang zusammengesetzter Figuren berechnen", aufgaben: [
+      { art: "eigen", name: "Entdecker: Ecke ausschneiden", auftrag: "Schneide aus dem Rechteck (8 cm × 6 cm) eine Ecke aus. Beobachte Umfang und Fläche.", html: ENT_EK, init: initEntEK,
+        nach: "<p><b>a)</b> Schneide eine Ecke mit 2 cm Breite und 2 cm Höhe aus. Umfang: u = [28] cm, Fläche: A = [44] cm²</p>"+
+              "<p><b>b)</b> Ändert sich der Umfang, wenn du eine Ecke ausschneidest? ((ja|*nein))</p>"+
+              "<p><b>c)</b> Die Fläche wird dabei ((größer|*kleiner|nicht anders)).</p>" },
+      { art: "eigen", name: "Welche Seiten gehören zum Umfang?", auftrag: "Tippe alle Seiten an, die zum Umfang gehören. Nochmal tippen nimmt die Auswahl zurück.", html: tapHtml(TAP_K), init: initTap, nach: "<p class=\"klein\">Wenn du fertig bist, tippe auf „Prüfen“.</p>" },
+      { art: "luecke", name: "Fehlende Seiten", auftrag: "Gegenüberliegende Seiten sind zusammen gleich lang. Berechne die fehlenden Seiten (?).",
+        items: [ { s: F_L1, z: ["waagerecht: [5] cm","senkrecht: [4] cm"] }, { s: F_U1, z: ["oben rechts: [3] m","rechts: [6] m"] } ] },
+      { art: "luecke", name: "Umfang berechnen", auftrag: "Berechne den Umfang u.",
+        items: [ { s: F_PLUS+"<br>Alle Seiten sind 2 cm lang.", z: ["u = [24] cm"] }, { s: F_TREPPE+"<br>Alle Stufen sind gleich groß.", z: ["u = [16] m"] },
+                 { s: F_HAUS1+"<br>Die Trennlinie ist gestrichelt.", z: ["u = [24] m"] } ] },
+      { art: "luecke", name: "Verschiedene Einheiten", stern: true, auftrag: "Rechne zuerst alles in cm um.", bild: F_LEINH,
+        items: [ "2 m = [200] cm, 1,5 m = [150] cm", "fehlende Seiten: [120] cm und [90] cm", "u = [700] cm = [7] m" ] },
+      { art: "luecke", name: "Finde den Fehler", bild: F_BEN, auftrag: "Ben rechnet: u = 5 m + 3 m + 3 m + 3 m + 3 m + 5 m = 22 m.",
+        items: [ { s: "Was ist falsch?", z: ["((*Er hat die Trennlinie mitgezählt.|Er hat eine Seite vergessen.|Er hat falsch addiert.))"] }, { s: "Richtig ist:", z: ["u = [17] m"] } ] },
+      { art: "luecke", name: "Lichterkette ums Hochbeet", bild: F_BEET,
+        auftrag: "Euer L-förmiges Hochbeet im Schulgarten bekommt ringsherum eine Lichterkette. Eine Lichterkette ist 5 m lang."+vl("Euer L-förmiges Hochbeet im Schulgarten bekommt ringsherum eine Lichterkette. Eine Lichterkette ist 5 Meter lang. Wie viele Lichterketten braucht ihr?"),
+        items: [ { s: "Fehlende Seiten:", z: ["[2] m und [1,5] m"] }, { s: "Wie lang ist der Rand?", z: ["u = [11] m"] }, { s: "Wie viele Lichterketten braucht ihr?", z: ["[3]","[satz:3:]"] } ] },
+      { art: "luecke", name: "LED-Streifen am Gaming-Tisch", stern: true, bild: F_TISCH,
+        auftrag: "Dein Eck-Schreibtisch soll rundherum einen LED-Streifen bekommen. Der Streifen kostet 3 € pro Meter."+vl("Dein Eck-Schreibtisch soll rundherum einen LED-Streifen bekommen. Der Streifen kostet 3 Euro pro Meter. Wie viel kostet der LED-Streifen?"),
+        items: [ { s: "Fehlende Seiten:", z: ["[100] cm und [60] cm"] }, { s: "Umfang:", z: ["u = [560] cm = [5,6] m"] }, { s: "Wie viel kostet der LED-Streifen?", z: ["[16,8|16,80] €","[satz:16,8:€]"] } ] }
+    ]},
+    { reiter: "Z2 Zerlegen", titel: "Flächeninhalt durch Zerlegen", aufgaben: [
+      { art: "eigen", name: "Entdecker: Trennlinie wechseln", auftrag: "Verändere die obere Breite und wechsle zwischen senkrecht und waagerecht.", html: ENT_TR2, init: initEntTR2,
+        nach: "<p><b>a)</b> Stelle die obere Breite auf 3 m. Senkrecht zerlegt: A① = [15] m², A② = [10] m², A = [25] m²</p>"+
+              "<p><b>b)</b> Waagerecht zerlegt ist die Fläche ((kleiner|*genauso groß|größer)).</p>" },
+      { art: "eigen", name: "Wo zerlegen?", auftrag: "Tippe eine Trennlinie an, mit der du bekannte Teilfiguren (Rechteck, Dreieck, Trapez) bekommst.", html: tapHtml(TAP_S), init: initTap, nach: "<p class=\"klein\">Wenn du fertig bist, tippe auf „Prüfen“.</p>" },
+      { art: "luecke", name: "Teilflächen addieren", auftrag: "Berechne die Teilflächen und dann die ganze Fläche.",
+        items: [ { s: F_Z2A, z: ["A① = [10] cm²","A② = [8] cm²","A = [18] cm²"] }, { s: F_Z2B, z: ["A① = [8] m²","A② = [12] m²","A = [20] m²"] } ] },
+      { art: "luecke", name: "Mit Dreieck und Trapez", auftrag: "Denke an das "+HALB+" beim Dreieck und beim Trapez.",
+        items: [ { s: F_Z2C, z: ["A① = [16] cm²","A② = [6] cm²","A = [22] cm²"] }, { s: F_Z2D, z: ["A① = [12] cm²","A② = [8] cm²","A = [20] cm²"] } ] },
+      { art: "luecke", name: "Finde den Fehler", stern: true, bild: F_LENA, auftrag: "Lena rechnet: A① = 3 m · 5 m = 15 m², A② = 7 m · 2 m = 14 m², A = 29 m².",
+        items: [ { s: "Was ist falsch?", z: ["((*Sie hat ein Stück doppelt gezählt.|Sie hat falsch multipliziert.|Sie hätte subtrahieren müssen.))"] }, { s: "Richtig ist:", z: ["A = [23] m²"] } ] },
+      { art: "luecke", name: "Bauhaus-Poster", bild: posterSvg(),
+        auftrag: "Im Kunstunterricht gestaltet ihr ein Poster im Bauhaus-Stil. Die rote Fläche ist ein Rechteck (40 cm breit, 30 cm hoch) mit einem Dreieck darauf (Höhe 20 cm). Eine Dose Farbe reicht für 500 cm²."+vl("Im Kunstunterricht gestaltet ihr ein Poster im Bauhaus-Stil. Die rote Fläche ist ein Rechteck, 40 Zentimeter breit und 30 Zentimeter hoch, mit einem Dreieck darauf. Das Dreieck ist 20 Zentimeter hoch. Eine Dose Farbe reicht für 500 Quadratzentimeter. Wie viele Dosen braucht ihr?"),
+        items: [ { s: "Rote Fläche:", z: ["A = [1600|1 600] cm²"] }, { s: "Wie viele Dosen Farbe braucht ihr?", z: ["[4]","[satz:4:]"] } ] },
+      { art: "luecke", name: "Neuer Belag im Skatepark", stern: true, bild: F_SKATE,
+        auftrag: "Der Skatepark bekommt einen neuen Belag: eine rechteckige Fläche (20 m lang, 12 m breit) und eine Rampe in Trapezform. Ein Quadratmeter Belag kostet 25 €."+vl("Der Skatepark bekommt einen neuen Belag: eine rechteckige Fläche, 20 Meter lang und 12 Meter breit, und eine Rampe in Trapezform. Ein Quadratmeter Belag kostet 25 Euro. Wie viel kostet der neue Belag?"),
+        items: [ { s: "Rechteck:", z: ["A① = [240] m²"] }, { s: "Rampe (Trapez):", z: ["A② = [36] m²"] }, { s: "Wie viel kostet der neue Belag?", z: ["[6900|6 900] €","[satz:6900:€]"] } ] }
+    ]},
+    { reiter: "Z3 Ergänzen", titel: "Flächeninhalt durch Ergänzen", aufgaben: [
+      { art: "eigen", name: "Entdecker: Loch im Rechteck", auftrag: "Verändere das Loch im Rechteck (8 cm × 6 cm).", html: ENT_LOCH, init: initEntLoch,
+        nach: "<p><b>a)</b> Stelle ein Loch mit 3 cm Breite und 2 cm Höhe ein. A = [42] cm²</p>"+
+              "<p><b>b)</b> Machst du das Loch doppelt so breit, wird das fehlende Stück ((gleich groß|*doppelt so groß|halb so groß)).</p>" },
+      { art: "eigen", name: "Was fehlt?", auftrag: "Die gestrichelte Linie zeigt das große Rechteck. Tippe das Stück an, das fehlt.", html: tapHtml(TAP_E), init: initTap, nach: "<p class=\"klein\">Wenn du fertig bist, tippe auf „Prüfen“.</p>" },
+      { art: "luecke", name: "Großes Rechteck minus Stück", auftrag: "Berechne das große Rechteck, das fehlende Stück und die Fläche.",
+        items: [ { s: F_E1, z: ["A groß = [54] cm²","A Stück = [6] cm²","A = [48] cm²"] }, { s: F_E2, z: ["A groß = [40] m²","A Stück = [6] m²","A = [34] m²"] } ] },
+      { art: "luecke", name: "Mit Loch und Kerbe", auftrag: "Auch ein Loch oder eine dreieckige Kerbe wird subtrahiert.",
+        items: [ { s: F_E3, z: ["A groß = [720] cm²","A Loch = [280] cm²","A = [440] cm²"] }, { s: F_E4, z: ["A groß = [40] cm²","A Kerbe = [6] cm²","A = [34] cm²"] } ] },
+      { art: "richtigfalsch", name: "Zerlegen oder Ergänzen?", auftrag: "Richtig oder falsch?",
+        items: [["Beim Ergänzen werden die Teilflächen addiert.", false],["Beim Ergänzen subtrahiert man das fehlende Stück.", true],["Bei einer Figur mit Loch ist Ergänzen meist schneller.", true],
+                ["Zerlegen und Ergänzen ergeben denselben Flächeninhalt.", true],["Ein Loch in der Figur vergrößert den Flächeninhalt.", false]] },
+      { art: "luecke", name: "Finde den Fehler", stern: true, bild: F_TIM, auftrag: "Tim rechnet: A = 9 m · 4 m + 3 m · 2 m = 36 m² + 6 m² = 42 m².",
+        items: [ { s: "Was ist falsch?", z: ["((*Er hat das Stück addiert statt subtrahiert.|Er hat das große Rechteck falsch berechnet.|Er hätte zerlegen müssen.))"] }, { s: "Richtig ist:", z: ["A = [30] m²"] } ] },
+      { art: "luecke", name: "Schmuckanhänger aus Silberblech", bild: F_ANH,
+        auftrag: "Für deinen Schmuckanhänger sägst du aus Silberblech ein Rechteck mit einem Loch in der Mitte. Ein Quadratzentimeter Silberblech kostet 0,50 €."+vl("Für deinen Schmuckanhänger sägst du aus Silberblech ein Rechteck mit einem Loch in der Mitte. Ein Quadratzentimeter Silberblech kostet 50 Cent. Wie viel kostet das Silber für den Anhänger?"),
+        items: [ { s: "Fläche des Anhängers:", z: ["A = [16] cm²"] }, { s: "Wie viel kostet das Silber?", z: ["[8|8,00] €","[satz:8:€]"] } ] },
+      { art: "luecke", name: "Die Giebelwand streichen", stern: true, bild: F_WAND,
+        auftrag: "Die Giebelwand eures Gartenhauses wird neu gestrichen. Die zwei Fenster sind je 1,5 m breit und 1 m hoch, die Tür ist 1 m breit und 2 m hoch. Ein Liter Farbe reicht für 8 m²."+vl("Die Giebelwand eures Gartenhauses wird neu gestrichen. Die zwei Fenster sind je 1,5 Meter breit und 1 Meter hoch, die Tür ist 1 Meter breit und 2 Meter hoch. Ein Liter Farbe reicht für 8 Quadratmeter. Wie viele Liter Farbe braucht ihr?"),
+        items: [ { s: "Ganze Wand (Rechteck und Dreieck):", z: ["A = [52] m²"] }, { s: "Fenster und Tür zusammen:", z: ["[5] m²"] }, { s: "Zu streichen:", z: ["[47] m²"] }, { s: "Wie viele Liter Farbe braucht ihr?", z: ["[6]","[satz:6:]"] } ] }
+    ]}
+  ]
+};
+
+/* ═════════════════════════ ENDE AUFGABENBLOCK ═════════════════════════ */
+</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+/* ─── Motor: Aussehen (Arbeitsblattvorlage) ─── */
+:root{color-scheme:light}*{box-sizing:border-box}html{background:#fff}
+body{margin:0;background:#fff;color:#000;font-family:Arial,"Liberation Sans",Helvetica,sans-serif;font-size:18px;line-height:1.4;
+  padding-block:16px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+[hidden]{display:none!important}
+.wrap{max-width:980px;margin:0 auto}
+.oben{color:#6F6F6F;font-size:.8em;margin:0 0 .3em}
+.titel{background:#00805F;color:#fff;font-weight:700;text-align:center;padding:.35em .5em;margin:0;font-size:1.4em}
+.fortschritt{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5em;margin:0 0 .4em;font-size:.9em}
+.kasten{border:2px solid #00805F;margin-top:.9em}
+.kasten>h2{margin:0;font-size:1em;background:#D3F2E5;border-bottom:2px solid #00805F;padding:.3em .7em}
+.kasten.fertig>h2::after{content:"  ✓";color:#00805F}
+.innen{padding:.5em .8em .7em}
+.innen p{margin:.35em 0}
+.auftrag{font-weight:700}
+.gross{font-size:1.1em}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .15em;line-height:1.15}
+.frac .fz{border-bottom:2px solid currentColor;padding:0 .15em .1em}.frac .fn{padding-top:.1em}
+.ein{font:inherit;height:1.7em;text-align:center;border:1.5px solid #000;border-radius:0;background:#fff;color:inherit;padding:0;vertical-align:middle}
+.ein.echo{background:#fff;color:#000}
+.ein:focus{outline:none;background:#FFF3B0}
+.ein.antw{width:100%;max-width:44em;text-align:left;padding:0 .5em;box-sizing:border-box}
+.antw-z{margin:.4em 0 1em}
+.ok{border-color:#2e7d32!important;background:#E5F4E6!important;border-width:2.5px!important}
+.falsch{border-color:#C62828!important;background:#FDE7E7!important;border-width:2.5px!important}
+.raster1,.raster2,.raster3,.raster4{display:grid;gap:.7em 1.4em}
+.raster1{grid-template-columns:1fr}
+.raster2{grid-template-columns:repeat(2,minmax(0,1fr))}.raster3{grid-template-columns:repeat(3,minmax(0,1fr))}.raster4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.erw{display:flex;align-items:center;gap:.2em;font-size:1.05em}
+.erwm{display:flex;flex-direction:column;align-items:center;margin:0 .2em}.erwm .lab{font-size:.8em;white-space:nowrap}
+.fig{display:flex;flex-direction:column;align-items:center;gap:.4em}.fig>b{align-self:flex-start}
+.zeile{white-space:nowrap}
+.g100{display:grid;grid-template-columns:repeat(10,1fr);width:9em;aspect-ratio:1;max-width:100%;border:1.5px solid #000}
+.g100 i{border:.5px solid #666;display:block}.g100 i.an{background:#7fb89a}
+.malen{width:13em;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+.malbox{display:flex;flex-wrap:wrap;gap:1em;align-items:center}
+.scroll{overflow-x:auto}
+.tab{border-collapse:collapse;font-size:inherit}
+.tab th,.tab td{border:1.5px solid #000;padding:.3em .8em;text-align:center;min-width:6.5em}
+.tab th{background:#F2F2F2}.tab td.nr{min-width:0;border:0;font-weight:700}.tab th.nr{background:none;border:0;min-width:0}
+.vgl{display:flex;align-items:center;gap:.5em;font-size:1.1em}
+.wahl,.auswahl{display:inline-flex;flex-wrap:wrap;gap:.3em;vertical-align:middle}
+.wahl button,.auswahl button{font:inherit;min-width:2.2em;height:1.9em;border:1.5px solid #000;background:#fff;color:#000;border-radius:0;cursor:pointer;padding:0 .4em}
+.auswahl button{font-size:.9em}
+.wahl button:has(.frac),.auswahl button:has(.frac){height:auto;min-height:1.9em;padding:.2em .5em;vertical-align:middle;line-height:1.2}
+.auswahl button .frac{font-size:.85em}
+.wahl button.an,.auswahl button.an{background:#FFE873}
+.wahl.ok button.an,.auswahl.ok button.an{background:#E5F4E6;border-color:#2e7d32;border-width:2.5px}
+.wahl.falsch button.an,.auswahl.falsch button.an{background:#FDE7E7;border-color:#C62828;border-width:2.5px}
+.sit{line-height:1.9}
+.mk{font-weight:700;padding:.05em .3em;border:1.5px dashed #999;cursor:pointer;user-select:none;-webkit-user-select:none}
+.mk[data-r="G"]{color:#1565C0;border:2px solid #1565C0;background:#E3EEFB}
+.mk[data-r="W"]{color:#C2410C;border:2px solid #C2410C;background:#FBEADF}
+.mk[data-r="P"]{color:#2e7d32;border:2px solid #2e7d32;background:#E5F4E6}
+.mk.falsch{outline:3px solid #C62828;outline-offset:1px}
+.Gt{color:#1565C0}.Wt{color:#C2410C}.Pt{color:#2e7d32}
+.gw{display:flex;flex-wrap:wrap;gap:.6em 1.6em}
+.wegz{display:flex;flex-wrap:wrap;align-items:center;gap:.5em;margin:.4em 0}.wegz>b{min-width:3em}
+.km{white-space:nowrap}
+.bildbox{display:flex;flex-wrap:wrap;gap:1em 1.6em;align-items:flex-start}.bildbox>.bild{flex:0 0 auto;max-width:100%}.bildbox>.rest{flex:1 1 16em;min-width:0}
+.bild svg{max-width:100%;height:auto;display:block}
+/* Prozentstreifen */
+.streifen{margin:.5em 0 1em;max-width:30em}
+.str-oben,.str-mitte{position:relative;min-height:2.2em}
+.str-oben>span,.str-mitte>span{position:absolute;left:0;bottom:.15em;white-space:nowrap}
+.str-mitte>span{top:.2em;bottom:auto}
+.str-bar{display:flex;height:1.7em;border:2px solid #1565C0;background:#9FC2EC}
+.str-w{background:#F2A672;border-right:2px solid #C2410C}
+.str-klammer{display:block;width:100%;height:14px}
+.str-g{text-align:center}
+/* Verhältnisgleichung */
+.vgl-gl{display:flex;flex-wrap:wrap;align-items:center;gap:.4em 1em;font-size:1.1em;margin:.3em 0}
+.vgl-gl .pfeil{color:#6F6F6F}
+.vgl-gl .frac .fz{border-bottom-color:#000}
+.Gt .ein{color:#1565C0}.Wt .ein{color:#C2410C}.Pt .ein{color:#2e7d32}
+.dgm{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:.3em 1.5em;margin-bottom:.6em}.dgm p{margin:.3em 0}
+.sw{display:inline-block;width:1em;height:1em;border:1.5px solid #000;vertical-align:-.15em}
+.live svg{max-width:100%;height:auto;display:block;margin:.5em 0}.summe{margin:.2em 0}
+.klein{font-size:.85em;color:#444}
+.gw>span:has(.antw-z){flex-basis:100%}.gw .antw-z .ein.antw{max-width:40em}
+.ent{display:flex;flex-wrap:wrap;gap:1em 1.6em;align-items:flex-start;margin:.4em 0 .6em}
+.regler{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:.6em 2em;align-items:center}
+.regler label{display:flex;align-items:center;gap:.6em;font-size:1.05em}
+.regler input[type=range]{width:14em;max-width:60vw;height:2em;accent-color:#00805F}
+.entbild svg{max-width:100%;height:auto;display:block}
+.entwerte{flex:1 1 12em}.entwerte p{margin:.3em 0;font-size:1.1em}
+.lr{color:#d9472b;font-weight:700}.lf{color:#14b8a6}
+.treppe{display:flex;flex-wrap:wrap;gap:1em 1.6em;align-items:flex-start;margin:.4em 0 .6em}
+.tr-bild svg{max-width:100%;height:auto;display:block}
+.tr-steuer{flex:1 1 16em}.tr-zahl{font:inherit;width:7em;height:1.8em;border:1.5px solid #000;text-align:center}
+.tr-knoepfe{display:flex;flex-wrap:wrap;gap:.5em;margin:.6em 0}.tr-knoepfe button:disabled{opacity:.4;cursor:default}
+.tr-anzeige{font-size:1.25em;min-height:1.4em;margin:.3em 0}
+.shop{border:1.5px solid #999;border-radius:8px;max-width:17em;font-size:.9em;overflow:hidden}
+.shop-kopf{background:#F2F2F2;padding:.3em .7em;font-weight:700;border-bottom:1px solid #ccc}
+.shop-innen{padding:.5em .7em}.shop .preis{color:#C62828;font-weight:700;font-size:1.2em}.shop-det{margin:.5em 0 0;line-height:1.5}
+/* Zuordnen */
+.zuo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.5em 2.5em;max-width:34em}
+.zuo .sp{display:flex;flex-direction:column;gap:.5em}
+.zuo button,.sort button{font:inherit;min-height:2.2em;border:1.5px solid #000;background:#fff;color:#000;border-radius:0;cursor:pointer;padding:.2em .6em;position:relative}
+.zuo button.wahl1{background:#FFE873}
+.zuo button[data-p]::before{content:attr(data-nr);position:absolute;left:-.1em;top:-.65em;font-size:.65em;font-weight:700;background:#000;color:#fff;border-radius:1em;min-width:1.5em;line-height:1.5em;text-align:center}
+.zuo button[data-p="0"]{background:#DDEBFA}.zuo button[data-p="1"]{background:#FCE3D3}.zuo button[data-p="2"]{background:#E0F2E1}
+.zuo button[data-p="3"]{background:#F1E4F7}.zuo button[data-p="4"]{background:#FFF1C4}.zuo button[data-p="5"]{background:#DDF3F3}
+.zuo button[data-p="6"]{background:#EDEDED}.zuo button[data-p="7"]{background:#F9DDE6}
+/* Sortieren */
+.sort{display:flex;flex-wrap:wrap;gap:.5em}
+.sort button[data-nr]::before{content:attr(data-nr);position:absolute;left:-.1em;top:-.65em;font-size:.65em;font-weight:700;background:#00805F;color:#fff;border-radius:1em;min-width:1.5em;line-height:1.5em;text-align:center}
+.sort button[data-nr]{background:#D3F2E5}
+.sortreihe{color:#444;min-height:1.4em}
+.pruefleiste{display:flex;flex-wrap:wrap;align-items:center;gap:.8em;margin-top:.7em}
+button.pruefen,button.knopf{font:inherit;font-size:.9em;background:#fff;color:#000;border:1.5px solid #00805F;padding:.3em 1em;cursor:pointer;border-radius:0;font-weight:700}
+button.pruefen:hover,button.knopf:hover{background:#D3F2E5}
+button.knopf.warnung{background:#00805F;color:#fff}
+button:focus-visible{outline:3px solid #00805F;outline-offset:2px}
+.ergebnis{font-weight:700}.ergebnis.gut{color:#2e7d32}.ergebnis.noch{color:#C62828}
+.fuss{text-align:right;font-style:italic;color:#6F6F6F;font-size:.7em;margin:1.2em 0 0}
+nav.reiter{display:flex;flex-wrap:wrap;gap:.4em;margin:0 0 .7em}
+nav.reiter button{font:inherit;font-size:.85em;border:2px solid #00805F;background:#fff;color:#000;padding:.35em .8em;cursor:pointer;border-radius:0}
+nav.reiter button b{margin-right:.35em}
+nav.reiter button[aria-selected="true"]{background:#00805F;color:#fff}
+@media (max-width:820px){.raster4{grid-template-columns:repeat(2,minmax(0,1fr))}.raster3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.raster2,.raster3{grid-template-columns:1fr}.zuo{gap:.5em 1.2em}}
+
+/* Geometrie (Woche 2) */
+.fsgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7em}
+.fs{position:relative;background:#fff;border:2px solid #bbb;border-radius:10px;padding:.4em .3em .5em;cursor:pointer;font:inherit;display:flex;flex-direction:column;align-items:center}
+.fs svg{max-width:100%;height:auto}.fsnr{position:absolute;left:.45em;top:.3em;font-weight:700;color:#555}
+.fsz{font-weight:700;margin-top:.2em}.fs.fsja{border-color:#00805F;background:#E6F7F4}.fs.fsnein{border-color:#777;background:#F2F2F2}
+.hgbox{margin:.4em 0 1em}.hg{display:inline-block;border:2px solid transparent;border-radius:8px;padding:4px;max-width:100%}.hg svg{max-width:100%;height:auto;display:block}
+.hg.ok{background:#fff!important}.hg.falsch{background:#fff!important}.hginfo{margin:.3em 0 0}
+.strgrid{display:flex;flex-wrap:wrap;gap:1em 1.6em}.strbox svg{max-width:100%;height:auto;display:block}
+.tapgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.tapbox{border:1px dashed #bbb;border-radius:8px;padding:6px}.tapw{display:flex;justify-content:center;border-radius:8px;padding:4px}.tapw.ok{background:#E8F5E9}.tapw.falsch{background:#FFEBEE}.tl{cursor:pointer}.tl.an .vis{stroke:#E65100!important;stroke-width:6px;stroke-dasharray:none}.tr{cursor:pointer}.tr.an{fill:#FFCC80!important;stroke:#E65100}
+</style>
+<style>.entw{display:flex;flex-wrap:wrap;gap:18px;align-items:center}.entw input[type=range]{width:260px}.entname{font-size:22px;font-weight:bold;color:#00805F}
+.klein{font-size:15px;color:#333;font-weight:normal}.regler{display:flex;flex-direction:column;gap:6px}.regler label{display:flex;gap:8px;align-items:center;font-weight:bold}
+.kn{font:inherit;font-size:15px;font-weight:bold;border:2px solid #00805F;background:#fff;color:#00805F;border-radius:8px;padding:6px 12px;cursor:pointer}
+.vlk{font-size:16px;border:1.5px solid #00805F;background:#fff;border-radius:8px;cursor:pointer;padding:1px 8px;margin-left:4px}
+svg.mess,svg.dsvg,svg.wsvg{max-width:none}.sit svg{display:block;margin:4px 0}</style></head>
+<body>
+<div class="wrap">
+<p class="oben" id="oben"></p>
+<nav class="reiter" role="tablist" aria-label="Übungen" id="reiter"></nav>
+<div class="fortschritt"><span id="stand"></span><button type="button" class="knopf" id="neu">Neu beginnen</button></div>
+<div id="blaetter"></div>
+<p class="fuss" id="fuss"></p>
+</div>
+<script>
+/* ─── Motor: Technik (nicht ändern) ─── */
+(function(){
+"use strict";
+const ABC="abcdefghijklmnopqrstuvwxyz";
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+const deZahl=x=>{const r=Math.round(x*1e9)/1e9;return String(r).replace(".",",");};
+const wert=s=>{s=String(s).trim().replace(/\s/g,"");if(s.includes("/")){const[a,b]=s.split("/");return num(a)/num(b);}return num(s);};
+const num=s=>{const t=String(s).replace(/\s+/g,"").replace(",",".");return t!==""&&!isNaN(t)?parseFloat(t):NaN;};
+const norm=s=>String(s).replace(/\s+/g,"").replace(/\./g,",").replace(/%$/,"").toLowerCase();
+const mischen=a=>{const b=a.slice();if(b.length<2)return b;let n=0;do{for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}n++;}while(n<20&&b.every((x,i)=>x===a[i]));return b;};
+
+/* Kurzschrift → HTML */
+function feld(antw,label){
+  let fid="";antw=antw.replace(/#(\w+)\s*$/,(m,s)=>{fid=s;return "";});
+  const alle=antw.split("|").map(x=>x.trim());
+  const lang=Math.max(...alle.map(x=>x.length));
+  const zahl=alle.every(x=>/^[\d\s,.%+\-]*$/.test(x));
+  const w=zahl||lang<=2?Math.max(2.6,lang*.55+1.5).toFixed(1):Math.max(5,Math.min(9,lang*.5+1.5)).toFixed(1);
+  return '<input class="ein" data-a="'+esc(alle.join("|"))+'"'+(fid?' data-id="'+fid+'"':'')+' style="width:'+w+'em"'+(zahl?' inputmode="decimal"':'')+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+(label||"Antwort")+'">';
+}
+function inl(t){
+  t=String(t);const lager=[];const pack=h=>"\u0001"+(lager.push(h)-1)+"\u0002";
+  t=t.replace(/\(\((.*?)\)\)/g,(m,inh)=>{
+    const opt=inh.split("|").map(x=>x.trim());let soll="";
+    const kn=opt.map(o=>{let z=o;if(z.startsWith("*")){z=z.slice(1).trim();soll=z;}return z;});
+    const kl="auswahl";
+    return pack('<span class="'+kl+'" data-soll="'+esc(soll)+'">'+kn.map(z=>'<button type="button" data-z="'+esc(z)+'">'+inl(z)+'</button>').join("")+'</span>');
+  });
+  t=t.replace(/\[satz:([^:\]]+):([^\]]*)\]/g,(m,w,e)=>pack('<span class="antw-z" style="display:block;width:100%"><b>Antwortsatz:</b> <input type="text" class="ein antw" autocomplete="off" aria-label="Antwortsatz" data-w="'+esc(w)+'" data-e="'+esc(e)+'"></span>'));
+  t=t.replace(/\[([GWP]):([^\]]*)\]/g,(m,r,z)=>pack('<span class="mk" data-r="" data-soll="'+r+'">'+z+'</span>'));
+  t=t.replace(/\[=([^\]]*)\]/g,(m,v)=>pack('<span class="frac fin" data-v="'+wert(v)+'"><span class="fz"><input class="ein" style="width:2.8em" inputmode="numeric" autocomplete="off" aria-label="Zähler"></span><span class="fn"><input class="ein" style="width:2.8em" inputmode="numeric" autocomplete="off" aria-label="Nenner"></span></span>'));
+  t=t.replace(/\[@(\w+)\]/g,(m,id)=>pack('<input class="ein echo" readonly tabindex="-1" data-echo="'+id+'" style="width:4.8em" aria-label="Dein Wert von vorhin">'));
+  t=t.replace(/\[([^\[\]]*)\]/g,(m,a)=>pack(feld(a)));
+  t=t.replace(/\{([^{}]*)\}/g,(m,inh)=>{const i=inh.indexOf("/");if(i<0)return m;
+    return '<span class="frac"><span class="fz">'+inh.slice(0,i).trim()+'</span><span class="fn">'+inh.slice(i+1).trim()+'</span></span>';});
+  t=t.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+  t=t.replace(/<blau>/g,'<span class="Gt">').replace(/<orange>/g,'<span class="Wt">').replace(/<gruen>/g,'<span class="Pt">').replace(/<\/(blau|orange|gruen)>/g,"</span>");
+  for(let k=0;k<3;k++)t=t.replace(/\u0001(\d+)\u0002/g,(m,i)=>lager[+i]);
+  return t;
+}
+const nr=(i,a)=>a.nummern===false?"":"<b>"+ABC[i]+")</b> ";
+const raster=(a,std)=>"raster"+(a.spalten||std||1);
+
+/* Aufgabenarten */
+const ARTEN={
+  eigen(a){return a.html||"";},
+  luecke(a){
+    if(a.items.some(x=>typeof x==="object"))
+      return a.items.map((it,i)=>{if(typeof it==="string")return '<p>'+nr(i,a)+inl(it)+'</p>';
+        let h=it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':"";
+        const z=it.z==null?[]:it.z;
+        if(Array.isArray(z))h+='<p class="gw">'+z.map(x=>'<span>'+inl(x)+'</span>').join("")+'</p>';else h+='<p>'+inl(z)+'</p>';
+        return h;}).join("");
+    const sp=a.spalten||1;
+    return '<div class="'+raster(a)+(a.gross?" gross":"")+'">'+a.items.map((x,i)=>'<div'+(sp>1?' class="km"':'')+'>'+nr(i,a)+inl(x)+'</div>').join("")+'</div>';
+  },
+  erweitern(a){
+    const ziel=a.ziel||100;
+    return '<div class="'+raster(a,4)+'">'+a.items.map((b,i)=>{const[z,n]=String(b).split("/").map(Number);const f=ziel/n;
+      return '<div class="erw">'+nr(i,a)+inl("{"+z+"/"+n+"}")+'<span class="erwm"><span class="lab">· '+feld(deZahl(f),"Faktor")+'</span><span>=</span></span>'+inl("{["+deZahl(z*f)+"]/"+ziel+"}")+'</div>';}).join("")+'</div>';
+  },
+  hunderterfeld(a){
+    return '<div class="'+raster(a,3)+'">'+a.items.map((it,i)=>{const n=typeof it==="object"?it.an:it;
+      const z=typeof it==="object"&&it.z?it.z:"{["+n+"]/100} = ["+deZahl(n/100)+"] = ["+n+"] %";
+      let g='<div class="g100">';for(let k=0;k<100;k++)g+='<i'+(k<n?' class="an"':'')+'></i>';g+='</div>';
+      return '<div class="fig">'+(a.nummern===false?"":"<b>"+ABC[i]+")</b>")+g+'<div class="zeile">'+inl(z)+'</div></div>';}).join("")+'</div>';
+  },
+  faerben(a){
+    let g='<div class="g100 malen" data-soll="'+a.soll+'">';for(let k=0;k<100;k++)g+='<i></i>';
+    return '<div class="malbox">'+g+'</div><p class="zaehler">Gefärbt: <b>0</b> Kästchen</p></div>';
+  },
+  tabelle(a){
+    const n=a.nummern!==false;
+    let h='<div class="scroll"><table class="tab"><tr>'+(n?'<th class="nr"></th>':'')+a.kopf.map(k=>'<th>'+inl(k)+'</th>').join("")+'</tr>';
+    a.zeilen.forEach((z,i)=>{h+='<tr>'+(n?'<td class="nr">'+ABC[i]+')</td>':'')+z.map(c=>'<td>'+inl(c)+'</td>').join("")+'</tr>';});
+    return h+'</table></div>';
+  },
+  vergleichen(a){
+    return '<div class="'+raster(a,2)+'">'+a.items.map(([l,s,r])=>'<div class="vgl"><span>'+inl(l)+'</span><span class="wahl" data-soll="'+esc(s)+'"><button type="button" data-z="<">&lt;</button><button type="button" data-z="=">=</button><button type="button" data-z=">">&gt;</button></span><span>'+inl(r)+'</span></div>').join("")+'</div>';
+  },
+  auswahl(a){
+    return a.items.map(([t,r,opt])=>{const o=opt||a.optionen;
+      return '<div class="wegz">'+inl(t)+inl("(("+o.map(x=>(x===r?"*":"")+x).join("|")+"))")+'</div>';}).join("");
+  },
+  markieren(a){
+    return a.items.map((t,i)=>'<p class="sit">'+nr(i,a)+inl(t)+'</p>').join("");
+  },
+  streifen(a){
+    return a.items.map((it,i)=>{const p=Math.max(0,Math.min(100,it.anteil));
+      return (it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':(a.items.length>1&&a.nummern!==false?'<p>'+nr(i,a)+'</p>':''))+
+      '<div class="streifen"><div class="str-oben"><span class="Wt">W = '+inl(it.W)+'</span></div>'+
+      '<div class="str-bar"><div class="str-w" style="width:'+p+'%"></div></div>'+
+      '<div class="str-mitte"><span class="Pt">p % = '+inl(it.p)+'</span></div>'+
+      '<svg class="str-klammer" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path d="M1 1 Q1 7 8 7 L44 7 Q50 7 50 13 Q50 7 56 7 L92 7 Q99 7 99 1" fill="none" stroke="#1565C0" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>'+
+      '<div class="str-g Gt">G = '+inl(it.G)+' ≙ 100 %</div></div>';}).join("");
+  },
+  verhaeltnis(a){
+    return a.items.map((it,i)=>{
+      const x=it.x||"W";const ans=it.ansatz!==false;
+      const teil=k=>{const v=deZahl(it[k]);if(k===x)return ans?"[x]":"x";return ans?"["+v+"]":v;};
+      const fr=(o,u)=>'<span class="frac"><span class="fz">'+o+'</span><span class="fn">'+u+'</span></span>';
+      const bs=deZahl(it.bas||100);
+      const gi=k=>'<input class="ein gl" data-pos="'+k+'" style="width:3.6em" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Feld der Verhältnisgleichung">';
+      const tok=k=>k===x?"x":deZahl(it[k]);
+      const sol=JSON.stringify([tok("G"),bs,tok("W"),tok("p")]);
+      const glei=ans?fr(gi(0),gi(1)+" %")+" = "+fr(gi(2),gi(3)+" %"):fr(inl(teil("G")),bs+" %")+" = "+fr(inl(teil("W")),inl(teil("p"))+" %");
+      const ein=it.einheit?" "+it.einheit:"";
+      const id=it.id?"#"+it.id:"";
+      const erg='x = '+inl("["+deZahl(it[x])+(ein?"|"+deZahl(it[x])+ein:"")+id+"]")+(x==="p"?"":ein);
+      return (it.s?'<p class="sit">'+nr(i,a)+inl(it.s)+'</p>':'<p>'+nr(i,a)+'</p>')+
+        '<div class="vgl-gl"'+(ans?' data-gl="1" data-sol="'+esc(sol)+'"':'')+'><span>'+glei+'</span></div>'+
+        '<p>'+erg+'</p>'+(it.antwort?'<p class="antw-z"><b>Antwortsatz:</b> <input type="text" class="ein antw" autocomplete="off" aria-label="Antwortsatz" data-w="'+deZahl(it[x])+'" data-e="'+(it.einheit||"")+'"></p>':'');}).join("")+(a.nach?"":"");
+  },
+  streifenbau(a){
+    const rows=a.daten.map((d,i)=>'<tr data-n="'+esc(d[0])+'"><td style="text-align:left"><i class="sw" style="background:'+DFARBEN[i%5]+'"></i> '+esc(d[0])+'</td><td>'+deZahl(d[1])+' %</td><td>'+feld(deZahl(d[1]/10),"Länge")+' cm</td></tr>').join("");
+    return '<div class="scroll"><table class="tab"><tr><th>Bereich</th><th>p %</th><th>Länge</th></tr>'+rows+'</table></div><div class="live" data-typ="streifen"></div>';
+  },
+  kreisbau(a){
+    const rows=a.daten.map((d,i)=>'<tr data-n="'+esc(d[0])+'"><td style="text-align:left"><i class="sw" style="background:'+DFARBEN[i%5]+'"></i> '+esc(d[0])+'</td><td>'+deZahl(d[1])+' %</td><td>'+feld(String(Math.round(d[1]*3.6)),"Winkel")+'°</td></tr>').join("");
+    return '<div class="scroll"><table class="tab"><tr><th>Bereich</th><th>p %</th><th>Winkel</th></tr>'+rows+'</table></div><div class="live" data-typ="kreis"></div>';
+  },
+  zuordnen(a){
+    const re=mischen(a.paare.map((p,i)=>i));
+    return '<div class="zuo">'+a.paare.map((p,i)=>'<button type="button" data-s="l" data-i="'+i+'">'+inl(p[0])+'</button>'+
+      '<button type="button" data-s="r" data-i="'+re[i]+'">'+inl(a.paare[re[i]][1])+'</button>').join("")+'</div>';
+  },
+  richtigfalsch(a){
+    return a.items.map(([t,r],i)=>'<div class="wegz"><span>'+nr(i,a)+inl(t)+'</span>'+inl(r?"((*richtig|falsch))":"((richtig|*falsch))")+'</div>').join("");
+  },
+  sortieren(a){
+    const m=mischen(a.items.map((x,i)=>i));
+    return '<div class="sort" data-n="'+a.items.length+'">'+m.map(i=>'<button type="button" data-i="'+i+'">'+inl(a.items[i])+'</button>').join("")+'</div><p class="sortreihe"></p>';
+  }
+};
+const AUFTRAG={streifenbau:"Rechne die Länge aus und trage sie ein. Dein Streifen wächst unter der Tabelle.",
+  kreisbau:"Rechne den Winkel aus (ganze Grad) und trage ihn ein. Dein Kreis wächst unter der Tabelle.",
+  vergleichen:"Tippe auf &lt;, = oder &gt;.",
+  markieren:'Tippe jede fett gedruckte Zahl an: 1× <b class="Gt">blau = G</b>, 2× <b class="Wt">orange = W</b>, 3× <b class="Pt">grün = p %</b>.',
+  zuordnen:"Was gehört zusammen? Tippe links und dann rechts an.",
+  richtigfalsch:"Richtig oder falsch? Tippe an.",
+  sortieren:"Tippe die Zahlen der Größe nach an. Beginne mit der kleinsten.",
+  verhaeltnis:"Stelle die Verhältnisgleichung auf. Schreibe x für die gesuchte Größe. Trage dann das Ergebnis ein.",
+  faerben:"Tippe Kästchen an oder wische darüber."};
+
+function baueAufgabe(a,n){
+  let inh=ARTEN[a.art]?ARTEN[a.art](a):'<p style="color:#C62828">Unbekannte Aufgabenart: '+esc(a.art)+'</p>';
+  if(a.bild)inh=a.bildoben?'<div class="bild">'+a.bild+'</div>'+inh:'<div class="bildbox"><div class="bild">'+a.bild+'</div><div class="rest">'+inh+'</div></div>';
+  const auf=a.auftrag!=null?inl(a.auftrag):(AUFTRAG[a.art]||"");
+  const ohne=a.art==="eigen"&&!a.nach;
+  return '<section class="kasten"'+(ohne?'':' data-aufgabe')+'><h2>Aufgabe '+n+(a.name?' · '+esc(a.name):'')+(a.stern?' ★':'')+'</h2><div class="innen">'+
+    (auf?'<p class="auftrag">'+auf+'</p>':'')+inh+(a.nach?inl(a.nach):'')+
+    (ohne?'':'<div class="pruefleiste"><button type="button" class="pruefen">Prüfen</button><span class="ergebnis" aria-live="polite"></span></div>')+'</div></section>';
+}
+function baueBlatt(u,i){
+  const s=document.createElement("section");s.className="blatt";s.id="uebung"+(i+1);s.hidden=true;
+  s.innerHTML='<div class="titel">'+esc(u.titel)+'</div>'+u.aufgaben.map((a,k)=>baueAufgabe(a,k+1)).join("");
+  binde(s);const K=s.querySelectorAll("section.kasten");u.aufgaben.forEach((a,k)=>{if(typeof a.init==="function")a.init(K[k]);});return s;
+}
+
+/* Bedienung */
+function binde(B){
+  B.querySelectorAll(".wahl,.auswahl").forEach(g=>g.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    g.querySelectorAll("button").forEach(x=>x.classList.toggle("an",x===b));g.classList.remove("ok","falsch");})));
+  B.querySelectorAll(".mk").forEach(m=>m.addEventListener("click",()=>{const o=["","G","W","P"];m.dataset.r=o[(o.indexOf(m.dataset.r)+1)%4];m.classList.remove("falsch");}));
+  B.querySelectorAll(".g100.malen").forEach(g=>{
+    let modus=null;const z=g.closest(".innen").querySelector(".zaehler b");
+    const upd=()=>{if(z)z.textContent=g.querySelectorAll("i.an").length;g.classList.remove("ok","falsch");};
+    const zelle=e=>{const el=document.elementFromPoint(e.clientX,e.clientY);return el&&el.parentNode===g?el:null;};
+    g.addEventListener("pointerdown",e=>{const c=zelle(e);if(!c)return;modus=!c.classList.contains("an");c.classList.toggle("an",modus);g.setPointerCapture(e.pointerId);e.preventDefault();upd();});
+    g.addEventListener("pointermove",e=>{if(modus===null)return;const c=zelle(e);if(c&&c.classList.contains("an")!==modus){c.classList.toggle("an",modus);upd();}});
+    ["pointerup","pointercancel"].forEach(n=>g.addEventListener(n,()=>modus=null));
+  });
+  B.querySelectorAll(".zuo").forEach(Z=>{
+    let gew=null;
+    const farbe=()=>{const L=[...Z.querySelectorAll('[data-s="l"]')];let k=0;
+      Z.querySelectorAll("button").forEach(b=>{delete b.dataset.p;delete b.dataset.nr;b.classList.remove("ok","falsch");});
+      L.forEach(l=>{if(l.dataset.mit!=null&&l.dataset.mit!==""){const r=Z.querySelector('[data-s="r"][data-i="'+l.dataset.mit+'"]');
+        l.dataset.p=r.dataset.p=k%8;l.dataset.nr=r.dataset.nr=++k;}});};
+    Z.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+      const seite=b.dataset.s;
+      // schon verbunden → lösen
+      if(seite==="l"&&b.dataset.mit){b.dataset.mit="";gew=null;Z.querySelectorAll(".wahl1").forEach(x=>x.classList.remove("wahl1"));farbe();return;}
+      if(seite==="r"){const l=Z.querySelector('[data-s="l"][data-mit="'+b.dataset.i+'"]');if(l&&!(gew&&gew.dataset.s==="l")){l.dataset.mit="";farbe();return;}}
+      if(!gew||gew.dataset.s===seite){Z.querySelectorAll(".wahl1").forEach(x=>x.classList.remove("wahl1"));gew=b;b.classList.add("wahl1");return;}
+      const l=seite==="l"?b:gew,r=seite==="r"?b:gew;
+      Z.querySelectorAll('[data-s="l"]').forEach(x=>{if(x.dataset.mit===r.dataset.i)x.dataset.mit="";});
+      l.dataset.mit=r.dataset.i;gew.classList.remove("wahl1");gew=null;farbe();
+    }));
+  });
+  B.querySelectorAll(".sort").forEach(S=>{
+    const reihe=[];const txt=S.nextElementSibling;
+    const zeig=()=>{S.querySelectorAll("button").forEach(b=>{const p=reihe.indexOf(b);b.classList.remove("ok","falsch");if(p<0)delete b.dataset.nr;else b.dataset.nr=p+1;});
+      txt.innerHTML=reihe.length?"Deine Reihenfolge: "+reihe.map(b=>b.innerHTML).join(" &lt; "):"";};
+    S._reihe=reihe;
+    S.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const p=reihe.indexOf(b);if(p<0)reihe.push(b);else reihe.splice(p,1);zeig();}));
+  });
+  B.querySelectorAll(".live").forEach(L=>{const T=L.closest(".innen");
+    const upd=()=>{const R=[...T.querySelectorAll("tr[data-n]")];const namen=R.map(r=>r.dataset.n);
+      const v=R.map(r=>{const x=num(r.querySelector("input").value);return isNaN(x)||x<0?0:x;});
+      if(L.dataset.typ==="streifen")L.innerHTML=streifenSvg(namen,v,{live:true});
+      else{const s=v.reduce((p,q)=>p+q,0);L.innerHTML=kreisSvg(namen,v)+'<p class="summe">Summe der Winkel: <b>'+dZ(s)+'</b>° '+(Math.abs(s-360)<1e-9?"✓":"(soll 360° sein)")+'</p>';}};
+    T.addEventListener("input",upd);upd();});
+  B.querySelectorAll("[data-aufgabe]").forEach(k=>k.querySelector(".pruefen").addEventListener("click",()=>pruefe(k)));
+}
+document.addEventListener("input",e=>{if(e.target.tagName==="INPUT")e.target.classList.remove("ok","falsch");});
+document.addEventListener("input",e=>{const id=e.target.dataset&&e.target.dataset.id;if(!id)return;const B=e.target.closest(".blatt");if(B)B.querySelectorAll('.echo[data-echo="'+id+'"]').forEach(el=>el.value=e.target.value);});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("ein")){e.preventDefault();const k=e.target.closest("[data-aufgabe]");if(k)pruefe(k);}});
+
+function EREG(e){if(!e)return null;const B="(^|[^a-zäöüß])",Z="(?![a-zäöüß²2])",W={mm:"millimeter",cm:"zentimeter",dm:"dezimeter",m:"meter",km:"kilometer"};
+  if(e==="€")return /€|euro/i;
+  if(e==="ha")return new RegExp(B+"ha"+Z+"|hektar","i");
+  if(e==="a")return new RegExp(B+"a"+Z+"|"+B+"ar"+Z,"i");
+  if(/²$/.test(e)){const g=e.slice(0,-1);return new RegExp(B+g+"(²|2|\\^2)|quadrat"+W[g],"i");}
+  if(W[e])return new RegExp(B+e+Z+"|"+B+W[e],"i");
+  return new RegExp(e.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"i");}
+const tausend=v=>String(v).trim().replace(/^(\d{1,3})((?:\.\d{3})+)(,\d+)?$/,(m,a,b,c)=>a+b.replace(/\./g,"")+(c||""));
+function pruefe(k){
+  let r=0,n=0;const setz=(el,ok)=>{el.classList.toggle("ok",ok);el.classList.toggle("falsch",!ok);if(ok)r++;};
+  k.querySelectorAll("input[data-a]").forEach(i=>{n++;const ok=i.dataset.a.split("|").some(a=>{const x=num(tausend(i.value)),y=num(a);
+    return (!isNaN(x)&&!isNaN(y)&&Math.abs(x-y)<1e-9)||(i.value.trim()!==""&&norm(i.value)===norm(a));});setz(i,ok);});
+  k.querySelectorAll("input.antw").forEach(i=>{n++;const t=i.value.trim(),w=parseFloat(i.dataset.w.replace(",","."));
+    const zs=(t.replace(/(\d)[\s\u202F.](?=\d{3}\b)/g,"$1").match(/\d+(?:[.,]\d+)?/g)||[]).map(z=>parseFloat(z.replace(",",".")));
+    const E=EREG(i.dataset.e);
+    const ok=t.split(/\s+/).length>=3&&zs.some(z=>Math.abs(z-w)<1e-9)&&(!i.dataset.e||(E?E.test(t):t.toLowerCase().includes(i.dataset.e.toLowerCase())));setz(i,ok);});
+  k.querySelectorAll(".fin").forEach(f=>{n++;const[a,b]=f.querySelectorAll("input");const x=num(a.value),y=num(b.value);
+    const ok=!isNaN(x)&&!isNaN(y)&&y!==0&&Math.abs(x/y-parseFloat(f.dataset.v))<1e-9;[a,b].forEach(i=>{i.classList.toggle("ok",ok);i.classList.toggle("falsch",!ok);});if(ok)r++;});
+  k.querySelectorAll(".wahl,.auswahl").forEach(g=>{n++;const an=g.querySelector("button.an");setz(g,!!an&&an.dataset.z===g.dataset.soll);});
+  k.querySelectorAll(".mk").forEach(m=>{n++;const ok=m.dataset.r===m.dataset.soll;m.classList.toggle("falsch",!ok);if(ok)r++;});
+  k.querySelectorAll(".g100.malen").forEach(g=>{n++;setz(g,g.querySelectorAll("i.an").length===+g.dataset.soll);});
+  k.querySelectorAll(".zuo").forEach(Z=>Z.querySelectorAll('[data-s="l"]').forEach(l=>{n++;const ok=l.dataset.mit===l.dataset.i;
+    const rr=l.dataset.mit?Z.querySelector('[data-s="r"][data-i="'+l.dataset.mit+'"]'):null;
+    l.classList.toggle("ok",ok);l.classList.toggle("falsch",!ok);if(rr){rr.classList.toggle("ok",ok);rr.classList.toggle("falsch",!ok);}if(ok)r++;}));
+  k.querySelectorAll(".sort").forEach(S=>{const R=S._reihe;S.querySelectorAll("button").forEach(b=>{n++;const p=R.indexOf(b);setz(b,p>=0&&+b.dataset.i===p);});});
+  /* Verhältnisgleichung: jede richtig aufgestellte Gleichung zählt (Seiten tauschen, Brüche umdrehen, über Kreuz) */
+  k.querySelectorAll(".vgl-gl[data-gl]").forEach(E=>{n++;const [G,B,W,P]=JSON.parse(E.dataset.sol);
+    const AR=[[G,B,W,P],[W,P,G,B],[B,G,P,W],[P,W,B,G],[G,W,B,P],[B,P,G,W],[W,G,P,B],[P,B,W,G]];
+    const f=[...E.querySelectorAll("input.gl")].map(i=>i.value.trim().replace(/%/g,"").replace(/\s+/g,"").toLowerCase());
+    const gl=(a,b)=>{if(a==="x"||b==="x")return a===b;const u=num(a),v=num(b);return !isNaN(u)&&!isNaN(v)&&Math.abs(u-v)<1e-9;};
+    const ok=AR.some(r=>r.every((v,i)=>gl(f[i],String(v).toLowerCase())));
+    E.querySelectorAll("input.gl").forEach(i=>{i.classList.toggle("ok",ok);i.classList.toggle("falsch",!ok);});if(ok)r++;});
+  k.querySelectorAll(".epr").forEach(el=>{n++;setz(el,!!(el._pruef&&el._pruef()));});
+  const e=k.querySelector(".ergebnis");
+  if(r===n){e.textContent="Super, alles richtig! ("+r+" von "+n+")";e.className="ergebnis gut";k.classList.add("fertig");}
+  else{e.textContent=r+" von "+n+" richtig. Verbessere die rot markierten Stellen.";e.className="ergebnis noch";k.classList.remove("fertig");}
+  stand();
+}
+function stand(){const B=document.querySelector(".blatt:not([hidden])");if(!B)return;const alle=B.querySelectorAll("[data-aufgabe]").length,f=B.querySelectorAll("[data-aufgabe].fertig").length;
+  document.getElementById("stand").textContent=f+" von "+alle+" Aufgaben geschafft"+(f===alle?" – klasse!":"");}
+
+/* Aufbau der Seite */
+document.title="Übungen "+BLATT.thema.replace(/\s*–\s*/," ");
+document.getElementById("oben").textContent="Interaktive Arbeitsblätter · "+BLATT.thema;
+document.getElementById("fuss").textContent="Erstellt von Marion Klugmann ("+BLATT.erstellt+") mit freundlicher Unterstützung von Claude.";
+const nav=document.getElementById("reiter"),box=document.getElementById("blaetter");
+BLATT.uebungen.forEach((u,i)=>{
+  const t=document.createElement("button");t.type="button";t.setAttribute("role","tab");t.dataset.b="uebung"+(i+1);
+  t.innerHTML="<b>Übung "+(i+1)+"</b>"+esc(u.reiter||"");nav.appendChild(t);box.appendChild(baueBlatt(u,i));
+});
+const tabs=[...nav.querySelectorAll("button")];
+let aktiv="uebung1";
+function zeige(id){if(!document.getElementById(id))id="uebung1";aktiv=id;tabs.forEach(t=>t.setAttribute("aria-selected",t.dataset.b===id));
+  document.querySelectorAll(".blatt").forEach(b=>b.hidden=b.id!==id);stand();}
+tabs.forEach(t=>t.addEventListener("click",()=>{if(location.hash!=="#"+t.dataset.b)location.hash=t.dataset.b;else zeige(t.dataset.b);window.scrollTo({top:0});}));
+window.addEventListener("hashchange",()=>zeige(location.hash.slice(1)));
+const btn=document.getElementById("neu");let tm=null;
+btn.addEventListener("click",()=>{
+  if(!btn.classList.contains("warnung")){btn.classList.add("warnung");btn.textContent="Wirklich?";tm=setTimeout(()=>{btn.classList.remove("warnung");btn.textContent="Neu beginnen";},3000);return;}
+  clearTimeout(tm);btn.classList.remove("warnung");btn.textContent="Neu beginnen";
+  const alt=document.getElementById(aktiv),i=+aktiv.slice(6)-1,neu=baueBlatt(BLATT.uebungen[i],i);neu.hidden=false;alt.replaceWith(neu);
+  stand();window.scrollTo({top:0,behavior:"smooth"});
+});
+zeige(location.hash.slice(1));
+})();
+</script>
+<script>/* ===== Geodreieck (frei beweglich, drehbar, rastet an Linien ein, 0 auf dem Scheitel) ===== */
+(()=>{
+const MM=3.4,CM=34,L=8.5*CM,R=0.66*L,NS='http://www.w3.org/2000/svg';
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];if(!document.querySelector('svg.mess'))return;
+const add=(a,b)=>({x:a.x+b.x,y:a.y+b.y}),sub=(a,b)=>({x:a.x-b.x,y:a.y-b.y}),mul=(a,k)=>({x:a.x*k,y:a.y*k}),
+  dot=(a,b)=>a.x*b.x+a.y*b.y,cross=(a,b)=>a.x*b.y-a.y*b.x,len=a=>Math.hypot(a.x,a.y),unit=a=>{const l=len(a)||1;return{x:a.x/l,y:a.y/l}},
+  rad=d=>d*Math.PI/180,deg=r=>r*180/Math.PI,d180=(a,b)=>{let d=((a-b)%180+180)%180;return Math.min(d,180-d)},
+  near180=(a,t)=>{let x=t;while(x-a>90)x-=180;while(a-x>90)x+=180;return x};
+const ov=document.createElementNS(NS,'svg');ov.id='geoov';document.body.appendChild(ov);
+const LG=document.createElementNS(NS,'g'),GG=document.createElementNS(NS,'g');ov.append(LG,GG);
+const st=document.createElement('style');st.textContent=`#geoov{position:absolute;left:0;top:0;pointer-events:none;z-index:9;overflow:visible}
+#geoov .grip{pointer-events:auto;cursor:move;touch-action:none}#geoov .knopf{pointer-events:auto;cursor:grab;touch-action:none}
+.geohint{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:20;background:#fff;border:2px solid #0a6e6e;border-radius:10px;padding:8px 14px;font:bold 17px Arial,sans-serif;display:none;gap:10px;align-items:center;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.geohint.on{display:flex}.geohint button{font:inherit;font-size:16px;border:2px solid #C2410C;color:#C2410C;background:#fff;border-radius:8px;padding:4px 10px;cursor:pointer}
+.geofix{position:fixed;right:14px;bottom:14px;z-index:21;font:bold 17px Arial,sans-serif;border:2px solid #0a6e6e;background:#fff;color:#0a6e6e;border-radius:12px;padding:10px 14px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2)}.geofix.an{background:#0a6e6e;color:#fff}@media print{#geoov,.geohint{display:none!important}}`;
+document.head.appendChild(st);
+const hint=document.createElement('div');hint.className='geohint';hint.innerHTML='<span id="geotxt"></span><button type="button" id="geoh">✏️ h einzeichnen</button><button type="button" id="geohx">h löschen</button>';document.body.appendChild(hint);
+const btn=document.createElement('button');btn.type='button';btn.textContent='📐 Geodreieck';btn.id='geobtn';btn.className='geofix';document.body.appendChild(btn);
+let on=false,g={x:300,y:300,a:0,rx:300,ry:300,ra:0,snap:null,V:null,F:null},drag=null;const linien={};
+const pid=()=>{const b=$('.blatt:not([hidden])');return b?b.id:'x'};
+function pageXY(svg,x,y){const m=svg.getScreenCTM();return{x:m.a*x+m.c*y+m.e+scrollX,y:m.b*x+m.d*y+m.f+scrollY}}
+function segs(){const S=[],V=[];
+  for(const svg of $$('.blatt:not([hidden]) svg.mess')){
+    if(!svg.getScreenCTM())continue;
+    for(const l of svg.querySelectorAll('line')){const p=pageXY(svg,+l.getAttribute('x1'),+l.getAttribute('y1')),q=pageXY(svg,+l.getAttribute('x2'),+l.getAttribute('y2'));if(len(sub(q,p))>20){S.push({p,q,d:unit(sub(q,p))});V.push(p,q)}}
+    for(const pg of svg.querySelectorAll('polygon')){const P=pg.getAttribute('points').trim().split(/\s+/).map(s=>s.split(',').map(Number)).map(([x,y])=>pageXY(svg,x,y));
+      P.forEach((p,i)=>{const q=P[(i+1)%P.length];S.push({p,q,d:unit(sub(q,p))});V.push(p)})}}
+  for(const h of linien[pid()]||[]){S.push({p:h.p,q:h.q,d:unit(sub(h.q,h.p))});V.push(h.p,h.q)}
+  return{S,V}}
+function magnet(){
+  g.x=g.rx;g.y=g.ry;g.a=g.ra;g.snap=null;g.V=null;const C={x:g.rx,y:g.ry};let best=null;const {S,V}=segs();
+  for(const s of S){const ang=deg(Math.atan2(s.d.y,s.d.x)),dl=Math.abs(cross(sub(C,s.p),s.d));if(dl>16)continue;
+    if(d180(g.ra,ang)<6&&(!best||dl<best.dl))best={dl,k:'kante',s,ta:near180(g.ra,ang)};
+    if(d180(g.ra+90,ang)<6&&(!best||dl<best.dl))best={dl,k:'mitte',s,ta:near180(g.ra,ang-90)};}
+  if(!best)return;let c=add(best.s.p,mul(best.s.d,dot(sub(C,best.s.p),best.s.d)));const s=best.s;
+  if(best.k==='kante'){for(const v of V){if(Math.abs(cross(sub(v,s.p),s.d))>3)continue;const off=dot(sub(v,c),s.d);if(Math.abs(off)<16){c=add(c,mul(s.d,off));best.k='null';break}}}
+  else{for(const v of V){if(Math.abs(cross(sub(v,s.p),s.d))<3)continue;const off=dot(sub(v,c),s.d);if(Math.abs(off)<16){c=add(c,mul(s.d,off));best.k='hoehe';g.V=v;g.F=c;break}}}
+  g.x=c.x;g.y=c.y;g.a=best.ta;g.snap=best.k;}
+function el(t,a,p,txt){if(t==='text'&&p!==LG&&a.x!=null)a.transform=`rotate(${-g.a} ${a.x} ${a.y-4})`;const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;p.appendChild(e);return e}
+function groesse(){ov.setAttribute('width',document.documentElement.scrollWidth);ov.setAttribute('height',document.documentElement.scrollHeight)}
+function zeichne(){
+  groesse();LG.innerHTML='';GG.innerHTML='';
+  for(const h of linien[pid()]||[])el('line',{x1:h.p.x,y1:h.p.y,x2:h.q.x,y2:h.q.y,stroke:'#C2410C','stroke-width':3,'stroke-dasharray':'9 6'},LG);
+  btn.classList.toggle('an',on);
+  if(!on){hint.classList.remove('on');return}
+  const G=el('g',{transform:`translate(${g.x} ${g.y}) rotate(${g.a})`},GG);
+  el('polygon',{class:'grip',points:`${-L},0 ${L},0 0,${L}`,fill:'rgba(190,232,240,0.55)',stroke:'#0a6e6e','stroke-width':2},G);
+  const kante=g.snap==='kante'||g.snap==='null',mitte=g.snap==='mitte'||g.snap==='hoehe';
+  for(let k=-80;k<=80;k++){const x=k*MM,l=k%10===0?16:k%5===0?11:6;el('line',{x1:x,y1:0,x2:x,y2:l,stroke:'#0b3b3b','stroke-width':k%10===0?1.4:.8},G);
+    if(k%10===0)el('text',{x,y:31,'text-anchor':'middle','font-size':14,fill:'#0b3b3b','font-family':'Arial'},G,String(Math.abs(k/10)));}
+  el('text',{x:4.5*CM,y:48,'text-anchor':'middle','font-size':12,fill:'#0b3b3b','font-family':'Arial'},G,'cm');
+  el('path',{d:`M${R} 0 A${R} ${R} 0 0 1 ${-R} 0`,fill:'none',stroke:'rgba(10,110,110,.6)'},G);
+  for(let t=5;t<180;t+=5){const c=Math.cos(rad(t)),s=Math.sin(rad(t)),l=t%10===0?13:7;el('line',{x1:R*c,y1:R*s,x2:(R-l)*c,y2:(R-l)*s,stroke:'#0b3b3b','stroke-width':1},G);
+    if(t%10===0&&t!==90){el('text',{x:(R-24)*c,y:(R-24)*s+4,'text-anchor':'middle','font-size':10,fill:'#0b3b3b','font-family':'Arial'},G,String(180-t));
+      el('text',{x:(R-40)*c,y:(R-40)*s+4,'text-anchor':'middle','font-size':9,fill:'#7a1d00','font-family':'Arial'},G,String(t));}}
+  el('text',{x:0,y:R-26,'text-anchor':'middle','font-size':11,fill:'#0b3b3b','font-family':'Arial'},G,'90');
+  el('line',{x1:0,y1:0,x2:0,y2:L-70,stroke:mitte?'#2e7d32':'#0b3b3b','stroke-width':mitte?4:1.5},G);
+  if(kante)el('line',{x1:-L,y1:0,x2:L,y2:0,stroke:'#2e7d32','stroke-width':4},G);
+  el('circle',{cx:0,cy:0,r:4,fill:'#C62828'},G);
+  el('circle',{class:'knopf',cx:0,cy:L-42,r:20,fill:'#0f9e9e',stroke:'#fff','stroke-width':3},G);
+  el('text',{x:0,y:L-34,'text-anchor':'middle','font-size':22,fill:'#fff','pointer-events':'none'},G,'↻');
+  const t={null:'0 liegt auf dem Scheitel – jetzt ablesen!',kante:'Die Kante liegt an. Schiebe die 0 auf die Ecke.',mitte:'Mittellinie auf der Grundseite – schiebe, bis die Kante die Ecke berührt.',hoehe:'Rechter Winkel! Jetzt kannst du h einzeichnen.'}[g.snap];
+  hint.classList.toggle('on',!!t||(linien[pid()]||[]).length>0);$('#geotxt').textContent=t||'Ziehe das Geodreieck an eine Linie.';
+  $('#geoh').style.display=g.snap==='hoehe'?'':'none';$('#geohx').style.display=(linien[pid()]||[]).length?'':'none';}
+function pt(e){return{x:e.pageX,y:e.pageY}}
+ov.addEventListener('pointerdown',e=>{const k=e.target.classList;if(!k.contains('grip')&&!k.contains('knopf'))return;e.preventDefault();ov.setPointerCapture(e.pointerId);
+  const p=pt(e);drag=k.contains('knopf')?{t:'rot',s:deg(Math.atan2(p.y-g.y,p.x-g.x)),a0:g.a}:{t:'mov',o:sub({x:g.x,y:g.y},p)};g.rx=g.x;g.ry=g.y;g.ra=g.a;});
+ov.addEventListener('pointermove',e=>{if(!drag)return;const p=pt(e);
+  if(drag.t==='mov'){g.rx=p.x+drag.o.x;g.ry=p.y+drag.o.y}else{g.ra=drag.a0+deg(Math.atan2(p.y-g.y,p.x-g.x))-drag.s;g.rx=g.x;g.ry=g.y}
+  magnet();zeichne();});
+ov.addEventListener('pointerup',()=>{drag=null});
+btn.addEventListener('click',()=>{on=!on;if(on){const r=$('.blatt:not([hidden]) svg.mess')||$('.blatt:not([hidden])');const b=r.getBoundingClientRect();g.rx=g.x=b.left+scrollX+b.width/2;g.ry=g.y=b.top+scrollY+40;g.ra=g.a=0;g.snap=null}zeichne();});
+$('#geoh').addEventListener('click',()=>{if(g.snap!=='hoehe')return;(linien[pid()]=linien[pid()]||[]).push({p:{...g.V},q:{...g.F}});zeichne();});
+$('#geohx').addEventListener('click',()=>{linien[pid()]=[];zeichne();});
+addEventListener('hashchange',()=>setTimeout(()=>{on=false;zeichne()},0));
+addEventListener('resize',()=>{for(const k in linien)linien[k]=[];zeichne()});
+
+zeichne();
+})();
+</script></body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Spickzettel Zusammengesetzte Figuren</title><style>
+*{box-sizing:border-box}body{margin:0;background:#fff;color:#000;font:17px/1.4 Arial,sans-serif}.wrap{max-width:1000px;margin:0 auto;padding:12px}
+.kopf{background:#B3261E;color:#fff;text-align:center;border-radius:10px;padding:10px}.kopf small{display:block;font-size:12px;letter-spacing:.18em;font-weight:bold}.kopf h1{margin:2px 0 0;font-size:28px}
+.sp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}@media(max-width:700px){.sp{grid-template-columns:1fr}}
+.k{border:2px solid #B3261E;border-radius:10px;overflow:hidden}.k h2{margin:0;background:#FBE3E1;font-size:17px;padding:6px 12px}.k .i{padding:8px 12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center}.mini{display:flex;flex-direction:column;align-items:center;font-size:14px}.mini svg{max-width:100%;height:auto}.mini b{font-size:14px}
+.lab{font-weight:bold;margin:6px 0 2px}.formel{background:#F2F2F2;border-radius:8px;padding:8px;text-align:center;font-weight:bold;font-size:24px;margin:6px 0}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;font-size:.8em}.fr i{font-style:normal}.fr i:first-child{border-bottom:2px solid currentColor;padding:0 .15em}
+.ms{border:2px dashed #B3261E;border-radius:8px;padding:6px 10px;margin-top:6px;font-size:15px}.falle{border:2px dashed #B3261E;background:#fff8f7;border-radius:10px;padding:8px 12px;margin-top:12px}
+.fuss{text-align:right;font-style:italic;color:#666;font-size:13px;margin-top:10px}.schema{text-align:center}.pill{display:inline-block;border:2px solid #555;border-radius:999px;padding:6px 14px;font-weight:bold;background:#fff}.aeste{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}.pfeil{font-weight:bold;color:#555;margin:4px 0}
+.pill.z{border-color:#1565C0;background:#E8EFFB;color:#0d3c78}.pill.e{border-color:#C2410C;background:#FBEADF;color:#7a2a08}.pill small{font-weight:normal;font-size:13px}
+.fig{display:inline-block}.fig svg{max-width:100%;height:auto}sub{font-size:.7em}@media print{.wrap{max-width:none}}</style></head><body><div class="wrap">
+<div class="kopf"><small>SPICKZETTEL · DREIECKE UND VIERECKE</small><h1>Zusammengesetzte Figuren</h1></div>
+<div class="sp">
+<div class="k"><h2>Umfang</h2><div class="i"><div style="text-align:center"><div class="fig" data-o='{"pts":[[0,0],[6,0],[6,2],[3,2],[3,5],[0,5]],"w":150,"start":0,"cut":[[[3,0],[3,2]]],"lab":{"0":"6 m","1":"2 m","2":"3 m","3":"3 m","4":"3 m","5":"5 m"}}'></div></div>
+<div class="ms" style="text-align:center"><b>Einmal rundherum: alle Außenseiten addieren.</b><br>Trennlinien innen zählen <b>nicht</b>.</div>
+<p style="margin:6px 0 0">u = 6 m + 2 m + 3 m + 3 m + 3 m + 5 m = <b>22 m</b></p>
+<div class="lab">Fehlende Seite durch Überlegen</div>
+<div class="ms" style="text-align:center">Gegenüberliegende Seiten sind zusammen gleich lang.<br>unten 6 m = oben 3 m + <b>3 m</b> → Stufe: 6 m − 3 m = 3 m</div></div></div>
+<div class="k"><h2>Welcher Weg zur Fläche?</h2><div class="i">
+<div class="schema"><div class="pill">Fehlt nur ein kleines Stück<br>oder hat die Figur ein Loch?</div>
+<div class="aeste"><div><div class="pfeil">nein ↓</div><div class="pill z">Zerlegen<br><small>Teilflächen <b>addieren</b></small></div></div><div><div class="pfeil">ja ↓</div><div class="pill e">Ergänzen<br><small>Stück <b>subtrahieren</b></small></div></div></div></div>
+<p style="margin:8px 0 0;font-size:15px">Beide Wege ergeben <b>dasselbe Ergebnis</b>. Bekannte Teilfiguren:<br>Rechteck: A = a · b<br>Dreieck: A = <span class="fr"><i>1</i><i>2</i></span> · g · h<br>Trapez: A = <span class="fr"><i>1</i><i>2</i></span> · (a + c) · h</p></div></div>
+<div class="k"><h2>Zerlegen</h2><div class="i"><div style="text-align:center"><div class="fig" data-o='{"pts":[[0,0],[7,0],[7,2],[4,2],[4,4],[0,4]],"w":150,"lab":{"0":"7 m","1":"2 m","4":"4 m","5":"4 m"},"parts":[{"pts":[[0,0],[4,0],[4,4],[0,4]],"c":1,"n":"①"},{"pts":[[4,0],[7,0],[7,2],[4,2]],"c":2,"n":"②"}],"cut":[[[4,0],[4,2]]]}'></div></div>
+<div class="formel">A = A<sub style="color:#1565C0">①</sub> + A<sub style="color:#C2410C">②</sub></div>
+<p style="margin:4px 0 0">A① = 4 m · 4 m = 16 m²<br>A② = 3 m · 2 m = 6 m²<br>A = 16 m² + 6 m² = <b>22 m²</b></p></div></div>
+<div class="k"><h2>Ergänzen</h2><div class="i"><div style="text-align:center"><div class="fig" data-o='{"pts":[[0,0],[6,0],[6,2],[3,2],[3,5],[0,5]],"w":150,"lab":{"0":"6 m","3":"3 m","4":"3 m","5":"5 m"},"comp":[[3,2],[6,2],[6,5],[3,5]]}'></div></div>
+<div class="formel">A = A<sub>groß</sub> − A<sub>Stück</sub></div>
+<p style="margin:4px 0 0">A groß = 6 m · 5 m = 30 m²<br>A Stück = 3 m · 3 m = 9 m²<br>A = 30 m² − 9 m² = <b>21 m²</b></p></div></div>
+</div>
+<div class="falle"><b>Achtung, Falle:</b> Beim Umfang die Trennlinie <b>nicht</b> mitzählen!<br>Beim Ergänzen das Stück <b>subtrahieren</b>, nicht addieren: <s>30 m² + 9 m² = 39 m²</s> → richtig: 30 m² − 9 m² = 21 m²</div>
+<p class="fuss">Erstellt von Marion Klugmann (November 2026) mit freundlicher Unterstützung von Claude.</p></div><script>
+const BL="#1565C0",OR="#C2410C",GR="#2E7D32",RT="#C62828";
+const FILL={0:"#eef4fb",1:"#DCEBFB",2:"#FFE3D3",3:"#DFF1E0"},NCOL={1:BL,2:OR,3:GR};
+const fmt=v=>(Math.round(v*100)/100).toString().replace(".",",");
+function tx(x,y,s,fs,o){o=o||{};return '<text x="'+x.toFixed(2)+'" y="'+y.toFixed(2)+'" font-size="'+fs.toFixed(2)+'" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" fill="'+(o.fill||"#000")+'"'+(o.b?' font-weight="700"':'')+(o.halo?' stroke="#fff" stroke-width="'+(fs*.25).toFixed(2)+'" paint-order="stroke"':'')+'>'+String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")+'</text>';}
+const U=(x,y)=>{const l=Math.hypot(x,y)||1;return[x/l,y/l]};
+function ra(p,u,v,r,sw,col){const a=[p[0]+r*u[0],p[1]+r*u[1]],b=[p[0]+r*v[0],p[1]+r*v[1]],cr=u[0]*v[1]-u[1]*v[0],bi=U(u[0]+v[0],u[1]+v[1]);
+ return '<path d="M'+a[0].toFixed(2)+' '+a[1].toFixed(2)+' A'+r+' '+r+' 0 0 '+(cr>0?1:0)+' '+b[0].toFixed(2)+' '+b[1].toFixed(2)+'" fill="none" stroke="'+col+'" stroke-width="'+sw+'"/><circle cx="'+(p[0]+r*.5*bi[0]).toFixed(2)+'" cy="'+(p[1]+r*.5*bi[1]).toFixed(2)+'" r="'+(sw*1.1).toFixed(2)+'" fill="'+col+'"/>';}
+const area=P=>{let s=0;P.forEach((p,i)=>{const q=P[(i+1)%P.length];s+=p[0]*q[1]-q[0]*p[1]});return s/2};
+const cen=P=>{const n=P.length;return[P.reduce((a,p)=>a+p[0],0)/n,P.reduce((a,p)=>a+p[1],0)/n]};
+/* Polygon-Figur: o.pts (Einheiten), o.lab {Kantenindex:Text} oder 0, parts, cut, lcut, comp, lcomp, holes, hlab, dims, start */
+function polySvg(o){
+ const P=o.pts,all=P.concat(...(o.dims||[]).map(d=>[d.a,d.b]));
+ const xs=all.map(p=>p[0]),ys=all.map(p=>p[1]),minx=Math.min(...xs),maxx=Math.max(...xs),miny=Math.min(...ys),maxy=Math.max(...ys);
+ const span=Math.max(maxx-minx,maxy-miny),k=100/span;           /* größte Ausdehnung = 100 */
+ const w=o.w||160,fs=13.5*100/w,sw=fs*.13,labs=Object.values(o.lab||{}).concat(Object.values(o.hlab||{}),(o.dims||[]).map(d=>d.t)),ml=Math.max(1,...labs.map(x=>x.length)),pad=fs*(1.3+ml*.32);
+ const S=p=>[(p[0]-minx)*k+pad,(maxy-p[1])*k+pad];
+ const W=(maxx-minx)*k+2*pad,H=(maxy-miny)*k+2*pad;
+ let s='<svg viewBox="0 0 '+W.toFixed(1)+' '+H.toFixed(1)+'" style="width:'+(w*W/100/19).toFixed(2)+'em;max-width:100%;height:auto;overflow:visible">';
+ const poly=(Q,f,st,extra)=>'<polygon points="'+Q.map(S).map(p=>p.map(v=>v.toFixed(2)).join(",")).join(" ")+'" fill="'+f+'" stroke="'+(st||"none")+'"'+(extra||"")+'/>';
+ const line=(a,b,col,wd,dash,cls)=>{const A=S(a),B=S(b);return '<line'+(cls?' class="'+cls+'"':'')+' x1="'+A[0].toFixed(2)+'" y1="'+A[1].toFixed(2)+'" x2="'+B[0].toFixed(2)+'" y2="'+B[1].toFixed(2)+'" stroke="'+col+'" stroke-width="'+wd.toFixed(2)+'"'+(dash?' stroke-dasharray="'+(wd*3).toFixed(1)+' '+(wd*2).toFixed(1)+'"':'')+' stroke-linecap="round"/>';};
+ const dashed=' stroke-width="'+(sw*.9).toFixed(2)+'" stroke-dasharray="'+(sw*3).toFixed(1)+' '+(sw*2).toFixed(1)+'"';
+ if(o.comp)s+=poly(o.comp,"#ececec","#777",dashed);
+ if(o.lcomp)s+='<g class="lsgsvg">'+poly(o.lcomp,"#fde8e8",RT,dashed)+'</g>';
+ s+=poly(P,FILL[0]);
+ (o.parts||[]).forEach(q=>{s+=poly(q.pts,FILL[q.c]);});
+ (o.holes||[]).forEach(h=>{s+=poly(h,"#fff","#000",' stroke-width="'+sw.toFixed(2)+'"');});
+ (o.cut||[]).forEach(c=>s+=line(c[0],c[1],"#333",sw*.9,1));
+ (o.lcut||[]).forEach(c=>s+='<g class="lsgsvg">'+line(c[0],c[1],RT,sw*1.1,1)+'</g>');
+ s+=poly(P,"none","#000",' stroke-width="'+(sw*1.15).toFixed(2)+'" stroke-linejoin="round"');
+ (o.parts||[]).forEach(q=>{const c=S(q.np||cen(q.pts));s+=tx(c[0],c[1],q.n,fs*1.15,{fill:NCOL[q.c],b:1});});
+ /* Kantenbeschriftung außen */
+ const ccw=area(P)>0;
+ function kanten(Q,lab,innen){const ccw=area(Q)>0;Q.forEach((A0,i)=>{const t=lab[i];if(!t)return;const B0=Q[(i+1)%Q.length],A=S(A0),B=S(B0),M=[(A[0]+B[0])/2,(A[1]+B[1])/2];
+  const d=U(B0[0]-A0[0],B0[1]-A0[1]);let n=ccw?[d[1],-d[0]]:[-d[1],d[0]];if(innen)n=[-n[0],-n[1]];const nS=[n[0],-n[1]];
+  const off=fs*.75+Math.abs(nS[0])*t.length*fs*.27;s+=tx(M[0]+off*nS[0],M[1]+off*nS[1],t,fs,{b:t==="?",fill:t==="?"?RT:"#000"});});}
+ if(o.lab!==0&&o.lab)kanten(P,o.lab,false);
+ if(o.hlab&&o.holes)kanten(o.holes[0],o.hlab,true);
+ if(o.htxt&&o.holes){const c=S(cen(o.holes[0]));o.htxt.forEach((z,j)=>s+=tx(c[0],c[1]+(j-(o.htxt.length-1)/2)*fs*.85,z,fs*.7));}
+ (o.dims||[]).forEach(d=>{const col=d.ext?"#333":OR;s+=line(d.a,d.b,col,sw*(d.ext?.8:1.1),!d.ext);
+  if(d.ext){const A=S(d.a),B=S(d.b),u=U(B[0]-A[0],B[1]-A[1]),n=[-u[1],u[0]],L=fs*.35;[A,B].forEach(p=>s+='<line x1="'+(p[0]-L*n[0]).toFixed(2)+'" y1="'+(p[1]-L*n[1]).toFixed(2)+'" x2="'+(p[0]+L*n[0]).toFixed(2)+'" y2="'+(p[1]+L*n[1]).toFixed(2)+'" stroke="#333" stroke-width="'+(sw*.8).toFixed(2)+'"/>');}
+  if(d.ra){const A=S(d.a),B=S(d.b),u=U(B[0]-A[0],B[1]-A[1]);s+=ra(A,u,[u[1],-u[0]],fs*.7,sw*.8,OR);}
+  const A=S(d.a),B=S(d.b),M=[(A[0]+B[0])/2,(A[1]+B[1])/2],u=U(B[0]-A[0],B[1]-A[1]),n=[-u[1],u[0]];
+  const off=fs*.5+Math.abs(n[0])*d.t.length*fs*.27;s+=tx(M[0]+off*(d.ext?1:-1)*n[0]*(d.ext&&Math.abs(n[1])>.5?-1:1),M[1]+off*n[1]*(d.ext?-1:1),d.t,fs,{fill:d.ext?"#000":OR,b:!d.ext,halo:1});});
+ if(o.start!=null){const p=S(P[o.start]);s+='<circle cx="'+p[0].toFixed(2)+'" cy="'+p[1].toFixed(2)+'" r="'+(fs*.38).toFixed(2)+'" fill="'+GR+'" stroke="#fff" stroke-width="'+(sw*.6).toFixed(2)+'"/>'+tx(p[0]-fs*.9,p[1]+fs*.55,"Start",fs*.75,{fill:GR,b:1});}
+ return s+'</svg>';
+}
+
+document.querySelectorAll(".fig[data-o]").forEach(d=>{d.innerHTML=polySvg(JSON.parse(d.dataset.o));});</script></body></html>
