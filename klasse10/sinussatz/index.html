@@ -734,4 +734,85 @@ document.addEventListener("click",function(e){var b=e.target.closest&&e.target.c
 document.getElementById("llzu").addEventListener("click",zu);o.addEventListener("click",function(e){if(e.target===o)zu();});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!o.hidden)zu();});})();</script>
 </body>
-</html>
+</html<!-- ═══ Für OneNote drucken (Lern-Lounge) ═══ -->
+<style>
+.od-knoepfe{display:inline-flex;flex-wrap:wrap;gap:.5em}
+button.knopf.od-druck{display:inline-flex;align-items:center;gap:.4em}
+button.knopf.od-druck svg{width:1.15em;height:1.15em;flex:0 0 auto}
+.od-pop{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:14px}
+.od-pop[hidden]{display:none!important}
+.od-box{background:#fff;max-width:30em;width:100%;border:2px solid #00805F;box-shadow:0 0 30px rgba(0,0,0,.35)}
+.od-box h2{margin:0;font-size:1.05em;background:#00805F;color:#fff;padding:.45em .8em}
+.od-box .od-innen{padding:.6em .9em .9em}
+.od-box ol{margin:.3em 0 .6em;padding-left:1.4em}.od-box li{margin:.25em 0}
+.od-box .od-pc{color:#6F6F6F;font-size:.85em;margin:.4em 0 .8em}
+.od-box .od-leiste{display:flex;flex-wrap:wrap;gap:.6em;justify-content:flex-end}
+.od-box button.od-los{background:#00805F;color:#fff}
+.od-box button.od-los:hover{background:#006B4F}
+.od-kopf,.od-spiegel{display:none}
+@page{size:A4;margin:12mm}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{padding:0!important;font-size:15px}
+  .wrap{max-width:none}
+  .oben,nav.reiter,.fortschritt,.od-pop,button.pruefen,.ll-pop{display:none!important}
+  .od-kopf{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.3em 1em;font-size:.8em;color:#444;border-bottom:1.5px solid #00805F;padding-bottom:.25em;margin-bottom:.5em}
+  .od-kopf b{color:#000}
+  .kasten{break-inside:avoid;page-break-inside:avoid}
+  .kasten>h2{break-after:avoid;page-break-after:avoid}
+  .scroll{overflow:visible}
+  .ein:focus{background:#fff}
+  .ein.antw.od-hat{display:none!important}
+  .od-spiegel{display:block;width:100%;max-width:44em;min-width:min(20em,100%);min-height:1.7em;border:1.5px solid #000;padding:.15em .5em;white-space:pre-wrap;overflow-wrap:anywhere}
+  .od-spiegel.ok{border-color:#2e7d32;background:#E5F4E6;border-width:2.5px}
+  .od-spiegel.falsch{border-color:#C62828;background:#FDE7E7;border-width:2.5px}
+  .pruefleiste{margin-top:.3em}
+  .fuss{margin-top:.8em}
+}
+</style>
+<div class="od-pop" id="odpop" hidden><div class="od-box" role="dialog" aria-modal="true" aria-labelledby="odtitel">
+<h2 id="odtitel">Übung in OneNote ablegen</h2>
+<div class="od-innen">
+<ol>
+<li>Tippe auf <b>„Jetzt drucken“</b>.</li>
+<li>Im Druckfenster oben auf das <b>Teilen-Symbol</b> <span aria-hidden="true">⬆︎</span> tippen.</li>
+<li><b>OneNote</b> wählen, deinen Abschnitt aussuchen und <b>senden</b>.</li>
+</ol>
+<p class="od-pc">Am Computer: als Drucker „OneNote“ oder „Als PDF speichern“ wählen.</p>
+<div class="od-leiste"><button type="button" class="knopf" id="odzu">Abbrechen</button><button type="button" class="knopf od-los" id="odlos">Jetzt drucken</button></div>
+</div></div></div>
+<script>(function(){
+var neu=document.getElementById("neu");if(!neu)return;
+var grp=document.createElement("span");grp.className="od-knoepfe";
+neu.parentNode.insertBefore(grp,neu);
+var dk=document.createElement("button");dk.type="button";dk.className="knopf od-druck";dk.setAttribute("aria-haspopup","dialog");
+dk.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="1.5"/><path d="M6 14h12v7H6z"/></svg>Für OneNote drucken';
+grp.appendChild(dk);grp.appendChild(neu);
+var pop=document.getElementById("odpop");
+function vorbereiten(){
+  var B=document.querySelector(".blatt:not([hidden])");if(!B)return;
+  document.querySelectorAll(".od-kopf,.od-spiegel").forEach(function(x){x.remove();});
+  document.querySelectorAll(".od-hat").forEach(function(x){x.classList.remove("od-hat");});
+  var st=document.getElementById("stand"),k=document.createElement("div");k.className="od-kopf";
+  var d=new Date().toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+  k.innerHTML="<span>EMIL-PETRI-SCHULE ARNSTADT · Mathematik Klasse 10</span><span>"+(st?st.textContent:"")+"</span><span>Datum: <b>"+d+"</b></span>";
+  B.insertBefore(k,B.firstChild);
+  B.querySelectorAll("input.ein.antw").forEach(function(i){
+    var s=document.createElement("div");s.className="od-spiegel";s.textContent=i.value||" ";
+    if(i.classList.contains("ok"))s.classList.add("ok");if(i.classList.contains("falsch"))s.classList.add("falsch");
+    i.classList.add("od-hat");i.insertAdjacentElement("afterend",s);
+  });
+}
+function zu(){pop.hidden=true;document.body.style.overflow="";dk.focus();}
+dk.addEventListener("click",function(){pop.hidden=false;document.body.style.overflow="hidden";document.getElementById("odlos").focus();});
+document.getElementById("odzu").addEventListener("click",zu);
+pop.addEventListener("click",function(e){if(e.target===pop)zu();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!pop.hidden)zu();});
+document.getElementById("odlos").addEventListener("click",function(){
+  pop.hidden=true;document.body.style.overflow="";
+  if(document.activeElement)document.activeElement.blur();
+  vorbereiten();setTimeout(function(){window.print();},50);
+});
+window.addEventListener("beforeprint",vorbereiten);
+})();</script>
+>
