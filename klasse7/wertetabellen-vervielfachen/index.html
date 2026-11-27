@@ -160,7 +160,7 @@ table.wt{border-collapse:collapse;width:100%;table-layout:fixed;font-variant-num
   }
 
   // ---------- Zustand ----------
-  let geloest=0;
+  let geloest=0;try{geloest=+localStorage.getItem("mathebase-uebung:"+location.pathname.replace(/index\.html$/,""))||0;}catch(_){}
   const bereiche=[...document.querySelectorAll('.kasten[data-typ]')].map(sec=>({sec,typ:sec.dataset.typ,tw:sec.querySelector('.tw'),
     meldung:sec.querySelector('.meldung'),boegen:[],wahl:null,zaehler:0,auf:null,fertig:false}));
 
@@ -262,7 +262,7 @@ table.wt{border-collapse:collapse;width:100%;table-layout:fixed;font-variant-num
     zeichne(B);
     if(!fehler.length){
       B.meldung.className='meldung ok';
-      if(!B.fertig){B.fertig=true;geloest++;sterneZeigen(true);B.meldung.textContent='Super, alles richtig! Tippe auf „Neue Aufgabe“.';}
+      if(!B.fertig){B.fertig=true;geloest++;try{localStorage.setItem("mathebase-uebung:"+location.pathname.replace(/index\.html$/,""),geloest);}catch(_){}sterneZeigen(true);B.meldung.textContent='Super, alles richtig! Tippe auf „Neue Aufgabe“.';}
       else B.meldung.textContent='Diese Aufgabe hast du schon gelöst. Tippe auf „Neue Aufgabe“.';
     }else{
       B.meldung.className='meldung nein';

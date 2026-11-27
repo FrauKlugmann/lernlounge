@@ -922,5 +922,69 @@ kb.addEventListener("click",function(){
 });
 })();
 </script>
+<script>
+(function(){
+/* ═══ Merkfunktion: Stand jeder Übung auf diesem Gerät speichern ═══ */
+var KEY="mathebase-uebung:"+location.pathname.replace(/index\.html$/,""),laden=false,tm=null;
+function lies(){try{return JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){return null;}}
+function schreib(d){try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){}}
+function arr(B,s){return [].slice.call(B.querySelectorAll(s));}
+function felder(B){return arr(B,"input").filter(function(i){return !i.readOnly&&!i.classList.contains("echo")&&i.type!=="hidden";});}
+function zyklus(B){return arr(B,"button[data-z]").filter(function(b){return !b.closest(".wahl,.auswahl");});}
+function sig(B){return B.querySelectorAll("input,button,[data-aufgabe]").length;}
+
+function stand(B){
+  return {sig:sig(B),
+    e:felder(B).map(function(i){return i.type==="checkbox"||i.type==="radio"?(i.checked?1:0):i.value;}),
+    w:arr(B,".wahl,.auswahl").map(function(g){var a=g.querySelector("button.an");return a?arr(g,"button").indexOf(a):-1;}),
+    c:zyklus(B).map(function(b){return b.dataset.z;}),
+    m:arr(B,".mk").map(function(m){return m.dataset.r||"";}),
+    g:arr(B,".g100.malen").map(function(g){var r=[];arr(g,"i").forEach(function(c,k){if(c.classList.contains("an"))r.push(k);});return r;}),
+    z:arr(B,".zuo").map(function(Z){return arr(Z,'[data-s="l"]').map(function(l){return l.dataset.mit||"";});}),
+    s:arr(B,".sort").map(function(S){return (S._reihe||[]).map(function(b){return b.dataset.i;});}),
+    p:arr(B,"[data-aufgabe]").map(function(k){var e=k.querySelector(".ergebnis");return e&&e.textContent.trim()?1:0;})};
+}
+function sichern(){
+  if(laden)return;
+  var d={v:1,aktiv:(document.querySelector(".blatt:not([hidden])")||{}).id||"",b:{}};
+  arr(document,".blatt").forEach(function(B){d.b[B.id]=stand(B);});
+  schreib(d);
+}
+function klickBis(el,attr,ziel){for(var n=0;n<6&&(el.dataset[attr]||"")!==ziel;n++)el.click();}
+function zurueck(B,s){
+  if(!s||s.sig!==sig(B))return;
+  felder(B).forEach(function(i,k){var v=s.e[k];if(v==null)return;
+    if(i.type==="checkbox"||i.type==="radio"){if(!!v!==i.checked)i.click();return;}
+    if(v===""&&i.value==="")return;
+    i.value=v;i.dispatchEvent(new Event("input",{bubbles:true}));i.dispatchEvent(new Event("change",{bubbles:true}));});
+  arr(B,".wahl,.auswahl").forEach(function(g,k){var x=s.w[k];if(x>=0){var b=arr(g,"button")[x];if(b)b.click();}});
+  zyklus(B).forEach(function(b,k){if(s.c[k])klickBis(b,"z",s.c[k]);});
+  arr(B,".mk").forEach(function(m,k){if(s.m[k])klickBis(m,"r",s.m[k]);});
+  arr(B,".g100.malen").forEach(function(g,k){var an=s.g[k]||[];if(!an.length)return;
+    arr(g,"i").forEach(function(c,j){c.classList.toggle("an",an.indexOf(j)>=0);});
+    var z=g.closest(".innen")&&g.closest(".innen").querySelector(".zaehler b");if(z)z.textContent=an.length;});
+  arr(B,".zuo").forEach(function(Z,k){(s.z[k]||[]).forEach(function(mit,j){if(!mit)return;
+    var l=arr(Z,'[data-s="l"]')[j],r=Z.querySelector('[data-s="r"][data-i="'+mit+'"]');if(l&&r){l.click();r.click();}});});
+  arr(B,".sort").forEach(function(S,k){(s.s[k]||[]).forEach(function(i){var b=S.querySelector('button[data-i="'+i+'"]');if(b)b.click();});});
+  arr(B,"[data-aufgabe]").forEach(function(k,j){if(s.p[j]){var p=k.querySelector(".pruefen");if(p)p.click();}});
+}
+/* Beim Öffnen wiederherstellen */
+var d=lies();
+if(d&&d.b){
+  laden=true;
+  try{arr(document,".blatt").forEach(function(B){try{zurueck(B,d.b[B.id]);}catch(e){}});}catch(e){}
+  if(!location.hash&&d.aktiv&&document.getElementById(d.aktiv))location.hash=d.aktiv;
+  setTimeout(function(){laden=false;var B=document.querySelector(".blatt:not([hidden])");
+    var st=document.getElementById("stand");if(B&&st){var a=B.querySelectorAll("[data-aufgabe]").length,f=B.querySelectorAll("[data-aufgabe].fertig").length;
+      st.textContent=f+" von "+a+" Aufgaben geschafft"+(f===a?" – klasse!":"");}},0);
+}
+/* Bei jeder Änderung speichern */
+function bald(){clearTimeout(tm);tm=setTimeout(sichern,400);}
+["input","change","click","pointerup"].forEach(function(t){document.addEventListener(t,bald,true);});
+window.addEventListener("hashchange",bald);
+window.addEventListener("pagehide",sichern);
+document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")sichern();});
+})();
+</script>
 </body>
 </html>
