@@ -1140,5 +1140,308 @@ addEventListener('resize',()=>{for(const k in linien)linien[k]=[];zeichne()});
 
 zeichne();
 })();
-</script></body>
+</script><!-- ═══ Für OneNote drucken (Lern-Lounge) ═══ -->
+<style>
+.od-knoepfe{display:inline-flex;flex-wrap:wrap;gap:.5em}
+button.knopf.od-druck{display:inline-flex;align-items:center;gap:.4em}
+button.knopf.od-druck svg{width:1.15em;height:1.15em;flex:0 0 auto}
+button.knopf.od-kopie{display:inline-flex;align-items:center;gap:.4em}
+button.knopf.od-kopie svg{width:1.15em;height:1.15em;flex:0 0 auto}
+button.knopf.od-ok{background:#00805F;color:#fff}
+.od-bildbox{max-width:60em}
+.od-bildbox img{display:block;max-width:100%;max-height:62vh;margin:.5em auto;border:1px solid #ccc}
+.od-pop{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:14px}
+.od-pop[hidden]{display:none!important}
+.od-box{background:#fff;max-width:30em;width:100%;border:2px solid #00805F;box-shadow:0 0 30px rgba(0,0,0,.35)}
+.od-box h2{margin:0;font-size:1.05em;background:#00805F;color:#fff;padding:.45em .8em}
+.od-box .od-innen{padding:.6em .9em .9em}
+.od-box ol{margin:.3em 0 .6em;padding-left:1.4em}.od-box li{margin:.25em 0}
+.od-box .od-pc{color:#6F6F6F;font-size:.85em;margin:.4em 0 .8em}
+.od-box .od-leiste{display:flex;flex-wrap:wrap;gap:.6em;justify-content:flex-end}
+.od-box button.od-los{background:#00805F;color:#fff}
+.od-box button.od-los:hover{background:#006B4F}
+.od-kopf,.od-spiegel{display:none}
+@page{size:A4;margin:12mm}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{padding:0!important;font-size:15px}
+  .wrap{max-width:none}
+  .oben,nav.reiter,.fortschritt,.od-pop,button.pruefen,.ll-pop{display:none!important}
+  .od-kopf{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.3em 1em;font-size:.8em;color:#444;border-bottom:1.5px solid #00805F;padding-bottom:.25em;margin-bottom:.5em}
+  .od-kopf b{color:#000}
+  .kasten{break-inside:avoid;page-break-inside:avoid}
+  .kasten>h2{break-after:avoid;page-break-after:avoid}
+  .scroll{overflow:visible}
+  .ein:focus{background:#fff}
+  .ein.antw.od-hat{display:none!important}
+  .od-spiegel{display:block;width:100%;max-width:44em;min-height:1.7em;border:1.5px solid #000;padding:.15em .5em;white-space:pre-wrap;overflow-wrap:anywhere}
+  .od-spiegel.ok{border-color:#2e7d32;background:#E5F4E6;border-width:2.5px}
+  .od-spiegel.falsch{border-color:#C62828;background:#FDE7E7;border-width:2.5px}
+  .pruefleiste{margin-top:.3em}
+  .fuss{margin-top:.8em}
+}
+</style>
+<div class="od-pop" id="odpop" hidden><div class="od-box" role="dialog" aria-modal="true" aria-labelledby="odtitel">
+<h2 id="odtitel">Übung in OneNote ablegen</h2>
+<div class="od-innen">
+<ol>
+<li>Tippe auf <b>„Jetzt drucken“</b>.</li>
+<li>Im Druckfenster oben auf das <b>Teilen-Symbol</b> <span aria-hidden="true">⬆︎</span> tippen.</li>
+<li><b>OneNote</b> wählen, deinen Abschnitt aussuchen und <b>senden</b>.</li>
+</ol>
+<p class="od-pc">Am Computer: als Drucker „OneNote“ oder „Als PDF speichern“ wählen.</p>
+<div class="od-leiste"><button type="button" class="knopf" id="odzu">Abbrechen</button><button type="button" class="knopf od-los" id="odlos">Jetzt drucken</button></div>
+</div></div></div>
+<script>(function(){
+var neu=document.getElementById("neu");if(!neu)return;
+var grp=document.createElement("span");grp.className="od-knoepfe";
+neu.parentNode.insertBefore(grp,neu);
+var dk=document.createElement("button");dk.type="button";dk.className="knopf od-druck";dk.setAttribute("aria-haspopup","dialog");
+dk.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="1.5"/><path d="M6 14h12v7H6z"/></svg>Für OneNote drucken';
+grp.appendChild(dk);grp.appendChild(neu);
+var pop=document.getElementById("odpop");
+function vorbereiten(){
+  var B=document.querySelector(".blatt:not([hidden])");if(!B)return;
+  document.querySelectorAll(".od-kopf,.od-spiegel").forEach(function(x){x.remove();});
+  document.querySelectorAll(".od-hat").forEach(function(x){x.classList.remove("od-hat");});
+  var st=document.getElementById("stand"),k=document.createElement("div");k.className="od-kopf";
+  var d=new Date().toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+  var kl=/klasse7/.test(location.pathname)?"7":"10";
+  k.innerHTML="<span>EMIL-PETRI-SCHULE ARNSTADT · Mathematik Klasse "+kl+"</span><span>"+(st?st.textContent:"")+"</span><span>Datum: <b>"+d+"</b></span>";
+  B.insertBefore(k,B.firstChild);
+  B.querySelectorAll("input.ein.antw").forEach(function(i){
+    var s=document.createElement("div");s.className="od-spiegel";s.textContent=i.value||" ";
+    if(i.classList.contains("ok"))s.classList.add("ok");if(i.classList.contains("falsch"))s.classList.add("falsch");
+    i.classList.add("od-hat");i.insertAdjacentElement("afterend",s);
+  });
+}
+function zu(){pop.hidden=true;document.body.style.overflow="";dk.focus();}
+dk.addEventListener("click",function(){pop.hidden=false;document.body.style.overflow="hidden";document.getElementById("odlos").focus();});
+document.getElementById("odzu").addEventListener("click",zu);
+pop.addEventListener("click",function(e){if(e.target===pop)zu();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!pop.hidden)zu();});
+document.getElementById("odlos").addEventListener("click",function(){
+  pop.hidden=true;document.body.style.overflow="";
+  if(document.activeElement)document.activeElement.blur();
+  vorbereiten();setTimeout(function(){window.print();},50);
+});
+window.addEventListener("beforeprint",vorbereiten);
+})();</script>
+<script>
+(function(){
+/* ═══ Kopieren: offenes Blatt als Bild in die Zwischenablage (für OneNote) ═══ */
+var grp=document.querySelector(".od-knoepfe");if(!grp)return;
+var kb=document.createElement("button");kb.type="button";kb.className="knopf od-kopie";
+var KTXT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="1.6"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>Kopieren';
+kb.innerHTML=KTXT;grp.insertBefore(kb,grp.firstChild);
+
+var SKIP=".ll-zurueck,.ll-spick,button.pruefen,.od-kopf,.od-spiegel";
+function farbe(c){return c&&c!=="transparent"&&!/rgba\([^)]*,\s*0\)$/.test(c);}
+function schrift(s){return s.fontStyle+" "+s.fontWeight+" "+s.fontSize+" "+s.fontFamily;}
+function px(v){return parseFloat(v)||0;}
+
+/* SVG mit allen berechneten Stilen als eigenständiges Bild */
+var SVGPROPS=["fill","stroke","stroke-width","stroke-dasharray","stroke-linecap","stroke-linejoin","opacity","fill-opacity","stroke-opacity","font-size","font-weight","font-family","font-style","text-anchor","dominant-baseline","visibility","display"];
+function svgBild(svg,r){
+  var k=svg.cloneNode(true),a=[svg].concat([].slice.call(svg.querySelectorAll("*"))),b=[k].concat([].slice.call(k.querySelectorAll("*")));
+  a.forEach(function(el,i){var s=getComputedStyle(el),t="";SVGPROPS.forEach(function(p){var v=s.getPropertyValue(p);if(v)t+=p+":"+v+";";});
+    b[i].setAttribute("style",t+(b[i].getAttribute("style")||""));});
+  k.setAttribute("xmlns","http://www.w3.org/2000/svg");k.setAttribute("width",r.width);k.setAttribute("height",r.height);
+  var url="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(new XMLSerializer().serializeToString(k));
+  return new Promise(function(ok){var im=new Image();im.onload=function(){ok(im);};im.onerror=function(){ok(null);};im.src=url;});
+}
+
+function malen(B){
+  var R=B.getBoundingClientRect(),PAD=16,KOPF=30,W=Math.ceil(R.width)+2*PAD,
+      fuss=document.getElementById("fuss"),FH=fuss?28:0,H=Math.ceil(R.height)+2*PAD+KOPF+FH;
+  var sk=Math.min(2,Math.sqrt(15e6/(W*H)));
+  var c=document.createElement("canvas");c.width=Math.round(W*sk);c.height=Math.round(H*sk);
+  var g=c.getContext("2d");g.scale(sk,sk);g.fillStyle="#fff";g.fillRect(0,0,W,H);
+  var ox=PAD-R.left,oy=PAD+KOPF-R.top,jobs=[],nachher=[];
+  /* Kopfzeile */
+  var kl=/klasse7/.test(location.pathname)?"7":"10",d=new Date().toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+  g.font="13px Arial, sans-serif";g.fillStyle="#555";g.textBaseline="middle";g.textAlign="left";
+  g.fillText("EMIL-PETRI-SCHULE ARNSTADT · Mathematik Klasse "+kl,PAD,PAD+10);
+  g.textAlign="right";var st=document.getElementById("stand");
+  g.fillText((st?st.textContent+"   ·   ":"")+"Datum: "+d,W-PAD,PAD+10);g.textAlign="left";
+
+  function rahmen(r,s){
+    var bt=px(s.borderTopWidth),br=px(s.borderRightWidth),bb=px(s.borderBottomWidth),bl=px(s.borderLeftWidth),x=r.left+ox,y=r.top+oy;
+    var dash=s.borderTopStyle==="dashed";
+    function seite(w,col,stil,x1,y1,ww,hh){if(w>0&&stil!=="none"&&stil!=="hidden"&&farbe(col)){g.fillStyle=col;
+      if(dash){g.save();g.beginPath();g.rect(x1,y1,ww,hh);g.clip();for(var i=0;i<Math.max(ww,hh);i+=6){g.fillRect(ww>hh?x1+i:x1,ww>hh?y1:y1+i,ww>hh?3:ww,ww>hh?hh:3);}g.restore();}
+      else g.fillRect(x1,y1,ww,hh);}}
+    seite(bt,s.borderTopColor,s.borderTopStyle,x,y,r.width,bt);
+    seite(bb,s.borderBottomColor,s.borderBottomStyle,x,y+r.height-bb,r.width,bb);
+    seite(bl,s.borderLeftColor,s.borderLeftStyle,x,y,bl,r.height);
+    seite(br,s.borderRightColor,s.borderRightStyle,x+r.width-br,y,br,r.height);
+    if(s.outlineStyle!=="none"&&px(s.outlineWidth)>0&&farbe(s.outlineColor)){var o=px(s.outlineWidth),off=px(s.outlineOffset);
+      g.strokeStyle=s.outlineColor;g.lineWidth=o;g.strokeRect(x-off-o/2,y-off-o/2,r.width+2*off+o,r.height+2*off+o);}
+  }
+  function rund(x,y,w,h,rr){g.beginPath();if(g.roundRect)g.roundRect(x,y,w,h,rr);else g.rect(x,y,w,h);}
+  function pseudo(el,r,wo,letzt){
+    var s=getComputedStyle(el,wo),ct=s.content;if(!ct||ct==="none"||ct==="normal")return;
+    var txt=ct.replace(/^["']|["']$/g,"");
+    if(/^attr\(/.test(ct)){var m=ct.match(/attr\(([^)]+)\)/);txt=m?el.getAttribute(m[1])||"":"";}
+    if(!txt.trim())return;
+    g.font=schrift(s);
+    if(s.position==="absolute"){
+      var fs=px(s.fontSize),lh=px(s.lineHeight)||fs*1.5,w=Math.max(px(s.minWidth),g.measureText(txt).width+4),
+          x=r.left+ox+px(s.left),y=r.top+oy+px(s.top);
+      if(farbe(s.backgroundColor)){g.fillStyle=s.backgroundColor;rund(x,y,w,lh,lh/2);g.fill();}
+      g.fillStyle=s.color;g.textAlign="center";g.textBaseline="middle";g.fillText(txt,x+w/2,y+lh/2);g.textAlign="left";
+    }else{
+      var p=letzt||{x:r.left+r.width/2,y:r.top+r.height/2};
+      g.fillStyle=s.color;g.textBaseline="middle";g.fillText(txt,(wo==="::after"?p.x:r.left)+ox,p.y+oy);
+    }
+  }
+  function eingabe(el,r,s){
+    if(el.type==="range"){var mi=px(el.min),ma=px(el.max)||100,v=(px(el.value)-mi)/(ma-mi||1),y=r.top+oy+r.height/2,x=r.left+ox;
+      g.fillStyle="#cfd8d6";g.fillRect(x+6,y-3,r.width-12,6);g.fillStyle="#00805F";g.fillRect(x+6,y-3,(r.width-12)*v,6);
+      g.beginPath();g.arc(x+6+(r.width-12)*v,y,8,0,7);g.fill();return;}
+    if(el.type==="checkbox"||el.type==="radio"){if(el.checked){g.fillStyle="#00805F";g.font="bold 14px Arial";g.textBaseline="middle";g.fillText("✓",r.left+ox+2,r.top+oy+r.height/2);}return;}
+    var t=el.value;if(!t)return;
+    var pl=px(s.paddingLeft)+px(s.borderLeftWidth)+2,pr=px(s.paddingRight)+px(s.borderRightWidth)+2,brt=r.width-pl-pr,fs=px(s.fontSize);
+    g.font=schrift(s);var w=g.measureText(t).width;
+    if(w>brt){fs=Math.max(fs*0.6,fs*brt/w);g.font=s.fontStyle+" "+s.fontWeight+" "+fs+"px "+s.fontFamily;w=g.measureText(t).width;}
+    g.save();g.beginPath();g.rect(r.left+ox+1,r.top+oy,r.width-2,r.height);g.clip();
+    g.fillStyle=s.color;g.textBaseline="middle";
+    var x=s.textAlign==="center"?r.left+ox+r.width/2-Math.min(w,brt)/2:r.left+ox+pl;
+    g.fillText(t,x,r.top+oy+r.height/2+1);g.restore();
+  }
+  function text(n){
+    var el=n.parentElement,s=getComputedStyle(el),t=n.nodeValue,re=/\S+/g,m,rg=document.createRange(),letzt=null;
+    g.font=schrift(s);g.fillStyle=s.color;g.textBaseline="middle";g.textAlign="left";
+    var up=s.textTransform==="uppercase";
+    while((m=re.exec(t))){rg.setStart(n,m.index);rg.setEnd(n,m.index+m[0].length);
+      var rs=rg.getClientRects();if(!rs.length)continue;
+      var w=up?m[0].toUpperCase():m[0];
+      if(rs.length===1){var q=rs[0];g.fillText(w,q.left+ox,q.top+q.height/2+oy);letzt={x:q.right,y:q.top+q.height/2};}
+      else{ /* Wort über Zeilenumbruch (z. B. Bindestrich) – Zeichen einzeln */
+        for(var i=0;i<m[0].length;i++){rg.setStart(n,m.index+i);rg.setEnd(n,m.index+i+1);var z=rg.getClientRects()[0];
+          if(z){g.fillText(w[i],z.left+ox,z.top+z.height/2+oy);letzt={x:z.right,y:z.top+z.height/2};}}}
+    }
+    return letzt;
+  }
+  function knoten(el){
+    if(el.nodeType===3){return el.nodeValue.trim()?text(el):null;}
+    if(el.nodeType!==1)return null;
+    if(el.matches&&el.matches(SKIP))return null;
+    var s=getComputedStyle(el);if(s.display==="none"||s.visibility==="hidden")return null;
+    var r=el.getBoundingClientRect();
+    if(el.namespaceURI==="http://www.w3.org/2000/svg"){
+      if(el.tagName.toLowerCase()==="svg"&&r.width>0){var x=r.left+ox,y=r.top+oy,ww=r.width,hh=r.height;
+        jobs.push(svgBild(el,r).then(function(im){if(im)nachher.push(function(){g.drawImage(im,x,y,ww,hh);});}));
+        nachher.push(null);}
+      return null;}
+    if(farbe(s.backgroundColor)){g.fillStyle=s.backgroundColor;var rad=px(s.borderTopLeftRadius);
+      if(rad>0){rund(r.left+ox,r.top+oy,r.width,r.height,Math.min(rad,r.height/2));g.fill();}else g.fillRect(r.left+ox,r.top+oy,r.width,r.height);}
+    rahmen(r,s);
+    if(el.tagName==="INPUT"){eingabe(el,r,s);return null;}
+    if(el.tagName==="TEXTAREA"){eingabe(el,r,s);return null;}
+    pseudo(el,r,"::before");
+    var letzt=null;
+    for(var k=el.firstChild;k;k=k.nextSibling){var l=knoten(k);if(l)letzt=l;}
+    pseudo(el,r,"::after",letzt);
+    return letzt;
+  }
+  knoten(B);
+  if(fuss){var fs=getComputedStyle(fuss);g.font=schrift(fs);g.fillStyle=fs.color;g.textAlign="right";g.textBaseline="middle";
+    g.fillText(fuss.textContent,W-PAD,H-PAD-FH/2+6);g.textAlign="left";}
+  /* SVGs nachträglich – aber in richtiger Reihenfolge über ihren Hintergrund */
+  return Promise.all(jobs).then(function(){nachher.forEach(function(f){if(f)f();});return c;});
+}
+
+function alsBlob(c){return new Promise(function(ok,nein){c.toBlob(function(b){b?ok(b):nein(new Error("kein Bild"));},"image/png");});}
+
+/* Ersatzweg: Bild im Fenster zeigen (lange antippen / Rechtsklick → Kopieren) */
+var pop=document.createElement("div");pop.className="od-pop";pop.hidden=true;
+pop.innerHTML='<div class="od-box od-bildbox" role="dialog" aria-modal="true" aria-label="Kopie des Blattes"><h2>Bild kopieren</h2><div class="od-innen"><p>Tippe das Bild lange an (am Computer: Rechtsklick) und wähle <b>„Kopieren“</b>. Dann in OneNote einfügen.</p><img alt="Kopie des Blattes"><div class="od-leiste"><button type="button" class="knopf">Schließen</button></div></div></div>';
+document.body.appendChild(pop);
+function popZu(){pop.hidden=true;document.body.style.overflow="";}
+pop.querySelector("button").addEventListener("click",popZu);pop.addEventListener("click",function(e){if(e.target===pop)popZu();});
+function zeigeBild(c){pop.querySelector("img").src=c.toDataURL("image/png");pop.hidden=false;document.body.style.overflow="hidden";}
+
+var tm=null;
+function meld(t,ok){kb.innerHTML=t;kb.classList.toggle("od-ok",!!ok);clearTimeout(tm);tm=setTimeout(function(){kb.innerHTML=KTXT;kb.classList.remove("od-ok");},2600);}
+kb.addEventListener("click",function(){
+  var B=document.querySelector(".blatt:not([hidden])");if(!B)return;
+  if(document.activeElement&&document.activeElement!==kb)document.activeElement.blur();
+  var bild=malen(B);
+  var fehler=function(){bild.then(zeigeBild);};
+  try{
+    if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
+      /* Safari braucht das Versprechen direkt im Klick */
+      navigator.clipboard.write([new ClipboardItem({"image/png":bild.then(alsBlob)})])
+        .then(function(){meld("✓ Kopiert – jetzt in OneNote einfügen",true);}).catch(fehler);
+    }else fehler();
+  }catch(e){fehler();}
+});
+})();
+</script>
+<script>
+(function(){
+/* ═══ Merkfunktion: Stand jeder Übung auf diesem Gerät speichern ═══ */
+var KEY="mathebase-uebung:"+location.pathname.replace(/index\.html$/,""),laden=false,tm=null;
+function lies(){try{return JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){return null;}}
+function schreib(d){try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){}}
+function arr(B,s){return [].slice.call(B.querySelectorAll(s));}
+function felder(B){return arr(B,"input").filter(function(i){return !i.readOnly&&!i.classList.contains("echo")&&i.type!=="hidden";});}
+function zyklus(B){return arr(B,"button[data-z]").filter(function(b){return !b.closest(".wahl,.auswahl");});}
+function sig(B){return B.querySelectorAll("input,button,[data-aufgabe]").length;}
+
+function stand(B){
+  return {sig:sig(B),
+    e:felder(B).map(function(i){return i.type==="checkbox"||i.type==="radio"?(i.checked?1:0):i.value;}),
+    w:arr(B,".wahl,.auswahl").map(function(g){var a=g.querySelector("button.an");return a?arr(g,"button").indexOf(a):-1;}),
+    c:zyklus(B).map(function(b){return b.dataset.z;}),
+    m:arr(B,".mk").map(function(m){return m.dataset.r||"";}),
+    g:arr(B,".g100.malen").map(function(g){var r=[];arr(g,"i").forEach(function(c,k){if(c.classList.contains("an"))r.push(k);});return r;}),
+    z:arr(B,".zuo").map(function(Z){return arr(Z,'[data-s="l"]').map(function(l){return l.dataset.mit||"";});}),
+    s:arr(B,".sort").map(function(S){return (S._reihe||[]).map(function(b){return b.dataset.i;});}),
+    p:arr(B,"[data-aufgabe]").map(function(k){var e=k.querySelector(".ergebnis");return e&&e.textContent.trim()?1:0;})};
+}
+function sichern(){
+  if(laden)return;
+  var d={v:1,aktiv:(document.querySelector(".blatt:not([hidden])")||{}).id||"",b:{}};
+  arr(document,".blatt").forEach(function(B){d.b[B.id]=stand(B);});
+  schreib(d);
+}
+function klickBis(el,attr,ziel){for(var n=0;n<6&&(el.dataset[attr]||"")!==ziel;n++)el.click();}
+function zurueck(B,s){
+  if(!s||s.sig!==sig(B))return;
+  felder(B).forEach(function(i,k){var v=s.e[k];if(v==null)return;
+    if(i.type==="checkbox"||i.type==="radio"){if(!!v!==i.checked)i.click();return;}
+    if(v===""&&i.value==="")return;
+    i.value=v;i.dispatchEvent(new Event("input",{bubbles:true}));i.dispatchEvent(new Event("change",{bubbles:true}));});
+  arr(B,".wahl,.auswahl").forEach(function(g,k){var x=s.w[k];if(x>=0){var b=arr(g,"button")[x];if(b)b.click();}});
+  zyklus(B).forEach(function(b,k){if(s.c[k])klickBis(b,"z",s.c[k]);});
+  arr(B,".mk").forEach(function(m,k){if(s.m[k])klickBis(m,"r",s.m[k]);});
+  arr(B,".g100.malen").forEach(function(g,k){var an=s.g[k]||[];if(!an.length)return;
+    arr(g,"i").forEach(function(c,j){c.classList.toggle("an",an.indexOf(j)>=0);});
+    var z=g.closest(".innen")&&g.closest(".innen").querySelector(".zaehler b");if(z)z.textContent=an.length;});
+  arr(B,".zuo").forEach(function(Z,k){(s.z[k]||[]).forEach(function(mit,j){if(!mit)return;
+    var l=arr(Z,'[data-s="l"]')[j],r=Z.querySelector('[data-s="r"][data-i="'+mit+'"]');if(l&&r){l.click();r.click();}});});
+  arr(B,".sort").forEach(function(S,k){(s.s[k]||[]).forEach(function(i){var b=S.querySelector('button[data-i="'+i+'"]');if(b)b.click();});});
+  arr(B,"[data-aufgabe]").forEach(function(k,j){if(s.p[j]){var p=k.querySelector(".pruefen");if(p)p.click();}});
+}
+/* Beim Öffnen wiederherstellen */
+var d=lies();
+if(d&&d.b){
+  laden=true;
+  try{arr(document,".blatt").forEach(function(B){try{zurueck(B,d.b[B.id]);}catch(e){}});}catch(e){}
+  if(!location.hash&&d.aktiv&&document.getElementById(d.aktiv))location.hash=d.aktiv;
+  setTimeout(function(){laden=false;var B=document.querySelector(".blatt:not([hidden])");
+    var st=document.getElementById("stand");if(B&&st){var a=B.querySelectorAll("[data-aufgabe]").length,f=B.querySelectorAll("[data-aufgabe].fertig").length;
+      st.textContent=f+" von "+a+" Aufgaben geschafft"+(f===a?" – klasse!":"");}},0);
+}
+/* Bei jeder Änderung speichern */
+function bald(){clearTimeout(tm);tm=setTimeout(sichern,400);}
+["input","change","click","pointerup"].forEach(function(t){document.addEventListener(t,bald,true);});
+window.addEventListener("hashchange",bald);
+window.addEventListener("pagehide",sichern);
+document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")sichern();});
+})();
+</script>
+</body>
 </html>
