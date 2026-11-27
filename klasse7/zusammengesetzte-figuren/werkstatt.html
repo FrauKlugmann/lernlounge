@@ -79,12 +79,11 @@
   .gruppenwahl button{font-size:18px;padding:9px 20px;border-radius:8px;border:2px solid var(--gruen);background:#fff;color:var(--gruen);font-weight:bold;cursor:pointer;margin:3px}
   .gruppenwahl button.aktiv{background:var(--gruen);color:#fff}
 </style>
+<style>header{display:flex;align-items:center;gap:16px;flex-wrap:wrap}header .ll-zurueck{font:700 15px/1.2 Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border-radius:999px;text-decoration:none;background:#fff;color:#1b1f20;border:2px solid #fff;white-space:nowrap}header .ll-zurueck:hover{background:#eef8f7}header .ll-zurueck:focus-visible{outline:3px solid #1b1f20;outline-offset:2px}</style>
 </head>
 <body>
-<header>
-  <h1>Werkstatt: Zusammengesetzte Figuren</h1>
-  <p>Zerlegen · Ergänzen · Umfang · Klasse 7</p>
-</header>
+<header><a class="ll-zurueck" id="ll-zurueck" href="../">← Lern-Lounge</a><div><h1>Werkstatt: Zusammengesetzte Figuren</h1>
+  <p>Zerlegen · Ergänzen · Umfang · Klasse 7</p></div></header>
 <nav>
   <button class="aktiv" data-tab="erkunden">🔍 Erkunden</button>
   <button data-tab="ueben">✏️ Üben</button>
@@ -760,6 +759,13 @@ function pruefeK(){const F=papierF(K.g,K.n),f=document.getElementById('kA'),v=za
   fuchsK.innerHTML=t||'Noch nicht. Prüfe deine Messung (Geodreieck bei der 0 anlegen!) und rechne die Teilflächen noch einmal nach.';}
 function fertigK(txt){K.fertig[K.g].add(K.n);baueNummern();const alle=K.fertig[K.g].size===DATEN[K.g].length;
   fuchsK.innerHTML=(txt?txt+'<br>':'')+(alle?'Alle 6 Figuren geschafft! 🎉 Ich mach einen Freudensprung!':'Nummer '+(K.n+1)+' ist fertig! ✓ Tipp die nächste Nummer an.');}
+</script>
+<script>
+(function(){
+  function still(){try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}}
+  document.getElementById('ll-zurueck').addEventListener('click',still);
+  window.addEventListener('pagehide',still);
+})();
 </script>
 </body>
 </html>
